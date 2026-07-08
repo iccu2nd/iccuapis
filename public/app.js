@@ -85,11 +85,12 @@
   }
 
   async function loadData() {
-    const [manifestRes, routesRes, viewsRes, statsRes] = await Promise.all([
+    const [manifestRes, routesRes, viewsRes, statsRes, myIpRes] = await Promise.all([
       fetchJsonWithRetry('/manifest.json'),
       fetchJsonWithRetry('/api/routes'),
       fetchJsonWithRetry('/api/views').catch(() => null), // non-critical, don't block boot on it
-      fetchJsonWithRetry('/api/stats').catch(() => null)  // non-critical, don't block boot on it
+      fetchJsonWithRetry('/api/stats').catch(() => null), // non-critical, don't block boot on it
+      fetchJsonWithRetry('/api/myip').catch(() => null)   // non-critical, don't block boot on it
     ]);
 
     manifest = manifestRes.result;
@@ -119,6 +120,13 @@
     }
     el('totalRequestCount').classList.remove('is-loading');
     el('todayRequestCount').classList.remove('is-loading');
+
+    if (myIpRes && myIpRes.result && myIpRes.result.ip) {
+      el('myIpValue').textContent = myIpRes.result.ip;
+    } else {
+      el('myIpValue').textContent = '—';
+    }
+    el('myIpValue').classList.remove('is-loading');
 
     renderLog();
   }
@@ -524,20 +532,11 @@
 
   const hamburgerBtn = el('hamburgerBtn');
   const hamburgerMenu = el('hamburgerMenu');
-  const menuBaseUrl = el('menuBaseUrl');
 
   hamburgerBtn.addEventListener('click', () => {
     const isOpen = hamburgerBtn.classList.toggle('is-open');
     hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
     hamburgerMenu.hidden = !isOpen;
-  });
-
-  menuBaseUrl.addEventListener('click', (e) => {
-    e.preventDefault();
-    copyText(window.location.origin);
-    hamburgerBtn.classList.remove('is-open');
-    hamburgerBtn.setAttribute('aria-expanded', 'false');
-    hamburgerMenu.hidden = true;
   });
 
   document.addEventListener('click', (e) => {

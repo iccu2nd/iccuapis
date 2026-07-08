@@ -50,21 +50,28 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font-family: inherit; cursor: pointer; }
 
-.mark-dot {
-  width: 9px;
-  height: 9px;
+.live-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--good);
-  box-shadow: 0 0 0 4px var(--good-soft);
   flex-shrink: 0;
-}
-.mark-dot.is-live {
   animation: pulse 1.6s ease-in-out infinite;
 }
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
 }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.back-link:hover { color: var(--accent); text-decoration: none; }
 
 .topbar {
   position: sticky;
@@ -76,8 +83,10 @@ button { font-family: inherit; cursor: pointer; }
   padding: 14px 22px;
   background: rgba(255, 255, 255, 0.86);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
+.topbar-mark { font-family: var(--display); font-weight: 800; color: var(--text); }
 .topbar-mark {
   display: flex;
   align-items: center;
@@ -260,9 +269,12 @@ tbody tr.is-new {
 
 <header class="topbar">
   <div class="topbar-mark">
-    <span class="mark-dot" aria-hidden="true"></span>
     <span>ICCU APIS</span>
   </div>
+  <a href="/" class="back-link">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Kembali
+  </a>
 </header>
 
 <main class="stage">
@@ -273,7 +285,7 @@ tbody tr.is-new {
 
   <div class="status-row">
     <div class="status-left">
-      <span class="mark-dot is-live" aria-hidden="true"></span>
+      <span class="live-dot" aria-hidden="true"></span>
       <span>Live &middot; <span class="status-count" id="logCount">0</span> request hari ini</span>
     </div>
     <span class="reset-note" id="resetNote">Reset otomatis tiap pergantian hari (WIB)</span>

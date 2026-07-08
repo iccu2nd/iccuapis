@@ -60,15 +60,6 @@ button {
   min-height: 100vh;
 }
 
-.mark-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--good);
-  box-shadow: 0 0 0 4px var(--good-soft);
-  flex-shrink: 0;
-}
-
 .topbar {
   position: sticky;
   top: 0;
@@ -148,37 +139,53 @@ button {
 .hamburger-menu-item:hover { background: var(--panel); }
 
 .stats-row {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   margin-bottom: 22px;
 }
 .stat-card {
-  border: 2px solid var(--border);
+  position: relative;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 22px;
-  background: #fff;
+  padding: 16px 16px 14px;
+  background: var(--panel);
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+.stat-icon {
+  color: var(--accent);
+  margin-bottom: 2px;
+}
 .stat-label {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--text-faint);
 }
 .stat-value {
   font-family: var(--stat);
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text);
   transition: opacity 0.3s ease;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-value-ip {
+  font-size: 17px;
 }
 .stat-value.is-loading { opacity: 0; }
+
+@media (max-width: 640px) {
+  .stats-row { grid-template-columns: 1fr; }
+  .stat-value-ip { font-size: 20px; }
+}
 
 .views-row {
   display: flex;
@@ -835,7 +842,6 @@ button {
 
   <header class="topbar" id="topbar">
     <div class="topbar-mark">
-      <span class="mark-dot" aria-hidden="true"></span>
       <span class="topbar-mark-text">ICCU APIS</span>
     </div>
     <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
@@ -846,9 +852,7 @@ button {
   </header>
 
   <div class="hamburger-menu" id="hamburgerMenu" hidden>
-    <a href="#" class="hamburger-menu-item" id="menuBaseUrl">Salin Base URL</a>
     <a href="/logs" class="hamburger-menu-item">Request Log</a>
-    <a href="/manifest.json" class="hamburger-menu-item" target="_blank" rel="noopener">Lihat manifest.json</a>
   </div>
 
   <main class="stage">
@@ -856,12 +860,19 @@ button {
     <header class="stage-head">
       <div class="stats-row">
         <div class="stat-card">
+          <svg class="stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 15l4-5 3 3 5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span class="stat-label">Total Request</span>
           <span class="stat-value is-loading" id="totalRequestCount">0</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Total Request Hari Ini</span>
+          <svg class="stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="stat-label">Request Hari Ini</span>
           <span class="stat-value is-loading" id="todayRequestCount">0</span>
+        </div>
+        <div class="stat-card">
+          <svg class="stat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 9h20" stroke="currentColor" stroke-width="2"/></svg>
+          <span class="stat-label">IP Kamu</span>
+          <span class="stat-value stat-value-ip is-loading" id="myIpValue">0.0.0.0</span>
         </div>
       </div>
       <h1>Semua endpoint, tinggal pilih.</h1>

@@ -143,6 +143,10 @@ app.get('/api/views', (req, res) => {
   res.json({ result: { totalViews: monitor.uniqueVisitorCount() } });
 });
 
+app.get('/api/myip', (req, res) => {
+  res.json({ result: { ip: req.ip } });
+});
+
 app.use('/', express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.get('/', (req, res) => {
