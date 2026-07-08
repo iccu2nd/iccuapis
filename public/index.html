@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ICCU APIS</title>
+<link rel="icon" href="data:," />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF;
+  --panel: #F7F8FA;
+  --panel-raised: #F0F2F5;
+  --border: #E2E5EA;
+  --border-strong: #CBD1DA;
+  --text: #14161A;
+  --text-dim: #565C68;
+  --text-faint: #8A8F99;
+  --accent: #2E5CFF;
+  --accent-hover: #1E46E0;
+  --accent-soft: #EAEFFF;
+  --good: #17A860;
+  --good-soft: #E7F8EF;
+  --bad: #E0392B;
+  --bad-soft: #FDECEA;
+  --display: 'Space Grotesk', sans-serif;
+  --stat: 'JetBrains Mono', ui-monospace, monospace;
+  --body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 10px;
+  --radius-sm: 7px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--accent-soft); color: var(--accent-hover); }
+
+a { color: var(--accent); }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.frame {
+  display: block;
+  min-height: 100vh;
+}
+
+.mark-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 4px var(--good-soft);
+  flex-shrink: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-mark {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.topbar-mark-text {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.hamburger-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.hamburger-btn:hover { border-color: var(--accent); }
+.hamburger-btn span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.hamburger-btn.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger-btn.is-open span:nth-child(2) { opacity: 0; }
+.hamburger-btn.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.hamburger-menu {
+  position: sticky;
+  top: 67px;
+  z-index: 39;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+}
+.hamburger-menu[hidden] { display: none; }
+.hamburger-menu-item {
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.12s ease;
+}
+.hamburger-menu-item:hover { background: var(--panel); }
+
+.stats-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.stat-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+.stat-value {
+  font-family: var(--stat);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  transition: opacity 0.3s ease;
+  font-variant-numeric: tabular-nums;
+}
+.stat-value.is-loading { opacity: 0; }
+
+.views-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}
+.stage-foot-views {
+  font-size: 13.5px;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+.stage-foot-views #viewCount {
+  color: var(--text);
+  font-family: var(--stat);
+  font-weight: 700;
+  transition: opacity 0.3s ease;
+}
+.stage-foot-views #viewCount.is-loading { opacity: 0; }
+
+.stage {
+  padding: 48px 56px 80px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.stage-head h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 36px;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+
+.stage-head p {
+  color: var(--text-dim);
+  margin: 0 0 26px;
+  max-width: 58ch;
+  font-size: 15.5px;
+}
+
+.search-cluster {
+  margin-bottom: 20px;
+}
+
+.search-row {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  pointer-events: none;
+}
+
+.search-row input {
+  width: 100%;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 15px;
+  padding: 13px 46px 13px 44px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.search-row input::placeholder { color: var(--text-faint); }
+.search-row input:focus { border-color: var(--accent); }
+
+.search-row .kbd {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 5px;
+  padding: 3px 7px;
+  pointer-events: none;
+  font-weight: 600;
+}
+
+.content-stack {
+  position: relative;
+}
+
+.content-stack.is-booting {
+  min-height: 240px;
+}
+
+.content-stack:has(.skeleton-list:not([hidden])) {
+  min-height: 240px;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  inset: 0 0 auto 0;
+  width: 100%;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.skeleton-title {
+  height: 15px;
+  width: 70px;
+  border-radius: 4px;
+  background: var(--border);
+  opacity: 0.6;
+  margin: 20px 0 10px;
+}
+.skeleton-title:first-child { margin-top: 0; }
+
+.skeleton-row {
+  height: 62px;
+  border-radius: var(--radius);
+  background: #fff;
+  border: 2px solid var(--border);
+  opacity: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-row::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes rowRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.skeleton-list[hidden] { display: none; }
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  position: relative;
+}
+
+.log .row {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: rowRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-play-state: paused;
+}
+.log.is-visible .row {
+  animation-play-state: running;
+}
+.log.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.log-group-title {
+  font-family: var(--display);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 20px 0 10px;
+}
+.log-group-title:first-child { margin-top: 0; }
+
+.empty-state {
+  color: var(--text-faint);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.boot-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 28px 0;
+}
+
+.retry-btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.retry-btn:hover:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent); }
+.retry-btn:disabled { opacity: 0.6; cursor: default; }
+
+.row {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.12s ease;
+}
+
+.row.open { border-color: var(--border-strong); }
+
+.row-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: none;
+  border: none;
+  color: var(--text);
+  text-align: left;
+}
+
+.row-head:hover { background: var(--panel); }
+
+.row-head .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--good);
+  flex-shrink: 0;
+}
+
+.row-head .verb {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--good);
+  background: var(--good-soft);
+  padding: 3px 8px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.row-head .path {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 14.5px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.row-head .name {
+  color: var(--text-faint);
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.row-head .chev {
+  color: var(--text-faint);
+  flex-shrink: 0;
+  display: flex;
+  transition: transform 0.15s ease;
+  margin-left: auto;
+}
+
+.row.open .chev { transform: rotate(180deg); color: var(--accent); }
+
+.row-body {
+  display: none;
+  padding: 6px 18px 20px 37px;
+  border-top: 1px solid var(--border);
+}
+
+.row.open .row-body { display: block; }
+
+.desc {
+  color: var(--text-dim);
+  font-size: 14.5px;
+  margin: 14px 0 12px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0 16px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+
+.field input, .field select {
+  width: 100%;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.field select { cursor: pointer; }
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field input.invalid, .field select.invalid { border-color: var(--bad); background: var(--bad-soft); }
+
+.field input.autofilled, .field select.autofilled {
+  animation: autofillFlash 1.1s ease-out;
+}
+@keyframes autofillFlash {
+  0% { border-color: var(--good); box-shadow: 0 0 0 3px var(--good-soft); }
+  70% { border-color: var(--good); box-shadow: 0 0 0 3px var(--good-soft); }
+  100% { border-color: var(--border); box-shadow: 0 0 0 0 transparent; }
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.row-actions::after {
+  content: '';
+  order: 2;
+  flex: 1 1 auto;
+}
+
+.autofill-btn,
+.run-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.run-btn {
+  order: 3;
+  background: #17181C;
+  color: #fff;
+  border: none;
+  transition: background 0.12s ease, transform 0.08s ease;
+}
+.run-btn:hover { background: #000; }
+.run-btn:active { transform: scale(0.98); }
+.run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.autofill-btn {
+  order: 1;
+  background: #fff;
+  color: var(--text-dim);
+  border: 2px solid var(--border);
+  padding: 7px 14px; /* 2px border compensates so visual height matches .run-btn */
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.autofill-btn:hover { border-color: var(--accent); color: var(--accent); }
+.autofill-btn:active { transform: scale(0.98); }
+.autofill-btn[style*="display: none"] { display: none !important; }
+
+.clear-btn {
+  order: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  background: #fff;
+  color: var(--text-dim);
+  border: 2px solid var(--border);
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.clear-btn:hover { border-color: var(--bad); color: var(--bad); }
+.clear-btn:active { transform: scale(0.98); }
+.clear-btn[hidden] { display: none !important; }
+
+.endpoint-box {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  padding: 10px 12px;
+}
+
+.endpoint-box[hidden] { display: none; }
+
+.endpoint-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.endpoint-box .built-url {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.copy-endpoint-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-faint);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.copy-endpoint-btn:hover { background: var(--border); color: var(--text); }
+.copy-endpoint-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
+
+.result {
+  margin-top: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.result-loading {
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.result-loading[hidden],
+.result-head[hidden],
+.result-json[hidden],
+.result-image[hidden],
+.result-audio[hidden],
+.result-video[hidden] {
+  display: none;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  flex-wrap: wrap;
+}
+
+.result-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.result-status {
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--good-soft);
+  color: var(--good);
+}
+.result-status.err { background: var(--bad-soft); color: var(--bad); }
+
+.result-time, .result-size { color: var(--text-dim); }
+
+.copy-result-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.copy-result-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.copy-result-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
+
+.result-json {
+  margin: 0;
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.result-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.result-audio {
+  display: block;
+  width: 100%;
+}
+
+.result-video {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.stage-foot {
+  margin-top: 48px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+  font-size: 13.5px;
+  color: var(--text-faint);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.stage-foot-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stage-foot code {
+  font-family: var(--mono);
+  color: var(--text);
+  background: var(--panel);
+  padding: 4px 9px;
+  border-radius: 5px;
+  flex: 1;
+}
+
+.copy-base-btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.copy-base-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.copy-base-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
+
+@media (max-width: 860px) {
+  .stage { padding: 32px 18px 60px; }
+  .stage-head h1 { font-size: 28px; }
+  .row-head .name { display: none; }
+  .row-body { padding-left: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <span id="tagline" style="display:none;"></span>
+  <span id="routeCount" style="display:none;">0</span>
+  <span id="routeCountLabel" style="display:none;"></span>
+
+  <header class="topbar" id="topbar">
+    <div class="topbar-mark">
+      <span class="mark-dot" aria-hidden="true"></span>
+      <span class="topbar-mark-text">ICCU APIS</span>
+    </div>
+    <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <div class="hamburger-menu" id="hamburgerMenu" hidden>
+    <a href="#" class="hamburger-menu-item" id="menuBaseUrl">Salin Base URL</a>
+    <a href="/logs" class="hamburger-menu-item">Request Log</a>
+    <a href="/manifest.json" class="hamburger-menu-item" target="_blank" rel="noopener">Lihat manifest.json</a>
+  </div>
+
+  <main class="stage">
+
+    <header class="stage-head">
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">Total Request</span>
+          <span class="stat-value is-loading" id="totalRequestCount">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Request Hari Ini</span>
+          <span class="stat-value is-loading" id="todayRequestCount">0</span>
+        </div>
+      </div>
+      <h1>Semua endpoint, tinggal pilih.</h1>
+      <p>Klik salah satu endpoint, isi kolom yang diminta, lalu jalankan. Hasilnya langsung tampil, lengkap dengan waktu respons.</p>
+      <div class="search-cluster">
+        <div class="search-row">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="filterInput" type="text" placeholder="Cari nama atau path endpoint..." autocomplete="off" />
+          <span class="kbd">/</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-stack" id="contentStack">
+      <div class="skeleton-list" id="bootLoader">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-row"></div>
+      </div>
+      <div class="log" id="log" role="list" hidden></div>
+    </div>
+
+    <footer class="stage-foot">
+      <div class="stage-foot-row">
+        <span>Base URL</span>
+        <code id="baseUrl"></code>
+        <button class="copy-base-btn" id="copyBaseBtn" type="button">Salin</button>
+      </div>
+      <div class="views-row">
+        <span class="stage-foot-views" id="viewStat">Views: <span id="viewCount" class="is-loading">0</span></span>
+      </div>
+    </footer>
+
+  </main>
+
+
+</div>
+
+<template id="routeRowTemplate">
+  <article class="row" role="listitem">
+    <button class="row-head" type="button">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="verb"></span>
+      <span class="path"></span>
+      <span class="name"></span>
+      <span class="chev" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </button>
+    <div class="row-body">
+      <p class="desc"></p>
+
+      <div class="divider"></div>
+
+      <div class="fields"></div>
+
+      <div class="row-actions">
+        <button class="autofill-btn" type="button" title="Isi contoh data biar bisa langsung dicoba">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Example
+        </button>
+        <button class="run-btn" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Try It
+        </button>
+        <button class="clear-btn" type="button" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+          Clear
+        </button>
+      </div>
+
+      <div class="endpoint-box" hidden>
+        <div class="endpoint-line">
+          <code class="built-url"></code>
+          <button class="copy-endpoint-btn" type="button" title="Salin link endpoint" aria-label="Salin link endpoint">
+            <svg class="icon-copy" width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="result" hidden>
+        <div class="result-loading" hidden>
+          <span class="spinner"></span> menunggu respons dari server...
+        </div>
+        <div class="result-head" hidden>
+          <div class="result-meta">
+            <span class="result-status"></span>
+            <span class="result-time"></span>
+            <span class="result-size"></span>
+          </div>
+          <button class="copy-result-btn" type="button">
+            <svg class="icon-copy-result" width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="copy-label">Salin</span>
+          </button>
+        </div>
+        <pre class="result-json" hidden></pre>
+        <img class="result-image" hidden alt="" />
+        <audio class="result-audio" hidden controls></audio>
+        <video class="result-video" hidden controls></video>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script src="/app.js"></script>
+</body>
+</html>

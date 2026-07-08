@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Request Log — ICCU APIS</title>
+<link rel="icon" href="data:," />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFFFFF;
+  --panel: #F7F8FA;
+  --panel-raised: #F0F2F5;
+  --border: #E2E5EA;
+  --border-strong: #CBD1DA;
+  --text: #14161A;
+  --text-dim: #565C68;
+  --text-faint: #8A8F99;
+  --accent: #2E5CFF;
+  --accent-hover: #1E46E0;
+  --accent-soft: #EAEFFF;
+  --good: #17A860;
+  --good-soft: #E7F8EF;
+  --bad: #E0392B;
+  --bad-soft: #FDECEA;
+  --display: 'Space Grotesk', sans-serif;
+  --stat: 'JetBrains Mono', ui-monospace, monospace;
+  --body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 10px;
+  --radius-sm: 7px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; }
+
+.mark-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 4px var(--good-soft);
+  flex-shrink: 0;
+}
+.mark-dot.is-live {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-mark {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15px;
+}
+.stage {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 22px 64px;
+}
+
+.page-head {
+  margin-bottom: 20px;
+}
+.page-head h1 {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.page-head p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14.5px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.status-count {
+  font-family: var(--stat);
+  font-weight: 700;
+  color: var(--text);
+}
+.reset-note {
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+thead th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  background: var(--panel);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr.is-new {
+  animation: highlight 1.4s ease-out;
+}
+@keyframes highlight {
+  0% { background: var(--accent-soft); }
+  100% { background: transparent; }
+}
+
+.cell-ip { font-family: var(--mono); color: var(--text-dim); }
+.cell-endpoint { font-family: var(--mono); color: var(--text); }
+.cell-time { font-family: var(--mono); color: var(--text-faint); font-size: 12.5px; }
+.cell-latency { font-family: var(--stat); font-weight: 600; }
+.cell-latency.slow { color: var(--bad); }
+
+.col-no {
+  width: 48px;
+}
+.cell-no {
+  font-family: var(--stat);
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.pager-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: #fff;
+  color: var(--text-dim);
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.pager-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pager-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.pager-btn svg { display: block; }
+.pager-info {
+  font-size: 13px;
+  color: var(--text-faint);
+  font-weight: 500;
+  min-width: 84px;
+  text-align: center;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--stat);
+  font-size: 12px;
+  font-weight: 700;
+}
+.status-pill.ok { background: var(--good-soft); color: var(--good); }
+.status-pill.err { background: var(--bad-soft); color: var(--bad); }
+
+.method-tag {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--panel-raised);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.empty-state {
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .table-wrap { overflow-x: auto; }
+  table { min-width: 720px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-mark">
+    <span class="mark-dot" aria-hidden="true"></span>
+    <span>ICCU APIS</span>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="page-head">
+    <h1>Request Log</h1>
+    <p>Menampilkan request yang masuk hari ini secara langsung. Log akan kosong lagi setiap pergantian hari.</p>
+  </div>
+
+  <div class="status-row">
+    <div class="status-left">
+      <span class="mark-dot is-live" aria-hidden="true"></span>
+      <span>Live &middot; <span class="status-count" id="logCount">0</span> request hari ini</span>
+    </div>
+    <span class="reset-note" id="resetNote">Reset otomatis tiap pergantian hari (WIB)</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-no">No.</th>
+          <th>Waktu</th>
+          <th>IP Address</th>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>Status</th>
+          <th>Latency</th>
+        </tr>
+      </thead>
+      <tbody id="logBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" hidden>Belum ada request hari ini.</div>
+  </div>
+
+  <div class="pager" id="pager" hidden>
+    <button class="pager-btn" id="prevBtn" type="button" aria-label="Halaman sebelumnya">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="pager-info" id="pagerInfo">Halaman 1</span>
+    <button class="pager-btn" id="nextBtn" type="button" aria-label="Halaman selanjutnya">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</main>
+
+<script>
+(function () {
+  const logBody = document.getElementById('logBody');
+  const logCount = document.getElementById('logCount');
+  const emptyState = document.getElementById('emptyState');
+  const pager = document.getElementById('pager');
+  const pagerInfo = document.getElementById('pagerInfo');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const PAGE_SIZE = 10;
+  const POLL_MS = 3000;
+
+  let knownKeys = new Set();
+  let currentPage = 1;      // 1 = newest
+  let lastEntries = [];     // most recent full dataset, newest-first
+
+  function fmtTime(iso) {
+    const d = new Date(iso);
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Jakarta',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).formatToParts(d);
+    const get = (t) => parts.find((p) => p.type === t)?.value || '00';
+    return `${get('hour')}:${get('minute')}:${get('second')}`;
+  }
+
+  function rowKey(entry) {
+    return `${entry.at}|${entry.ip}|${entry.path}|${entry.ms}`;
+  }
+
+  function totalPages() {
+    return Math.max(1, Math.ceil(lastEntries.length / PAGE_SIZE));
+  }
+
+  function renderPage() {
+    const total = lastEntries.length;
+    logCount.textContent = total.toLocaleString('id-ID');
+    emptyState.hidden = total > 0;
+    pager.hidden = total <= PAGE_SIZE;
+
+    const pages = totalPages();
+    if (currentPage > pages) currentPage = pages;
+    if (currentPage < 1) currentPage = 1;
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageEntries = lastEntries.slice(start, start + PAGE_SIZE);
+
+    const frag = document.createDocumentFragment();
+    const nextKeys = new Set();
+
+    pageEntries.forEach((entry, i) => {
+      const key = rowKey(entry);
+      nextKeys.add(key);
+
+      // Chronological number: entry at array index `idx` (newest-first)
+      // corresponds to request number (total - idx) in arrival order.
+      const idx = start + i;
+      const chronoNumber = total - idx;
+
+      const tr = document.createElement('tr');
+      if (currentPage === 1 && !knownKeys.has(key) && knownKeys.size > 0) {
+        tr.className = 'is-new';
+      }
+
+      const statusClass = entry.status >= 200 && entry.status < 400 ? 'ok' : 'err';
+      const latencyClass = entry.ms >= 2000 ? 'cell-latency slow' : 'cell-latency';
+
+      tr.innerHTML = `
+        <td class="cell-no">${chronoNumber}</td>
+        <td class="cell-time">${fmtTime(entry.at)}</td>
+        <td class="cell-ip">${entry.ip}</td>
+        <td><span class="method-tag">${entry.method}</span></td>
+        <td class="cell-endpoint">${entry.path}</td>
+        <td><span class="status-pill ${statusClass}">${entry.status}</span></td>
+        <td class="${latencyClass}">${entry.ms}ms</td>
+      `;
+      frag.appendChild(tr);
+    });
+
+    logBody.innerHTML = '';
+    logBody.appendChild(frag);
+    if (currentPage === 1) knownKeys = nextKeys;
+
+    pagerInfo.textContent = `Halaman ${currentPage} / ${pages}`;
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= pages;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    currentPage -= 1;
+    renderPage();
+  });
+  nextBtn.addEventListener('click', () => {
+    currentPage += 1;
+    renderPage();
+  });
+
+  async function poll() {
+    try {
+      const res = await fetch('/api/logs');
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.result)) {
+        lastEntries = data.result;
+        renderPage();
+      }
+    } catch (err) {
+      // silent — next poll will retry
+    }
+  }
+
+  poll();
+  setInterval(poll, POLL_MS);
+})();
+</script>
+
+</body>
+</html>
