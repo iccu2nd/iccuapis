@@ -84,24 +84,12 @@
     throw lastErr;
   }
 
-  async function loadData() {
-    const [manifestRes, routesRes, viewsRes, statsRes, myIpRes] = await Promise.all([
-      fetchJsonWithRetry('/manifest.json'),
-      fetchJsonWithRetry('/api/routes'),
-      fetchJsonWithRetry('/api/views').catch(() => null), // non-critical, don't block boot on it
-      fetchJsonWithRetry('/api/stats').catch(() => null), // non-critical, don't block boot on it
-      fetchJsonWithRetry('/api/myip').catch(() => null)   // non-critical, don't block boot on it
+  async function loadStats() {
+    const [viewsRes, statsRes, myIpRes] = await Promise.all([
+      fetchJsonWithRetry('/api/views').catch(() => null),
+      fetchJsonWithRetry('/api/stats').catch(() => null),
+      fetchJsonWithRetry('/api/myip').catch(() => null)
     ]);
-
-    manifest = manifestRes.result;
-    routes = routesRes.result;
-
-    el('tagline').textContent = manifest.identity.tagline;
-    el('routeCount').textContent = routes.length;
-    el('routeCount').classList.remove('is-loading');
-    el('routeCountLabel').classList.remove('is-loading');
-    el('baseUrl').textContent = window.location.origin;
-    document.title = manifest.identity.name;
 
     if (viewsRes && viewsRes.result) {
       el('viewCount').textContent = viewsRes.result.totalViews.toLocaleString('id-ID');
@@ -127,6 +115,23 @@
       el('myIpValue').textContent = '—';
     }
     el('myIpValue').classList.remove('is-loading');
+  }
+
+  async function loadData() {
+    const [manifestRes, routesRes] = await Promise.all([
+      fetchJsonWithRetry('/manifest.json'),
+      fetchJsonWithRetry('/api/routes')
+    ]);
+
+    manifest = manifestRes.result;
+    routes = routesRes.result;
+
+    el('tagline').textContent = manifest.identity.tagline;
+    el('routeCount').textContent = routes.length;
+    el('routeCount').classList.remove('is-loading');
+    el('routeCountLabel').classList.remove('is-loading');
+    el('baseUrl').textContent = window.location.origin;
+    document.title = manifest.identity.name;
 
     renderLog();
   }
@@ -556,5 +561,6 @@
     }
   });
 
+  loadStats();
   boot();
 })();
