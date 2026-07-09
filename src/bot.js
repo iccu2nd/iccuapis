@@ -58,8 +58,9 @@ function startBot(config) {
       botInstance.sendMessage(
         msg.chat.id,
         isSubnet
-          ? `✅ Subnet ${value} sudah diblokir. Semua IP di rentang ini akan ditolak.`
-          : `✅ IP ${value} sudah diblokir.`
+          ? `✅ Subnet \`${value}\` sudah diblokir. Semua IP di rentang ini akan ditolak.`
+          : `✅ IP \`${value}\` sudah diblokir.`,
+        { parse_mode: 'Markdown' }
       );
     } catch (err) {
       botInstance.sendMessage(msg.chat.id, `❌ Gagal blokir: ${err.message}`);
@@ -70,7 +71,11 @@ function startBot(config) {
     if (!isOwner(msg)) return deny(msg.chat.id);
     const value = match[1].trim();
     const removed = await monitor.unblockIp(value);
-    botInstance.sendMessage(msg.chat.id, removed ? `✅ ${value} sudah dibuka blokirnya.` : `❌ ${value} tidak ada di daftar blokir.`);
+    botInstance.sendMessage(
+      msg.chat.id,
+      removed ? `✅ \`${value}\` sudah dibuka blokirnya.` : `❌ \`${value}\` tidak ada di daftar blokir.`,
+      { parse_mode: 'Markdown' }
+    );
   });
 
   botInstance.on('callback_query', async (query) => {
@@ -86,7 +91,7 @@ function startBot(config) {
       const ip = data.replace('block_', '');
       await monitor.blockIp(ip);
       await botInstance.answerCallbackQuery(query.id, { text: `✅ IP ${ip} diblokir!` });
-      botInstance.sendMessage(chatId, `✅ IP ${ip} berhasil diblokir.`);
+      botInstance.sendMessage(chatId, `✅ IP \`${ip}\` berhasil diblokir.`, { parse_mode: 'Markdown' });
       return;
     }
 
@@ -105,9 +110,9 @@ function startBot(config) {
           break;
         }
         const lines = recent
-          .map((r) => `${r.status} ${r.method} ${r.path} (${r.ms}ms) — ${r.ip}`)
+          .map((r) => `${r.status} ${escapeMarkdown(r.method)} ${escapeMarkdown(r.path)} (${r.ms}ms) — \`${r.ip}\``)
           .join('\n');
-        botInstance.sendMessage(chatId, `📋 Log 15 request terakhir:\n${lines}`);
+        botInstance.sendMessage(chatId, `📋 Log 15 request terakhir:\n${lines}`, { parse_mode: 'Markdown' });
         break;
       }
       case 'top_ips': {
@@ -117,16 +122,18 @@ function startBot(config) {
           break;
         }
         const lines = top
-          .map((r) => `${r.count}x  ${r.ip}${r.blocked ? ' 🚫' : ''}`)
+          .map((r) => `${r.count}x  \`${r.ip}\`${r.blocked ? ' 🚫' : ''}`)
           .join('\n');
-        botInstance.sendMessage(chatId, `🔝 IP teratas:\n${lines}`);
+        botInstance.sendMessage(chatId, `🔝 IP teratas:\n${lines}`, { parse_mode: 'Markdown' });
         break;
       }
       case 'list_blocked': {
         const blocked = monitor.listBlocked();
+        const lines = blocked.map((ip) => `\`${ip}\``).join('\n');
         botInstance.sendMessage(
           chatId,
-          blocked.length ? `🚫 IP yang diblokir:\n${blocked.join('\n')}` : '✅ Belum ada IP yang diblokir.'
+          blocked.length ? `🚫 IP yang diblokir:\n${lines}` : '✅ Belum ada IP yang diblokir.',
+          blocked.length ? { parse_mode: 'Markdown' } : undefined
         );
         break;
       }
@@ -153,6 +160,10 @@ function startBot(config) {
   return botInstance;
 }
 
+function escapeMarkdown(value) {
+  return String(value).replace(/([_*`\[])/g, '\\$1');
+}
+
 function sendNotification(ip, method, path, status, ms, userAgent, query) {
   if (!botInstance || !configInstance) return;
 
@@ -168,17 +179,18 @@ function sendNotification(ip, method, path, status, ms, userAgent, query) {
   const message = `
 Request Masuk
 
-IP        : ${ip}
-Method    : ${method}
-Path      : ${path}
-Params    : ${paramsLine}
+IP        : \`${ip}\`
+Method    : ${escapeMarkdown(method)}
+Path      : ${escapeMarkdown(path)}
+Params    : ${escapeMarkdown(paramsLine)}
 Status    : ${status} (${statusLabel})
 Durasi    : ${ms}ms
 Waktu     : ${new Date().toISOString()}
-User Agent: ${userAgent || 'Tidak diketahui'}
+User Agent: ${escapeMarkdown(userAgent || 'Tidak diketahui')}
   `;
 
   const inlineKeyboard = {
+    parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
         [{ text: `Block IP: ${ip}`, callback_data: `block_${ip}` }],
