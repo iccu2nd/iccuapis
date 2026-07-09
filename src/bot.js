@@ -49,18 +49,28 @@ function startBot(config) {
     );
   });
 
-  botInstance.onText(/\/block (.+)/, (msg, match) => {
+  botInstance.onText(/\/block (.+)/, async (msg, match) => {
     if (!isOwner(msg)) return deny(msg.chat.id);
-    const ip = match[1].trim();
-    monitor.blockIp(ip);
-    botInstance.sendMessage(msg.chat.id, `✅ IP ${ip} sudah diblokir.`);
+    const value = match[1].trim();
+    try {
+      await monitor.blockIp(value);
+      const isSubnet = value.includes('/');
+      botInstance.sendMessage(
+        msg.chat.id,
+        isSubnet
+          ? `✅ Subnet ${value} sudah diblokir. Semua IP di rentang ini akan ditolak.`
+          : `✅ IP ${value} sudah diblokir.`
+      );
+    } catch (err) {
+      botInstance.sendMessage(msg.chat.id, `❌ Gagal blokir: ${err.message}`);
+    }
   });
 
-  botInstance.onText(/\/unblock (.+)/, (msg, match) => {
+  botInstance.onText(/\/unblock (.+)/, async (msg, match) => {
     if (!isOwner(msg)) return deny(msg.chat.id);
-    const ip = match[1].trim();
-    const removed = monitor.unblockIp(ip);
-    botInstance.sendMessage(msg.chat.id, removed ? `✅ IP ${ip} sudah dibuka blokirnya.` : `❌ IP ${ip} tidak ada di daftar blokir.`);
+    const value = match[1].trim();
+    const removed = await monitor.unblockIp(value);
+    botInstance.sendMessage(msg.chat.id, removed ? `✅ ${value} sudah dibuka blokirnya.` : `❌ ${value} tidak ada di daftar blokir.`);
   });
 
   botInstance.on('callback_query', async (query) => {
@@ -74,7 +84,7 @@ function startBot(config) {
 
     if (data && data.startsWith('block_')) {
       const ip = data.replace('block_', '');
-      monitor.blockIp(ip);
+      await monitor.blockIp(ip);
       await botInstance.answerCallbackQuery(query.id, { text: `✅ IP ${ip} diblokir!` });
       botInstance.sendMessage(chatId, `✅ IP ${ip} berhasil diblokir.`);
       return;
@@ -121,11 +131,11 @@ function startBot(config) {
         break;
       }
       case 'block_prompt': {
-        botInstance.sendMessage(chatId, '🔒 Kirim perintah: /block 1.2.3.4');
+        botInstance.sendMessage(chatId, '🔒 Kirim perintah:\n/block 1.2.3.4  (satu IP)\n/block 1.2.3.0/24  (satu subnet, semua IP di rentang ini ikut terblokir)');
         break;
       }
       case 'unblock_prompt': {
-        botInstance.sendMessage(chatId, '🔓 Kirim perintah: /unblock 1.2.3.4');
+        botInstance.sendMessage(chatId, '🔓 Kirim perintah:\n/unblock 1.2.3.4\n/unblock 1.2.3.0/24');
         break;
       }
       default:

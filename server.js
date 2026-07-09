@@ -29,6 +29,32 @@ app.use((req, res, next) => {
   const ip = req.ip;
   if (monitor.isBlocked(ip)) {
     monitor.recordBlockedHit(ip);
+    const wantsHtml = req.method === 'GET' && (req.accepts(['html', 'json']) === 'html');
+    if (wantsHtml) {
+      res.status(403).type('html').send(`<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akses Diblokir</title>
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f7f7f8; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; padding:24px; box-sizing:border-box; }
+  .box { max-width:400px; text-align:center; }
+  .box h1 { font-size:20px; margin:0 0 8px; color:#18181b; }
+  .box p { font-size:14px; color:#71717a; line-height:1.5; margin:0; }
+  .code { display:inline-block; margin-top:16px; font-size:12px; font-weight:700; letter-spacing:.04em; color:#a1a1aa; text-transform:uppercase; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Akses diblokir</h1>
+    <p>IP kamu telah diblokir dari mengakses layanan ini karena aktivitas yang melanggar batas wajar penggunaan.</p>
+    <span class="code">IP_BLOCKED</span>
+  </div>
+</body>
+</html>`);
+      return;
+    }
     return res.status(403).json({
       ok: false,
       error: { code: 'IP_BLOCKED', message: 'Your IP has been blocked from accessing this API.' }

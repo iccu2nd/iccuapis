@@ -580,22 +580,6 @@
     }
   });
 
-  function updateWibClock() {
-    const clockEl = el('wibClock');
-    if (!clockEl) return;
-    const parts = new Intl.DateTimeFormat('id-ID', {
-      timeZone: 'Asia/Jakarta',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).formatToParts(new Date());
-    const get = (type) => parts.find((p) => p.type === type)?.value ?? '00';
-    clockEl.textContent = `${get('hour')}:${get('minute')}:${get('second')}`;
-  }
-  updateWibClock();
-  setInterval(updateWibClock, 1000);
-
   loadStats();
   boot();
 })();

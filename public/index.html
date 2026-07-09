@@ -214,6 +214,7 @@ button {
   color: var(--accent);
 }
 .stat-value.is-loading { opacity: 0; }
+.stat-card-wide { grid-column: 1 / -1; }
 
 @media (max-width: 640px) {
   .stat-value-ip { font-size: 18px; }
@@ -895,13 +896,9 @@ button {
           <span class="stat-value is-loading" id="todayRequestCount">0</span>
           <span class="stat-label">Request Hari Ini</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card stat-card-wide">
           <span class="stat-value stat-value-ip is-loading" id="myIpValue">0.0.0.0</span>
           <span class="stat-label">IP Kamu</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value stat-value-clock" id="wibClock">00:00:00</span>
-          <span class="stat-label">WIB</span>
         </div>
       </div>
       <h1>Semua endpoint, tinggal pilih.</h1>

@@ -33,9 +33,47 @@ function normalizeIp(ip) {
   return out.toLowerCase();
 }
 
+// ---- CIDR subnet support (IPv4 only) ----
+// Lets an admin block an entire range (e.g. "152.233.68.0/24") so a target
+// whose carrier rotates their public IP within that range stays blocked
+// without needing to chase every new address by hand.
+function ipToInt(ip) {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return null;
+  let out = 0;
+  for (const part of parts) {
+    const n = Number(part);
+    if (!Number.isInteger(n) || n < 0 || n > 255) return null;
+    out = (out << 8) + n;
+  }
+  return out >>> 0;
+}
+
+function isCidr(value) {
+  return typeof value === 'string' && value.includes('/');
+}
+
+function parseCidr(cidr) {
+  const [base, prefixStr] = cidr.split('/');
+  const prefix = Number(prefixStr);
+  const baseInt = ipToInt(base);
+  if (baseInt === null || !Number.isInteger(prefix) || prefix < 0 || prefix > 32) {
+    return null;
+  }
+  const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+  return { base: baseInt & mask, mask, prefix };
+}
+
+function ipMatchesCidr(ip, parsedCidr) {
+  const ipInt = ipToInt(ip);
+  if (ipInt === null) return false;
+  return (ipInt & parsedCidr.mask) === parsedCidr.base;
+}
+
 // ---- in-memory state (fast path, always authoritative for "right now") ----
 const state = {
   blockedIps: new Set(),
+  blockedSubnets: new Map(), // cidr string -> parsed { base, mask, prefix }
   log: [],
   totals: new Map(),   // path -> count
   perIp: new Map(),     // ip -> count
@@ -79,7 +117,14 @@ async function init() {
       .find({ blocked: true })
       .project({ ip: 1 })
       .toArray();
-    blocked.forEach((row) => state.blockedIps.add(normalizeIp(row.ip)));
+    blocked.forEach((row) => {
+      if (isCidr(row.ip)) {
+        const parsed = parseCidr(row.ip);
+        if (parsed) state.blockedSubnets.set(row.ip, parsed);
+      } else {
+        state.blockedIps.add(normalizeIp(row.ip));
+      }
+    });
 
     const visitors = await db.collection('unique_visitors')
       .find({})
@@ -177,14 +222,38 @@ function uniqueVisitorCount() {
 }
 
 function isBlocked(ip) {
-  return state.blockedIps.has(normalizeIp(ip));
+  const normalized = normalizeIp(ip);
+  if (state.blockedIps.has(normalized)) return true;
+  for (const parsed of state.blockedSubnets.values()) {
+    if (ipMatchesCidr(normalized, parsed)) return true;
+  }
+  return false;
 }
 
-async function blockIp(ip) {
-  ip = normalizeIp(ip);
+async function blockIp(value) {
+  const db = await getDb();
+
+  if (isCidr(value)) {
+    const parsed = parseCidr(value);
+    if (!parsed) throw new Error(`Invalid CIDR: ${value}`);
+    state.blockedSubnets.set(value, parsed);
+
+    if (!db) return;
+    try {
+      await db.collection('blocked_ips').updateOne(
+        { ip: value },
+        { $set: { ip: value, blocked: true, last_blocked_at: new Date() } },
+        { upsert: true }
+      );
+    } catch (err) {
+      console.error('[monitor] failed to persist blockIp (subnet):', err.message);
+    }
+    return;
+  }
+
+  const ip = normalizeIp(value);
   state.blockedIps.add(ip);
 
-  const db = await getDb();
   if (!db) return;
   try {
     await db.collection('blocked_ips').updateOne(
@@ -197,11 +266,26 @@ async function blockIp(ip) {
   }
 }
 
-async function unblockIp(ip) {
-  ip = normalizeIp(ip);
+async function unblockIp(value) {
+  const db = await getDb();
+
+  if (isCidr(value)) {
+    const removed = state.blockedSubnets.delete(value);
+    if (!db) return removed;
+    try {
+      await db.collection('blocked_ips').updateOne(
+        { ip: value },
+        { $set: { blocked: false } }
+      );
+    } catch (err) {
+      console.error('[monitor] failed to persist unblockIp (subnet):', err.message);
+    }
+    return removed;
+  }
+
+  const ip = normalizeIp(value);
   const removed = state.blockedIps.delete(ip);
 
-  const db = await getDb();
   if (!db) return removed;
   try {
     await db.collection('blocked_ips').updateOne(
@@ -215,7 +299,7 @@ async function unblockIp(ip) {
 }
 
 function listBlocked() {
-  return [...state.blockedIps];
+  return [...state.blockedIps, ...state.blockedSubnets.keys()];
 }
 
 function recentLog(limit = 20) {
@@ -256,7 +340,7 @@ function stats() {
       totalRequests: state.totalAllTime,
       blockedRequests: state.blockedAllTime
     },
-    blockedIpCount: state.blockedIps.size,
+    blockedIpCount: state.blockedIps.size + state.blockedSubnets.size,
     uniqueVisitors: state.uniqueVisitors.size
   };
 }
