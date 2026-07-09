@@ -188,10 +188,6 @@ button {
   text-align: center;
   gap: 8px;
 }
-.stat-icon {
-  color: var(--text);
-  margin-bottom: 2px;
-}
 .stat-label {
   font-size: 11px;
   font-weight: 700;
@@ -214,8 +210,10 @@ button {
 .stat-value-ip {
   font-size: 18px;
 }
+.stat-value-clock {
+  color: var(--accent);
+}
 .stat-value.is-loading { opacity: 0; }
-.stat-card-wide { grid-column: 1 / -1; }
 
 @media (max-width: 640px) {
   .stat-value-ip { font-size: 18px; }
@@ -885,34 +883,25 @@ button {
     </button>
   </header>
 
-  <div class="menu-overlay" id="menuOverlay"></div>
-
-  <div class="hamburger-menu" id="hamburgerMenu">
-    <div class="hamburger-menu-title">Menu</div>
-    <a href="/logs" class="hamburger-menu-item">
-      <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" fill="currentColor"/></svg>
-      Request Log
-    </a>
-  </div>
-
   <main class="stage">
 
     <header class="stage-head">
       <div class="stats-row">
         <div class="stat-card">
-          <svg class="stat-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill="currentColor"/></svg>
           <span class="stat-value is-loading" id="totalRequestCount">0</span>
           <span class="stat-label">Total Request</span>
         </div>
         <div class="stat-card">
-          <svg class="stat-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 5a1 1 0 10-2 0v5c0 .3.12.59.34.8l3 3a1 1 0 001.42-1.42L13 11.6V7z" fill="currentColor"/></svg>
           <span class="stat-value is-loading" id="todayRequestCount">0</span>
           <span class="stat-label">Request Hari Ini</span>
         </div>
-        <div class="stat-card stat-card-wide">
-          <svg class="stat-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.6 11.09 7.34 11.73a1 1 0 001.32 0C13.4 21.09 20 15.25 20 10c0-4.42-3.58-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" fill="currentColor"/></svg>
+        <div class="stat-card">
           <span class="stat-value stat-value-ip is-loading" id="myIpValue">0.0.0.0</span>
           <span class="stat-label">IP Kamu</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value stat-value-clock" id="wibClock">00:00:00</span>
+          <span class="stat-label">WIB</span>
         </div>
       </div>
       <h1>Semua endpoint, tinggal pilih.</h1>
@@ -957,6 +946,16 @@ button {
   </main>
 
 
+</div>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<div class="hamburger-menu" id="hamburgerMenu">
+  <div class="hamburger-menu-title">Menu</div>
+  <a href="/logs" class="hamburger-menu-item">
+    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" fill="currentColor"/></svg>
+    Request Log
+  </a>
 </div>
 
 <template id="routeRowTemplate">
