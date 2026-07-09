@@ -537,18 +537,37 @@
 
   const hamburgerBtn = el('hamburgerBtn');
   const hamburgerMenu = el('hamburgerMenu');
+  const menuOverlay = el('menuOverlay');
+
+  function openMenu() {
+    hamburgerBtn.classList.add('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    hamburgerMenu.classList.add('is-open');
+    menuOverlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    hamburgerBtn.classList.remove('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    hamburgerMenu.classList.remove('is-open');
+    menuOverlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
 
   hamburgerBtn.addEventListener('click', () => {
-    const isOpen = hamburgerBtn.classList.toggle('is-open');
-    hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
-    hamburgerMenu.hidden = !isOpen;
+    if (hamburgerMenu.classList.contains('is-open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
   });
 
-  document.addEventListener('click', (e) => {
-    if (!hamburgerMenu.hidden && !hamburgerMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-      hamburgerMenu.hidden = true;
-      hamburgerBtn.classList.remove('is-open');
-      hamburgerBtn.setAttribute('aria-expanded', 'false');
+  menuOverlay.addEventListener('click', closeMenu);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && hamburgerMenu.classList.contains('is-open')) {
+      closeMenu();
     }
   });
 
