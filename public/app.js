@@ -51,33 +51,16 @@
           const { date, time } = formatNotifTime(item.at);
           const row = document.createElement('div');
           row.className = 'notif-item';
-
-          if (item.type === 'announcement') {
-            row.innerHTML = `
-              <div class="notif-item-top">
-                <span class="notif-item-status is-info">Info</span>
-                <span class="notif-item-path">${item.text}</span>
-              </div>
-              <div class="notif-item-meta">
-                <span>${date}</span>
-                <span>${time}</span>
-              </div>
-            `;
-          } else {
-            const isOk = item.status >= 200 && item.status < 300;
-            row.innerHTML = `
-              <div class="notif-item-top">
-                <span class="notif-item-status ${isOk ? 'is-good' : 'is-bad'}">${item.status}</span>
-                <span class="notif-item-path">${item.method} ${item.path}</span>
-              </div>
-              <div class="notif-item-meta">
-                <span>${date}</span>
-                <span>${time}</span>
-                <span>${item.ms}ms</span>
-              </div>
-            `;
-          }
-
+          row.innerHTML = `
+            <div class="notif-item-top">
+              <span class="notif-item-status is-info">Info</span>
+              <span class="notif-item-path">${item.text}</span>
+            </div>
+            <div class="notif-item-meta">
+              <span>${date}</span>
+              <span>${time}</span>
+            </div>
+          `;
           notifList.appendChild(row);
         });
       }
@@ -92,6 +75,9 @@
             latestNotifAt = items[0].at;
           }
           renderNotifList(items);
+          if (notifPanel.classList.contains('is-open') && latestNotifAt) {
+            setLastSeenAt(latestNotifAt);
+          }
           updateNotifDot();
         } catch (err) {
           notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>';
@@ -102,6 +88,8 @@
         notifPanel.classList.add('is-open');
         notifBtn.setAttribute('aria-expanded', 'true');
         loadNotifications();
+        if (latestNotifAt) setLastSeenAt(latestNotifAt);
+        updateNotifDot();
       }
 
       function closeNotifPanel() {

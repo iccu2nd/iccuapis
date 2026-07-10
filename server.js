@@ -154,15 +154,6 @@ app.get('/api/logs', (req, res) => {
 app.get('/api/notifications', async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 30, 100);
 
-  const logItems = monitor.recentLog(limit).map((r) => ({
-    type: 'request',
-    at: r.at,
-    status: r.status,
-    method: r.method,
-    path: r.path,
-    ms: r.ms
-  }));
-
   let announceItems = [];
   const db = await getDb();
   if (db) {
@@ -178,11 +169,7 @@ app.get('/api/notifications', async (req, res) => {
     }));
   }
 
-  const merged = [...logItems, ...announceItems]
-    .sort((a, b) => new Date(b.at) - new Date(a.at))
-    .slice(0, limit);
-
-  res.json({ result: merged });
+  res.json({ result: announceItems });
 });
 
 app.get('/api/views', (req, res) => {
