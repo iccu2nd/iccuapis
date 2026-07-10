@@ -115,6 +115,145 @@ button {
 .hamburger-btn.is-open span:nth-child(2) { opacity: 0; }
 .hamburger-btn.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.notif-wrap {
+  position: relative;
+}
+
+.notif-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--text);
+  transition: background 0.12s ease;
+}
+.notif-btn:hover { background: var(--panel); }
+
+.notif-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bad);
+  border: 1.5px solid #fff;
+}
+
+.notif-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: 320px;
+  max-width: 88vw;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgba(20, 22, 26, 0.14);
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+.notif-panel.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.notif-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.notif-clear-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.notif-clear-btn:hover { background: var(--accent-soft); }
+
+.notif-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.notif-empty {
+  padding: 24px 14px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.notif-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.notif-item:last-child { border-bottom: none; }
+
+.notif-item-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.notif-item-status {
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.notif-item-status.is-good { background: var(--good-soft); color: var(--good); }
+.notif-item-status.is-bad { background: var(--bad-soft); color: var(--bad); }
+
+.notif-item-path {
+  color: var(--text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notif-item-meta {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .notif-panel { width: 280px; }
+}
+
 .menu-overlay {
   position: fixed;
   inset: 0;
@@ -916,11 +1055,28 @@ button {
     <div class="topbar-mark">
       <span class="topbar-mark-text">ICCU APIS</span>
     </div>
-    <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+    <div class="topbar-actions">
+      <div class="notif-wrap">
+        <button class="notif-btn" id="notifBtn" type="button" aria-label="Notifikasi" aria-expanded="false">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot" hidden></span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-panel-head">
+            <span>Notifikasi</span>
+            <button class="notif-clear-btn" id="notifClearBtn" type="button">Tandai terbaca</button>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-empty">Memuat notifikasi...</div>
+          </div>
+        </div>
+      </div>
+      <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </header>
 
   <main class="stage">

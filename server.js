@@ -38,7 +38,8 @@ const ALWAYS_ALLOWED_PATHS = new Set([
   '/api/stats',
   '/api/logs',
   '/api/views',
-  '/api/myip'
+  '/api/myip',
+  '/api/notifications'
 ]);
 
 function isBrowsablePage(req) {
@@ -163,6 +164,11 @@ app.get('/api/stats', (req, res) => {
 
 app.get('/api/logs', (req, res) => {
   res.json({ result: monitor.todaysLog() });
+});
+
+app.get('/api/notifications', (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 30, 100);
+  res.json({ result: monitor.recentLog(limit) });
 });
 
 app.get('/api/views', (req, res) => {
