@@ -78,6 +78,29 @@ function startBot(config) {
     );
   });
 
+  botInstance.onText(/\/addnotif(?:\s+([\s\S]+))?/, async (msg, match) => {
+    if (!isOwner(msg)) return deny(msg.chat.id);
+    const text = match[1] ? match[1].trim() : '';
+    if (!text) {
+      botInstance.sendMessage(msg.chat.id, '⚠️ Format salah.\nContoh: `/addnotif Server maintenance jam 22.00 - 23.00`', { parse_mode: 'Markdown' });
+      return;
+    }
+    const announcement = `📢 Pengumuman\n\n${text}\n\n🕒 ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`;
+    let sent = 0;
+    let failed = 0;
+    await Promise.all(
+      ownerIds.map((ownerId) =>
+        botInstance.sendMessage(ownerId, announcement)
+          .then(() => { sent += 1; })
+          .catch((err) => {
+            failed += 1;
+            console.error('[bot] Failed to send /addnotif to', ownerId, err.message);
+          })
+      )
+    );
+    botInstance.sendMessage(msg.chat.id, `✅ Pengumuman terkirim ke ${sent} chat.${failed ? ` (${failed} gagal)` : ''}`);
+  });
+
   botInstance.on('callback_query', async (query) => {
     const chatId = query.message.chat.id;
     if (!isOwner({ chat: { id: chatId } })) {
