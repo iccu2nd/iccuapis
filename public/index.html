@@ -473,15 +473,18 @@ button {
 .retry-btn:disabled { opacity: 0.6; cursor: default; }
 
 .row {
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   margin-bottom: 10px;
   background: #fff;
   overflow: hidden;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.row.open { border-color: var(--border-strong); }
+.row.open {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 18px rgba(20, 22, 26, 0.06);
+}
 
 .row-head {
   width: 100%;
@@ -491,19 +494,14 @@ button {
   padding: 16px 18px;
   background: none;
   border: none;
+  border-left: 3px solid transparent;
   color: var(--text);
   text-align: left;
+  transition: background 0.15s ease, border-left-color 0.15s ease;
 }
 
 .row-head:hover { background: var(--panel); }
-
-.row-head .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--good);
-  flex-shrink: 0;
-}
+.row.open .row-head { border-left-color: var(--accent); background: var(--accent-soft); }
 
 .row-head .verb {
   font-family: var(--mono);
@@ -514,6 +512,19 @@ button {
   padding: 3px 8px;
   border-radius: 5px;
   flex-shrink: 0;
+}
+.row-head .verb-post {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.row-head .verb-put,
+.row-head .verb-patch {
+  color: #B4740E;
+  background: #FDF3E3;
+}
+.row-head .verb-delete {
+  color: var(--bad);
+  background: var(--bad-soft);
 }
 
 .row-head .path {
@@ -1001,7 +1012,6 @@ button {
 <template id="routeRowTemplate">
   <article class="row" role="listitem">
     <button class="row-head" type="button">
-      <span class="dot" aria-hidden="true"></span>
       <span class="verb"></span>
       <span class="path"></span>
       <span class="name"></span>

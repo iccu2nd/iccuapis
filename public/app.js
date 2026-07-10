@@ -247,6 +247,7 @@
   function buildRow(route) {
     const node = rowTemplate.content.firstElementChild.cloneNode(true);
     node.querySelector('.verb').textContent = route.method;
+    node.querySelector('.verb').classList.add('verb-' + String(route.method || '').toLowerCase());
     node.querySelector('.path').textContent = route.path;
     node.querySelector('.name').textContent = route.name;
     node.querySelector('.desc').textContent = route.description;
