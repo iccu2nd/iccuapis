@@ -253,10 +253,6 @@
     routes = routesRes.result;
 
     el('tagline').textContent = manifest.identity.tagline;
-    const waLink = el('waChannelLink');
-    if (waLink && manifest.identity.waChannelUrl) {
-      waLink.href = manifest.identity.waChannelUrl;
-    }
     el('routeCount').textContent = routes.length;
     el('routeCount').classList.remove('is-loading');
     el('routeCountLabel').classList.remove('is-loading');

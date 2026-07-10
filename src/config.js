@@ -4,8 +4,7 @@ module.exports = {
   identity: {
     name: 'ICCU APIS',
     tagline: 'Rest API simple, free, dan 100% lebih lengkap.',
-    version: '1.0.0',
-    waChannelUrl: 'https://whatsapp.com/channel/0029VbC7SGt65yDCUxYwUS3U'
+    version: '1.0.0'
   },
   telegram: {
     token: process.env.TELEGRAM_BOT_TOKEN || '',
