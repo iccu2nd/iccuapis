@@ -51,8 +51,9 @@
           const { date, time } = formatNotifTime(item.at);
           const row = document.createElement('div');
           row.className = 'notif-item';
+          const text = String(item.text || '').replace(/^\s*info\s*[:\-]?\s*/i, '');
           row.innerHTML = `
-            <span class="notif-item-path">${item.text}</span>
+            <span class="notif-item-path">${text}</span>
             <div class="notif-item-meta">
               <span>${date}</span>
               <span>${time}</span>
