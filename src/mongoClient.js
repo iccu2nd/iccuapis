@@ -16,10 +16,6 @@ if (!uri) {
   );
 }
 
-// Lazily connect on first use and reuse the same connection/db handle
-// afterwards. Returns null if MONGODB_URI isn't configured, or if the
-// connection attempt fails (callers already treat a null db as "in-memory
-// only" the same way they treated a missing Supabase client).
 async function getDb() {
   if (!uri) return null;
   if (db) return db;
@@ -36,7 +32,7 @@ async function getDb() {
       })
       .catch((err) => {
         console.error('[mongo] connection failed:', err.message);
-        connectingPromise = null; // allow a retry on the next call
+        connectingPromise = null;
         return null;
       });
   }

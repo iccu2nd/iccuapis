@@ -3,29 +3,21 @@
 const { getDb } = require('./mongoClient');
 
 const MAX_LOG = 2000;
-const FLUSH_INTERVAL_MS = 15_000; // batch-write to Mongo every 15s
+const FLUSH_INTERVAL_MS = 15_000;
 
 function todayWIB() {
-  // Asia/Jakarta has no DST, so a fixed +7h offset is safe and avoids
-  // pulling in a full timezone library just for day-boundary math.
   const wib = new Date(Date.now() + 7 * 60 * 60 * 1000);
-  return wib.toISOString().slice(0, 10); // 'YYYY-MM-DD' in WIB
+  return wib.toISOString().slice(0, 10);
 }
 
-// Normalize IP so the same address always compares equal, regardless of
-// which representation Express/Node handed us (IPv6-mapped IPv4, loopback
-// variants, stray whitespace, etc). Without this, blocking "114.10.20.30"
-// would never match an incoming request logged as "::ffff:114.10.20.30".
 function normalizeIp(ip) {
   if (!ip) return ip;
   let out = String(ip).trim();
 
-  // Strip the IPv6-mapped IPv4 prefix: "::ffff:1.2.3.4" -> "1.2.3.4"
   if (out.startsWith('::ffff:')) {
     out = out.slice(7);
   }
 
-  // Normalize both IPv6 and IPv4 loopback to a single canonical form.
   if (out === '::1' || out === '127.0.0.1') {
     out = '127.0.0.1';
   }
@@ -33,10 +25,6 @@ function normalizeIp(ip) {
   return out.toLowerCase();
 }
 
-// ---- CIDR subnet support (IPv4 only) ----
-// Lets an admin block an entire range (e.g. "152.233.68.0/24") so a target
-// whose carrier rotates their public IP within that range stays blocked
-// without needing to chase every new address by hand.
 function ipToInt(ip) {
   const parts = ip.split('.');
   if (parts.length !== 4) return null;
@@ -70,16 +58,14 @@ function ipMatchesCidr(ip, parsedCidr) {
   return (ipInt & parsedCidr.mask) === parsedCidr.base;
 }
 
-// ---- in-memory state (fast path, always authoritative for "right now") ----
 const state = {
   blockedIps: new Set(),
-  blockedSubnets: new Map(), // cidr string -> parsed { base, mask, prefix }
+  blockedSubnets: new Map(),
   log: [],
-  totals: new Map(),   // path -> count
-  perIp: new Map(),     // ip -> count
-  uniqueVisitors: new Set(), // ip -> ever visited (permanent, 1 IP counted once)
+  totals: new Map(),
+  perIp: new Map(),
+  uniqueVisitors: new Set(),
 
-  // running totals, kept in memory and periodically flushed
   totalAllTime: 0,
   blockedAllTime: 0,
   day: todayWIB(),
@@ -87,19 +73,17 @@ const state = {
   blockedToday: 0,
   errors5xxToday: 0,
 
-  // dirty deltas waiting to be flushed to Mongo
   pendingTotalDelta: 0,
   pendingBlockedDelta: 0,
   pendingDayTotalDelta: 0,
   pendingDayBlockedDelta: 0,
   pendingDay5xxDelta: 0,
-  pendingIpBlockHits: new Map(), // ip -> count of blocked hits since last flush
-  pendingNewVisitors: new Set()  // ip -> newly-seen visitors not yet persisted
+  pendingIpBlockHits: new Map(),
+  pendingNewVisitors: new Set()
 };
 
 let ready = false;
 
-// ---- startup: hydrate memory from Mongo so restarts don't lose data ----
 async function init() {
   const db = await getDb();
   if (!db) {
@@ -160,13 +144,12 @@ async function init() {
 function rolloverDayIfNeeded() {
   const day = todayWIB();
   if (day !== state.day) {
-    // flush whatever is pending for the old day before resetting
     flush().finally(() => {
       state.day = day;
       state.totalToday = 0;
       state.blockedToday = 0;
       state.errors5xxToday = 0;
-      state.log = []; // request log is a same-day-only view, wiped at WIB midnight
+      state.log = [];
     });
   }
 }
@@ -193,8 +176,6 @@ function recordRequest({ ip, method, path, status, ms }) {
   }
 }
 
-// Called from the "blocked" middleware path — a request that never even
-// reaches the normal recordRequest handler because it was rejected outright.
 function recordBlockedHit(ip) {
   rolloverDayIfNeeded();
   ip = normalizeIp(ip);
@@ -206,8 +187,6 @@ function recordBlockedHit(ip) {
   state.pendingIpBlockHits.set(ip, (state.pendingIpBlockHits.get(ip) || 0) + 1);
 }
 
-// Called once per page load (from GET / only, not from every API hit).
-// Returns true if this IP is being counted for the first time ever.
 function recordVisit(ip) {
   ip = normalizeIp(ip);
   if (!ip || state.uniqueVisitors.has(ip)) return false;
@@ -306,8 +285,6 @@ function recentLog(limit = 20) {
   return state.log.slice(-limit).reverse();
 }
 
-// Full same-day log for the Request Log page — newest first, capped at
-// MAX_LOG entries (older entries are already dropped from state.log).
 function todaysLog() {
   return [...state.log].reverse();
 }
@@ -326,7 +303,6 @@ function topIps(limit = 10) {
     .map(([ip, count]) => ({ ip, count, blocked: isBlocked(ip) }));
 }
 
-// Real-time snapshot — always served from memory, never blocks on a DB call.
 function stats() {
   return {
     ready,
@@ -349,7 +325,6 @@ function totalRequests() {
   return state.totalAllTime;
 }
 
-// ---- periodic flush: push accumulated deltas to Mongo in batches ----
 async function flush() {
   const db = await getDb();
   if (!db) return;
@@ -371,10 +346,9 @@ async function flush() {
     ipHits.size === 0 &&
     newVisitors.size === 0
   ) {
-    return; // nothing to do, skip the round trip
+    return;
   }
 
-  // reset pending counters immediately so new requests accumulate fresh deltas
   state.pendingTotalDelta = 0;
   state.pendingBlockedDelta = 0;
   state.pendingDayTotalDelta = 0;
@@ -422,15 +396,10 @@ async function flush() {
           upsert: true
         }
       }));
-      // setOnInsert + upsert: if two instances raced and both saw the same
-      // IP as "new" before either flushed, the second upsert just matches
-      // the existing doc and no-ops instead of erroring, so the permanent
-      // 1-IP-forever count holds.
       await db.collection('unique_visitors').bulkWrite(ops, { ordered: false });
     }
   } catch (err) {
     console.error('[monitor] flush to Mongo failed, re-queuing deltas:', err.message);
-    // put the deltas back so we retry on the next tick instead of losing them
     state.pendingTotalDelta += totalDelta;
     state.pendingBlockedDelta += blockedDelta;
     state.pendingDayTotalDelta += dayTotalDelta;
@@ -449,13 +418,11 @@ let flushTimer = null;
 function startFlushLoop() {
   if (flushTimer) return;
   flushTimer = setInterval(flush, FLUSH_INTERVAL_MS);
-  flushTimer.unref(); // don't keep the process alive just for this
+  flushTimer.unref();
 }
 
-// kick things off
 init().then(startFlushLoop);
 
-// best-effort flush on shutdown so the last few seconds aren't lost
 process.on('SIGTERM', () => flush().finally(() => process.exit(0)));
 process.on('SIGINT', () => flush().finally(() => process.exit(0)));
 

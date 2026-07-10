@@ -26,11 +26,6 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false }));
 
-// Paths that stay reachable even for a blocked IP — the website chrome
-// itself (pages, static assets, manifest) plus the internal introspection
-// endpoints the page uses to render itself (stats, routes list, IP display).
-// Actual feature endpoints (/ai/*, /search/*, /tools/*, /download/*, etc.)
-// still get rejected for a blocked IP.
 const ALWAYS_ALLOWED_PATHS = new Set([
   '/',
   '/logs',
@@ -45,8 +40,6 @@ const ALWAYS_ALLOWED_PATHS = new Set([
 
 function isBrowsablePage(req) {
   if (ALWAYS_ALLOWED_PATHS.has(req.path)) return true;
-  // Static assets served from /public (css/js/images/fonts) — anything
-  // with a file extension that isn't an API call.
   if (req.method === 'GET' && /\.[a-zA-Z0-9]+$/.test(req.path) && !req.path.startsWith('/api/')) {
     return true;
   }
@@ -99,20 +92,11 @@ app.use((req, res, next) => {
 
 app.get('/manifest.json', (req, res) => res.json({ result: { identity: config.identity } }));
 
-// Registered up front (before the API route modules below are mounted) so
-// this middleware's next() chain actually runs on every request. If it were
-// mounted after app.get(route.path, ...) for each endpoint, Express would
-// already have handled and ended matching requests before they ever reached
-// this middleware, since app.use() only sees requests that fall through
-// earlier handlers registered before it.
 const registry = [];
 
 app.use((req, res, next) => {
   const startedAt = process.hrtime.bigint();
   res.on('finish', () => {
-    // Only count requests that actually hit one of the registered API
-    // endpoints (e.g. /ai/removebg) — not internal pages like manifest.json,
-    // index.html, app.js, or the gateway's own /api/* introspection routes.
     const isRegisteredEndpoint = registry.some((r) => r.path === req.path);
     if (!isRegisteredEndpoint) return;
 

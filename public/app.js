@@ -2,6 +2,146 @@
   'use strict';
 
   const el = (id) => document.getElementById(id);
+
+  (function setupNotifBell() {
+    try {
+      const notifBtn = el('notifBtn');
+      const notifPanel = el('notifPanel');
+      const notifDot = el('notifDot');
+      const notifList = el('notifList');
+      const notifClearBtn = el('notifClearBtn');
+      if (!notifBtn || !notifPanel || !notifDot || !notifList || !notifClearBtn) {
+        console.error('[notif] one or more notification elements are missing from the DOM');
+        return;
+      }
+
+      const NOTIF_SEEN_KEY = 'iccu_notif_last_seen_at';
+      const NOTIF_POLL_MS = 20000;
+      let latestNotifAt = null;
+
+      function formatNotifTime(iso) {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return { date: '—', time: '—' };
+        const date = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        const time = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        return { date, time };
+      }
+
+      function getLastSeenAt() {
+        try { return localStorage.getItem(NOTIF_SEEN_KEY); } catch (err) { return null; }
+      }
+
+      function setLastSeenAt(iso) {
+        try { localStorage.setItem(NOTIF_SEEN_KEY, iso); } catch (err) { /* ignore */ }
+      }
+
+      function updateNotifDot() {
+        const lastSeen = getLastSeenAt();
+        const hasUnread = latestNotifAt && (!lastSeen || new Date(latestNotifAt) > new Date(lastSeen));
+        notifDot.hidden = !hasUnread;
+      }
+
+      function renderNotifList(items) {
+        notifList.innerHTML = '';
+        if (!items || !items.length) {
+          notifList.innerHTML = '<div class="notif-empty">Belum ada aktivitas.</div>';
+          return;
+        }
+        items.forEach((item) => {
+          const { date, time } = formatNotifTime(item.at);
+          const row = document.createElement('div');
+          row.className = 'notif-item';
+
+          if (item.type === 'announcement') {
+            row.innerHTML = `
+              <div class="notif-item-top">
+                <span class="notif-item-status is-info">Info</span>
+                <span class="notif-item-path">${item.text}</span>
+              </div>
+              <div class="notif-item-meta">
+                <span>${date}</span>
+                <span>${time}</span>
+              </div>
+            `;
+          } else {
+            const isOk = item.status >= 200 && item.status < 300;
+            row.innerHTML = `
+              <div class="notif-item-top">
+                <span class="notif-item-status ${isOk ? 'is-good' : 'is-bad'}">${item.status}</span>
+                <span class="notif-item-path">${item.method} ${item.path}</span>
+              </div>
+              <div class="notif-item-meta">
+                <span>${date}</span>
+                <span>${time}</span>
+                <span>${item.ms}ms</span>
+              </div>
+            `;
+          }
+
+          notifList.appendChild(row);
+        });
+      }
+
+      async function loadNotifications() {
+        try {
+          const res = await fetch('/api/notifications?limit=30', { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const items = (data && data.result) || [];
+          if (items.length) {
+            latestNotifAt = items[0].at;
+          }
+          renderNotifList(items);
+          updateNotifDot();
+        } catch (err) {
+          notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>';
+        }
+      }
+
+      function openNotifPanel() {
+        notifPanel.classList.add('is-open');
+        notifBtn.setAttribute('aria-expanded', 'true');
+        loadNotifications();
+      }
+
+      function closeNotifPanel() {
+        notifPanel.classList.remove('is-open');
+        notifBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      notifBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (notifPanel.classList.contains('is-open')) {
+          closeNotifPanel();
+        } else {
+          openNotifPanel();
+        }
+      });
+
+      notifClearBtn.addEventListener('click', () => {
+        if (latestNotifAt) setLastSeenAt(latestNotifAt);
+        updateNotifDot();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (notifPanel.classList.contains('is-open') && !notifPanel.contains(e.target) && e.target !== notifBtn) {
+          closeNotifPanel();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && notifPanel.classList.contains('is-open')) {
+          closeNotifPanel();
+        }
+      });
+
+      loadNotifications();
+      setInterval(loadNotifications, NOTIF_POLL_MS);
+    } catch (err) {
+      console.error('[notif] failed to set up notification bell:', err);
+    }
+  })();
+
   const rowTemplate = el('routeRowTemplate');
   const logEl = el('log');
   const bootLoader = el('bootLoader');
@@ -157,9 +297,6 @@
   }
 
   function hideSkeleton() {
-    // Lock the wrapper to the real content's height right before the
-    // crossfade so the layout can't jump, regardless of how many
-    // endpoints/groups actually exist.
     const realHeight = logEl.scrollHeight;
     if (realHeight > 0) {
       contentStack.style.minHeight = `${realHeight}px`;
@@ -183,10 +320,6 @@
       await loadData();
       filterInput.disabled = false;
       filterInput.placeholder = 'Cari nama atau path endpoint...';
-      // renderLog() already ran inside loadData() and populated #log while
-      // it was still hidden/opacity:0, sitting behind the skeleton. Now
-      // reveal both at once so the skeleton fades out exactly as the real
-      // content fades in, in the same spot — no height jump.
       hideSkeleton();
     } catch (err) {
       hideSkeleton();
@@ -353,7 +486,6 @@
           input.value = sampleValue;
           input.classList.remove('invalid');
           input.classList.remove('autofilled');
-          // force reflow so the animation can restart if clicked again
           void input.offsetWidth;
           input.classList.add('autofilled');
           input.addEventListener('animationend', () => {
@@ -450,7 +582,6 @@
             resultVideo.src = objectUrl;
             resultVideo.hidden = false;
           } else {
-            // template doesn't have the right element yet — fall back to a download link
             resultJson.textContent = `Media file (${contentType}) diterima, tapi player belum tersedia. Gunakan tombol download.`;
             resultJson.hidden = false;
           }
@@ -580,133 +711,6 @@
       filterInput.focus();
     }
   });
-
-  // ---- Notification bell ----
-  const notifBtn = el('notifBtn');
-  const notifPanel = el('notifPanel');
-  const notifDot = el('notifDot');
-  const notifList = el('notifList');
-  const notifClearBtn = el('notifClearBtn');
-  const NOTIF_SEEN_KEY = 'iccu_notif_last_seen_at';
-  const NOTIF_POLL_MS = 20000;
-  let latestNotifAt = null;
-
-  function formatNotifTime(iso) {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return { date: '—', time: '—' };
-    const date = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-    const time = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    return { date, time };
-  }
-
-  function getLastSeenAt() {
-    try { return localStorage.getItem(NOTIF_SEEN_KEY); } catch (err) { return null; }
-  }
-
-  function setLastSeenAt(iso) {
-    try { localStorage.setItem(NOTIF_SEEN_KEY, iso); } catch (err) { /* ignore */ }
-  }
-
-  function updateNotifDot() {
-    const lastSeen = getLastSeenAt();
-    const hasUnread = latestNotifAt && (!lastSeen || new Date(latestNotifAt) > new Date(lastSeen));
-    notifDot.hidden = !hasUnread;
-  }
-
-  function renderNotifList(items) {
-    notifList.innerHTML = '';
-    if (!items || !items.length) {
-      notifList.innerHTML = '<div class="notif-empty">Belum ada aktivitas.</div>';
-      return;
-    }
-    items.forEach((item) => {
-      const { date, time } = formatNotifTime(item.at);
-      const row = document.createElement('div');
-      row.className = 'notif-item';
-
-      if (item.type === 'announcement') {
-        row.innerHTML = `
-          <div class="notif-item-top">
-            <span class="notif-item-status is-info">Info</span>
-            <span class="notif-item-path">${item.text}</span>
-          </div>
-          <div class="notif-item-meta">
-            <span>${date}</span>
-            <span>${time}</span>
-          </div>
-        `;
-      } else {
-        const isOk = item.status >= 200 && item.status < 300;
-        row.innerHTML = `
-          <div class="notif-item-top">
-            <span class="notif-item-status ${isOk ? 'is-good' : 'is-bad'}">${item.status}</span>
-            <span class="notif-item-path">${item.method} ${item.path}</span>
-          </div>
-          <div class="notif-item-meta">
-            <span>${date}</span>
-            <span>${time}</span>
-            <span>${item.ms}ms</span>
-          </div>
-        `;
-      }
-
-      notifList.appendChild(row);
-    });
-  }
-
-  async function loadNotifications() {
-    try {
-      const res = await fetchJsonWithRetry('/api/notifications?limit=30', 2, 400);
-      const items = (res && res.result) || [];
-      if (items.length) {
-        latestNotifAt = items[0].at;
-      }
-      renderNotifList(items);
-      updateNotifDot();
-    } catch (err) {
-      notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>';
-    }
-  }
-
-  function openNotifPanel() {
-    notifPanel.classList.add('is-open');
-    notifBtn.setAttribute('aria-expanded', 'true');
-    loadNotifications();
-  }
-
-  function closeNotifPanel() {
-    notifPanel.classList.remove('is-open');
-    notifBtn.setAttribute('aria-expanded', 'false');
-  }
-
-  notifBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (notifPanel.classList.contains('is-open')) {
-      closeNotifPanel();
-    } else {
-      openNotifPanel();
-    }
-  });
-
-  notifClearBtn.addEventListener('click', () => {
-    if (latestNotifAt) setLastSeenAt(latestNotifAt);
-    updateNotifDot();
-  });
-
-  document.addEventListener('click', (e) => {
-    if (notifPanel.classList.contains('is-open') && !notifPanel.contains(e.target) && e.target !== notifBtn) {
-      closeNotifPanel();
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && notifPanel.classList.contains('is-open')) {
-      closeNotifPanel();
-    }
-  });
-
-  loadNotifications();
-  setInterval(loadNotifications, NOTIF_POLL_MS);
 
   loadStats();
   boot();
