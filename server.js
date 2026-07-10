@@ -90,7 +90,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/manifest.json', (req, res) => res.json({ result: { identity: config.identity } }));
+const GROUP_META = {
+  ai: { label: 'AI', order: 1 },
+  search: { label: 'Search', order: 2 },
+  download: { label: 'Download', order: 3 },
+  tools: { label: 'Tools', order: 4 },
+  random: { label: 'Random', order: 5 }
+};
+
+app.get('/manifest.json', (req, res) => res.json({ result: { identity: config.identity, groups: GROUP_META } }));
 
 const registry = [];
 
