@@ -6,7 +6,6 @@
   (function setupNotifBell() {
     try {
       const notifBtn = el('notifBtn');
-      const mobileNotifBtn = el('mobileNotifBtn');
       const notifPanel = el('notifPanel');
       const notifDot = el('notifDot');
       const notifList = el('notifList');
@@ -105,24 +104,13 @@
         }
       });
 
-      if (mobileNotifBtn) {
-        mobileNotifBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (notifPanel.classList.contains('is-open')) {
-            closeNotifPanel();
-          } else {
-            openNotifPanel();
-          }
-        });
-      }
-
       notifClearBtn.addEventListener('click', () => {
         if (latestNotifAt) setLastSeenAt(latestNotifAt);
         updateNotifDot();
       });
 
       document.addEventListener('click', (e) => {
-        if (notifPanel.classList.contains('is-open') && !notifPanel.contains(e.target) && e.target !== notifBtn && !(mobileNotifBtn && mobileNotifBtn.contains(e.target))) {
+        if (notifPanel.classList.contains('is-open') && !notifPanel.contains(e.target) && e.target !== notifBtn) {
           closeNotifPanel();
         }
       });
@@ -145,24 +133,11 @@
   const bootLoader = el('bootLoader');
   const contentStack = el('contentStack');
   const filterInput = el('filterInput');
-  const filterInputMain = el('filterInputMain');
   const copyBaseBtn = el('copyBaseBtn');
-  const sidebarGroupList = el('sidebarGroupList');
-  const navCountAll = el('navCountAll');
 
   let manifest = null;
   let routes = [];
   let firstRender = true;
-  let activeGroup = 'all';
-
-  const GROUP_ICONS = {
-    ai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 014 4v1a4 4 0 01-1.2 2.87A5 5 0 0119 14v1a5 5 0 01-5 5H10a5 5 0 01-5-5v-1a5 5 0 014.2-4.93A4 4 0 018 7V6a4 4 0 014-4z"/><line x1="9" y1="10" x2="9" y2="10.5"/><line x1="15" y1="10" x2="15" y2="10.5"/></svg>',
-    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
-    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-    tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>',
-    random: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/></svg>'
-  };
-  const DEFAULT_GROUP_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>';
 
   function groupLabel(key) {
     return manifest.groups?.[key]?.label || key;
@@ -253,19 +228,9 @@
       const s = statsRes.result;
       el('totalRequestCount').textContent = s.allTime.totalRequests.toLocaleString('id-ID');
       el('todayRequestCount').textContent = s.today.totalRequests.toLocaleString('id-ID');
-      const sidebarToday = el('sidebarTodayCount');
-      if (sidebarToday) {
-        sidebarToday.textContent = s.today.totalRequests.toLocaleString('id-ID');
-        sidebarToday.classList.remove('is-loading');
-      }
     } else {
       el('totalRequestCount').textContent = '—';
       el('todayRequestCount').textContent = '—';
-      const sidebarToday = el('sidebarTodayCount');
-      if (sidebarToday) {
-        sidebarToday.textContent = '—';
-        sidebarToday.classList.remove('is-loading');
-      }
     }
     el('totalRequestCount').classList.remove('is-loading');
     el('todayRequestCount').classList.remove('is-loading');
@@ -294,44 +259,7 @@
     el('baseUrl').textContent = window.location.origin;
     document.title = manifest.identity.name;
 
-    const heroLabel = el('routeCountLabel2');
-    if (heroLabel) heroLabel.textContent = `${routes.length} endpoint aktif`;
-
-    buildSidebarNav();
     renderLog();
-  }
-
-  function buildSidebarNav() {
-    if (!sidebarGroupList) return;
-    const groups = [...new Set(routes.map((r) => r.group))].sort(
-      (a, b) => groupOrder(a) - groupOrder(b)
-    );
-
-    if (navCountAll) navCountAll.textContent = routes.length;
-
-    sidebarGroupList.innerHTML = '';
-    groups.forEach((g) => {
-      const count = routes.filter((r) => r.group === g).length;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'nav-item';
-      btn.dataset.group = g;
-      btn.innerHTML = `
-        <span class="nav-item-icon">${GROUP_ICONS[g] || DEFAULT_GROUP_ICON}</span>
-        <span class="nav-item-label">${groupLabel(g)}</span>
-        <span class="nav-item-count">${count}</span>
-      `;
-      sidebarGroupList.appendChild(btn);
-    });
-
-    document.querySelectorAll('.nav-item').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        activeGroup = btn.dataset.group;
-        document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('is-active', b === btn));
-        renderLog();
-        closeSidebarMobile();
-      });
-    });
   }
 
   function showBootError() {
@@ -342,11 +270,7 @@
       </div>`;
     logEl.hidden = false;
     filterInput.disabled = true;
-    filterInput.placeholder = 'Pencarian tidak tersedia';
-    if (filterInputMain) {
-      filterInputMain.disabled = true;
-      filterInputMain.placeholder = 'Pencarian tidak tersedia (gagal memuat data)';
-    }
+    filterInput.placeholder = 'Pencarian tidak tersedia (gagal memuat data)';
 
     const retryBtn = el('retryBootBtn');
     if (retryBtn) {
@@ -381,11 +305,7 @@
     try {
       await loadData();
       filterInput.disabled = false;
-      filterInput.placeholder = 'Cari endpoint...';
-      if (filterInputMain) {
-        filterInputMain.disabled = false;
-        filterInputMain.placeholder = 'Cari nama atau path endpoint...';
-      }
+      filterInput.placeholder = 'Cari nama atau path endpoint...';
       hideSkeleton();
     } catch (err) {
       hideSkeleton();
@@ -395,7 +315,7 @@
 
   function renderLog() {
     logEl.hidden = false;
-    const term = (filterInputMain ? filterInputMain.value : filterInput.value).trim().toLowerCase();
+    const term = filterInput.value.trim().toLowerCase();
     logEl.innerHTML = '';
 
     const groups = [...new Set(routes.map((r) => r.group))].sort(
@@ -403,8 +323,6 @@
     );
 
     groups.forEach((g) => {
-      if (activeGroup !== 'all' && g !== activeGroup) return;
-
       const items = routes.filter((r) => {
         if (r.group !== g) return false;
         if (term && !(r.name.toLowerCase().includes(term) || r.path.toLowerCase().includes(term))) {
@@ -729,51 +647,45 @@
     return node;
   }
 
-  function syncSearchInputs(source) {
-    const value = source.value;
-    if (source !== filterInput && filterInput) filterInput.value = value;
-    if (source !== filterInputMain && filterInputMain) filterInputMain.value = value;
-    renderLog();
-  }
-
-  if (filterInput) filterInput.addEventListener('input', () => syncSearchInputs(filterInput));
-  if (filterInputMain) filterInputMain.addEventListener('input', () => syncSearchInputs(filterInputMain));
+  filterInput.addEventListener('input', renderLog);
 
   copyBaseBtn.addEventListener('click', () => {
     copyText(window.location.origin, copyBaseBtn);
   });
 
-  const sidebar = el('sidebar');
-  const sidebarOverlay = el('sidebarOverlay');
-  const mobileMenuBtn = el('mobileMenuBtn');
+  const hamburgerBtn = el('hamburgerBtn');
+  const hamburgerMenu = el('hamburgerMenu');
+  const menuOverlay = el('menuOverlay');
 
-  function openSidebarMobile() {
-    sidebar.classList.add('is-open');
-    sidebarOverlay.classList.add('is-open');
+  function openMenu() {
+    hamburgerBtn.classList.add('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    hamburgerMenu.classList.add('is-open');
+    menuOverlay.classList.add('is-open');
     document.body.style.overflow = 'hidden';
   }
 
-  function closeSidebarMobile() {
-    sidebar.classList.remove('is-open');
-    sidebarOverlay.classList.remove('is-open');
+  function closeMenu() {
+    hamburgerBtn.classList.remove('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    hamburgerMenu.classList.remove('is-open');
+    menuOverlay.classList.remove('is-open');
     document.body.style.overflow = '';
   }
 
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', () => {
-      if (sidebar.classList.contains('is-open')) {
-        closeSidebarMobile();
-      } else {
-        openSidebarMobile();
-      }
-    });
-  }
+  hamburgerBtn.addEventListener('click', () => {
+    if (hamburgerMenu.classList.contains('is-open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
 
-  if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebarMobile);
+  menuOverlay.addEventListener('click', closeMenu);
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && sidebar.classList.contains('is-open')) {
-      closeSidebarMobile();
+    if (e.key === 'Escape' && hamburgerMenu.classList.contains('is-open')) {
+      closeMenu();
     }
   });
 
@@ -782,7 +694,7 @@
     const isTypingElsewhere = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT' || (document.activeElement && document.activeElement.isContentEditable);
     if (e.key === '/' && !isTypingElsewhere) {
       e.preventDefault();
-      (filterInputMain || filterInput).focus();
+      filterInput.focus();
     }
   });
 

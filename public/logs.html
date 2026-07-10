@@ -7,31 +7,30 @@
 <link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #FFFFFF;
-  --ink: #0E1526;
-  --panel: #F6F8FB;
-  --panel-raised: #EEF2F8;
-  --border: #E3E8F0;
-  --border-strong: #C7D0DE;
-  --text: #0E1526;
-  --text-dim: #5B6472;
-  --text-faint: #929AAA;
-  --accent: #2F6FED;
-  --accent-hover: #1E56D6;
-  --accent-soft: #EAF1FF;
-  --good: #16A673;
-  --good-soft: #E4F8F0;
-  --bad: #E5484D;
-  --bad-soft: #FDEAEB;
-  --display: 'Plus Jakarta Sans', sans-serif;
-  --stat: 'Plus Jakarta Sans', sans-serif;
-  --body: 'Plus Jakarta Sans', -apple-system, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --radius: 16px;
-  --radius-sm: 10px;
+  --panel: #F7F8FA;
+  --panel-raised: #F0F2F5;
+  --border: #E2E5EA;
+  --border-strong: #CBD1DA;
+  --text: #14161A;
+  --text-dim: #565C68;
+  --text-faint: #8A8F99;
+  --accent: #2E5CFF;
+  --accent-hover: #1E46E0;
+  --accent-soft: #EAEFFF;
+  --good: #17A860;
+  --good-soft: #E7F8EF;
+  --bad: #E0392B;
+  --bad-soft: #FDECEA;
+  --display: 'Space Grotesk', sans-serif;
+  --stat: 'JetBrains Mono', ui-monospace, monospace;
+  --body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 10px;
+  --radius-sm: 7px;
 }
 
 * { box-sizing: border-box; }
@@ -68,14 +67,11 @@ button { font-family: inherit; cursor: pointer; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--sidebar-text, #C6CEDD);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  transition: background 0.12s ease, color 0.12s ease;
+  color: var(--text-dim);
 }
-.back-link:hover { color: #fff; text-decoration: none; background: rgba(255,255,255,0.08); }
+.back-link:hover { color: var(--accent); text-decoration: none; }
 
 .topbar {
   position: sticky;
@@ -84,50 +80,36 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
-  background: var(--ink);
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
 }
+.topbar-mark { font-family: var(--display); font-weight: 800; color: var(--text); }
 .topbar-mark {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-.topbar-mark-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: var(--accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-.topbar-mark span:last-child {
+  gap: 9px;
   font-family: var(--display);
   font-weight: 700;
-  font-size: 14.5px;
-  color: #fff;
+  font-size: 15px;
 }
-
 .stage {
   max-width: 980px;
   margin: 0 auto;
-  padding: 36px 22px 64px;
+  padding: 32px 22px 64px;
 }
 
 .page-head {
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 .page-head h1 {
   font-family: var(--display);
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 700;
   margin: 0 0 6px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .page-head p {
   margin: 0;
@@ -142,7 +124,7 @@ button { font-family: inherit; cursor: pointer; }
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 16px;
-  padding: 13px 18px;
+  padding: 12px 16px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -156,18 +138,18 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 500;
 }
 .status-count {
-  font-family: var(--mono);
+  font-family: var(--stat);
   font-weight: 700;
   color: var(--text);
 }
 .reset-note {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--text-faint);
 }
 
 .table-wrap {
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   overflow: hidden;
   background: #fff;
 }
@@ -178,24 +160,23 @@ table {
 }
 thead th {
   text-align: left;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--text-faint);
   background: var(--panel);
-  padding: 11px 14px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 tbody td {
-  padding: 11px 14px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
   vertical-align: middle;
 }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--panel); }
 tbody tr.is-new {
   animation: highlight 1.4s ease-out;
 }
@@ -207,12 +188,14 @@ tbody tr.is-new {
 .cell-ip { font-family: var(--mono); color: var(--text-dim); }
 .cell-endpoint { font-family: var(--mono); color: var(--text); }
 .cell-time { font-family: var(--mono); color: var(--text-faint); font-size: 12.5px; }
-.cell-latency { font-family: var(--mono); font-weight: 600; }
+.cell-latency { font-family: var(--stat); font-weight: 600; }
 .cell-latency.slow { color: var(--bad); }
 
-.col-no { width: 48px; }
+.col-no {
+  width: 48px;
+}
 .cell-no {
-  font-family: var(--mono);
+  font-family: var(--stat);
   font-weight: 700;
   color: var(--text-faint);
 }
@@ -250,9 +233,9 @@ tbody tr.is-new {
 .status-pill {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 999px;
-  font-family: var(--mono);
+  font-family: var(--stat);
   font-size: 12px;
   font-weight: 700;
 }
@@ -263,10 +246,10 @@ tbody tr.is-new {
   font-family: var(--mono);
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-soft);
-  padding: 2px 8px;
-  border-radius: 6px;
+  color: var(--text-dim);
+  background: var(--panel-raised);
+  padding: 2px 7px;
+  border-radius: 5px;
 }
 
 .empty-state {
@@ -286,7 +269,6 @@ tbody tr.is-new {
 
 <header class="topbar">
   <div class="topbar-mark">
-    <span class="topbar-mark-icon">IC</span>
     <span>ICCU APIS</span>
   </div>
   <a href="/" class="back-link">
