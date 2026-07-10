@@ -52,10 +52,7 @@
           const row = document.createElement('div');
           row.className = 'notif-item';
           row.innerHTML = `
-            <div class="notif-item-top">
-              <span class="notif-item-status is-info">Info</span>
-              <span class="notif-item-path">${item.text}</span>
-            </div>
+            <span class="notif-item-path">${item.text}</span>
             <div class="notif-item-meta">
               <span>${date}</span>
               <span>${time}</span>

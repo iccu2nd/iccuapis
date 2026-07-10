@@ -212,36 +212,21 @@ button {
 .notif-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 11px 14px;
+  gap: 5px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
 }
 .notif-item:last-child { border-bottom: none; }
 
-.notif-item-top {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mono);
-  font-size: 12px;
-}
-
-.notif-item-status {
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 5px;
-  font-size: 11px;
-}
-.notif-item-status.is-good { background: var(--good-soft); color: var(--good); }
-.notif-item-status.is-bad { background: var(--bad-soft); color: var(--bad); }
-.notif-item-status.is-info { background: var(--accent-soft); color: var(--accent); }
-
 .notif-item-path {
   color: var(--text);
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .notif-item-meta {
