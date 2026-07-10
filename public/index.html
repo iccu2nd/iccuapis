@@ -69,10 +69,8 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 14px 22px;
-  background: rgba(250, 247, 240, 0.86);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
+  background: var(--accent-hover);
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .topbar-mark {
@@ -81,12 +79,21 @@ button {
   gap: 9px;
 }
 
+.topbar-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
 .topbar-mark-text {
   font-family: var(--display);
   font-weight: 800;
   font-size: 16px;
   letter-spacing: -0.01em;
-  color: var(--text);
+  color: #fff;
 }
 
 .hamburger-btn {
@@ -103,13 +110,13 @@ button {
   cursor: pointer;
   transition: background 0.12s ease;
 }
-.hamburger-btn:hover { background: var(--panel); }
+.hamburger-btn:hover { background: rgba(255, 255, 255, 0.14); }
 .hamburger-btn span {
   display: block;
   width: 16px;
   height: 2px;
   border-radius: 2px;
-  background: var(--text);
+  background: #fff;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 .hamburger-btn.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
@@ -136,10 +143,10 @@ button {
   align-items: center;
   justify-content: center;
   position: relative;
-  color: var(--text);
+  color: #fff;
   transition: background 0.12s ease;
 }
-.notif-btn:hover { background: var(--panel); }
+.notif-btn:hover { background: rgba(255, 255, 255, 0.14); }
 
 .notif-dot {
   position: absolute;
@@ -567,15 +574,8 @@ button {
   text-transform: uppercase;
   color: var(--accent-hover);
   margin: 20px 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.log-group-title::before {
-  content: '•';
-  color: var(--accent);
-  font-size: 20px;
-  line-height: 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
 }
 .log-group-title:first-child { margin-top: 0; }
 
@@ -1049,6 +1049,7 @@ button {
 
   <header class="topbar" id="topbar">
     <div class="topbar-mark">
+      <img src="https://i.ibb.co/nsKcJFhX/97a2fdfe2a95.jpg" alt="ICCU APIS" class="topbar-logo" />
       <span class="topbar-mark-text">ICCU APIS</span>
     </div>
     <div class="topbar-actions">
