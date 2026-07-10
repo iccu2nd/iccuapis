@@ -2,6 +2,8 @@
 
 const TelegramBot = require('node-telegram-bot-api');
 const monitor = require('./monitor');
+const { getDb } = require('./mongoClient');
+const { ObjectId } = require('mongodb');
 
 let botInstance = null;
 let configInstance = null;
@@ -85,20 +87,43 @@ function startBot(config) {
       botInstance.sendMessage(msg.chat.id, '⚠️ Format salah.\nContoh: `/addnotif Server maintenance jam 22.00 - 23.00`', { parse_mode: 'Markdown' });
       return;
     }
-    const announcement = `📢 Pengumuman\n\n${text}\n\n🕒 ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`;
-    let sent = 0;
-    let failed = 0;
-    await Promise.all(
-      ownerIds.map((ownerId) =>
-        botInstance.sendMessage(ownerId, announcement)
-          .then(() => { sent += 1; })
-          .catch((err) => {
-            failed += 1;
-            console.error('[bot] Failed to send /addnotif to', ownerId, err.message);
-          })
-      )
-    );
-    botInstance.sendMessage(msg.chat.id, `✅ Pengumuman terkirim ke ${sent} chat.${failed ? ` (${failed} gagal)` : ''}`);
+
+    const db = await getDb();
+    if (!db) {
+      botInstance.sendMessage(msg.chat.id, '❌ MongoDB tidak terhubung, notif tidak tersimpan.');
+      return;
+    }
+
+    const result = await db.collection('notifications').insertOne({ text, createdAt: new Date() });
+    botInstance.sendMessage(msg.chat.id, `✅ Notif #${result.insertedId} ditambahkan ke website.`);
+  });
+
+  botInstance.onText(/\/delnotif(?:\s+(\S+))?/, async (msg, match) => {
+    if (!isOwner(msg)) return deny(msg.chat.id);
+    const id = match[1];
+    const db = await getDb();
+    if (!db) {
+      botInstance.sendMessage(msg.chat.id, '❌ MongoDB tidak terhubung.');
+      return;
+    }
+
+    if (!id) {
+      const list = await db.collection('notifications').find().sort({ createdAt: -1 }).limit(10).toArray();
+      if (!list.length) {
+        botInstance.sendMessage(msg.chat.id, '📭 Belum ada notif tersimpan.');
+        return;
+      }
+      const lines = list.map((n) => `#${n._id}  ${n.text.slice(0, 40)}`).join('\n');
+      botInstance.sendMessage(msg.chat.id, `📋 Notif tersimpan (pakai /delnotif <id>):\n${lines}`);
+      return;
+    }
+
+    try {
+      const result = await db.collection('notifications').deleteOne({ _id: new ObjectId(id) });
+      botInstance.sendMessage(msg.chat.id, result.deletedCount ? `✅ Notif #${id} dihapus.` : `❌ Notif #${id} tidak ditemukan.`);
+    } catch (err) {
+      botInstance.sendMessage(msg.chat.id, `❌ ID tidak valid.`);
+    }
   });
 
   botInstance.on('callback_query', async (query) => {

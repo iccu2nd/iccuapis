@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const config = require('./src/config');
 const monitor = require('./src/monitor');
 const { startBot, sendNotification } = require('./src/bot');
+const { getDb } = require('./src/mongoClient');
 
 if (typeof globalThis.File === 'undefined') {
   globalThis.File = require('node:buffer').File;
@@ -166,9 +167,38 @@ app.get('/api/logs', (req, res) => {
   res.json({ result: monitor.todaysLog() });
 });
 
-app.get('/api/notifications', (req, res) => {
+app.get('/api/notifications', async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 30, 100);
-  res.json({ result: monitor.recentLog(limit) });
+
+  const logItems = monitor.recentLog(limit).map((r) => ({
+    type: 'request',
+    at: r.at,
+    status: r.status,
+    method: r.method,
+    path: r.path,
+    ms: r.ms
+  }));
+
+  let announceItems = [];
+  const db = await getDb();
+  if (db) {
+    const docs = await db.collection('notifications')
+      .find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
+    announceItems = docs.map((d) => ({
+      type: 'announcement',
+      at: d.createdAt,
+      text: d.text
+    }));
+  }
+
+  const merged = [...logItems, ...announceItems]
+    .sort((a, b) => new Date(b.at) - new Date(a.at))
+    .slice(0, limit);
+
+  res.json({ result: merged });
 });
 
 app.get('/api/views', (req, res) => {

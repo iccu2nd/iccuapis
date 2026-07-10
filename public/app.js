@@ -621,20 +621,35 @@
     }
     items.forEach((item) => {
       const { date, time } = formatNotifTime(item.at);
-      const isOk = item.status >= 200 && item.status < 300;
       const row = document.createElement('div');
       row.className = 'notif-item';
-      row.innerHTML = `
-        <div class="notif-item-top">
-          <span class="notif-item-status ${isOk ? 'is-good' : 'is-bad'}">${item.status}</span>
-          <span class="notif-item-path">${item.method} ${item.path}</span>
-        </div>
-        <div class="notif-item-meta">
-          <span>${date}</span>
-          <span>${time}</span>
-          <span>${item.ms}ms</span>
-        </div>
-      `;
+
+      if (item.type === 'announcement') {
+        row.innerHTML = `
+          <div class="notif-item-top">
+            <span class="notif-item-status is-info">Info</span>
+            <span class="notif-item-path">${item.text}</span>
+          </div>
+          <div class="notif-item-meta">
+            <span>${date}</span>
+            <span>${time}</span>
+          </div>
+        `;
+      } else {
+        const isOk = item.status >= 200 && item.status < 300;
+        row.innerHTML = `
+          <div class="notif-item-top">
+            <span class="notif-item-status ${isOk ? 'is-good' : 'is-bad'}">${item.status}</span>
+            <span class="notif-item-path">${item.method} ${item.path}</span>
+          </div>
+          <div class="notif-item-meta">
+            <span>${date}</span>
+            <span>${time}</span>
+            <span>${item.ms}ms</span>
+          </div>
+        `;
+      }
+
       notifList.appendChild(row);
     });
   }
