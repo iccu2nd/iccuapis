@@ -69,8 +69,8 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 14px 22px;
-  background: var(--accent-hover);
-  border-bottom: 1px solid var(--border-strong);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
 }
 
 .topbar-mark {
@@ -84,7 +84,7 @@ button {
   height: 30px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  border: 2px solid var(--border-strong);
   flex-shrink: 0;
 }
 
@@ -110,13 +110,13 @@ button {
   cursor: pointer;
   transition: background 0.12s ease;
 }
-.hamburger-btn:hover { background: rgba(255, 255, 255, 0.14); }
+.hamburger-btn:hover { background: var(--panel); }
 .hamburger-btn span {
   display: block;
   width: 16px;
   height: 2px;
   border-radius: 2px;
-  background: #fff;
+  background: var(--text);
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 .hamburger-btn.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
@@ -143,10 +143,10 @@ button {
   align-items: center;
   justify-content: center;
   position: relative;
-  color: #fff;
+  color: var(--text);
   transition: background 0.12s ease;
 }
-.notif-btn:hover { background: rgba(255, 255, 255, 0.14); }
+.notif-btn:hover { background: var(--panel); }
 
 .notif-dot {
   position: absolute;
@@ -1050,7 +1050,6 @@ button {
   <header class="topbar" id="topbar">
     <div class="topbar-mark">
       <img src="https://i.ibb.co/nsKcJFhX/97a2fdfe2a95.jpg" alt="ICCU APIS" class="topbar-logo" />
-      <span class="topbar-mark-text">ICCU APIS</span>
     </div>
     <div class="topbar-actions">
       <div class="notif-wrap">
