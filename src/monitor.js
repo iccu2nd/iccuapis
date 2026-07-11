@@ -94,7 +94,8 @@ async function init() {
   try {
     await Promise.all([
       db.collection('blocked_ips').createIndex({ ip: 1 }, { unique: true }),
-      db.collection('unique_visitors').createIndex({ ip: 1 }, { unique: true })
+      db.collection('unique_visitors').createIndex({ ip: 1 }, { unique: true }),
+      db.collection('request_log').createIndex({ day: 1, at: 1 })
     ]);
 
     const blocked = await db.collection('blocked_ips')
@@ -130,9 +131,20 @@ async function init() {
       state.errors5xxToday = Number(dayDoc.errors_5xx) || 0;
     }
 
+    const todaysEntries = await db.collection('request_log')
+      .find({ day })
+      .sort({ at: 1 })
+      .limit(MAX_LOG)
+      .project({ _id: 0 })
+      .toArray();
+    state.log = todaysEntries;
+
+    await db.collection('request_log').deleteMany({ day: { $ne: day } });
+
     console.log(
       `[monitor] hydrated from Mongo: ${state.blockedIps.size} blocked IP(s), ` +
-      `${state.uniqueVisitors.size} unique visitor(s), ${state.totalAllTime} total requests all-time`
+      `${state.uniqueVisitors.size} unique visitor(s), ${state.totalAllTime} total requests all-time, ` +
+      `${state.log.length} log entrie(s) for today`
     );
   } catch (err) {
     console.error('[monitor] failed to hydrate from Mongo:', err.message);
@@ -144,12 +156,19 @@ async function init() {
 function rolloverDayIfNeeded() {
   const day = todayWIB();
   if (day !== state.day) {
+    const oldDay = state.day;
     flush().finally(() => {
       state.day = day;
       state.totalToday = 0;
       state.blockedToday = 0;
       state.errors5xxToday = 0;
       state.log = [];
+
+      getDb().then((db) => {
+        if (!db) return;
+        db.collection('request_log').deleteMany({ day: oldDay })
+          .catch((err) => console.error('[monitor] failed to purge old day log:', err.message));
+      });
     });
   }
 }
@@ -158,7 +177,8 @@ function recordRequest({ ip, method, path, status, ms }) {
   rolloverDayIfNeeded();
   ip = normalizeIp(ip);
 
-  const entry = { ip, method, path, status, ms, at: new Date().toISOString() };
+  const day = state.day;
+  const entry = { day, ip, method, path, status, ms, at: new Date().toISOString() };
   state.log.push(entry);
   if (state.log.length > MAX_LOG) state.log.shift();
 
@@ -174,6 +194,12 @@ function recordRequest({ ip, method, path, status, ms }) {
     state.errors5xxToday += 1;
     state.pendingDay5xxDelta += 1;
   }
+
+  getDb().then((db) => {
+    if (!db) return;
+    db.collection('request_log').insertOne(entry)
+      .catch((err) => console.error('[monitor] failed to persist log entry:', err.message));
+  });
 }
 
 function recordBlockedHit(ip) {

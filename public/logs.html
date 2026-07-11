@@ -50,19 +50,6 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font-family: inherit; cursor: pointer; }
 
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--good);
-  flex-shrink: 0;
-  animation: pulse 1.6s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -133,13 +120,14 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
+  font-size: 15px;
   color: var(--text-dim);
   font-weight: 500;
 }
 .status-count {
   font-family: var(--stat);
   font-weight: 700;
+  font-size: 15px;
   color: var(--text);
 }
 .reset-note {
@@ -285,7 +273,6 @@ tbody tr.is-new {
 
   <div class="status-row">
     <div class="status-left">
-      <span class="live-dot" aria-hidden="true"></span>
       <span>Live &middot; <span class="status-count" id="logCount">0</span> request hari ini</span>
     </div>
     <span class="reset-note" id="resetNote">Reset otomatis tiap pergantian hari (WIB)</span>
