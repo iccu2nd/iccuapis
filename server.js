@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 
 const bootedAt = Date.now();
 
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
     status: 'up',
@@ -43,6 +43,7 @@ const ALWAYS_ALLOWED_PATHS = new Set([
   '/',
   '/logs',
   '/health',
+  '/api/health',
   '/manifest.json',
   '/api/routes',
   '/api/stats',
@@ -203,6 +204,10 @@ app.get('/', (req, res) => {
 
 app.get('/logs', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/logs.html'));
+});
+
+app.get('/health', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/health.html'));
 });
 
 app.use((req, res) => {
