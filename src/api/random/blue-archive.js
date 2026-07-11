@@ -1,6 +1,11 @@
 'use strict';
 
 const axios = require('axios');
+const cache = require('../../cache');
+
+const LINKS_TTL_MS = 30 * 60 * 1000; // 30 minutes — the source list rarely changes
+const LINKS_CACHE_KEY = 'blue-archive:links';
+const LINKS_URL = 'https://raw.githubusercontent.com/rynxzyy/blue-archive-r-img/refs/heads/main/links.json';
 
 module.exports = function register(app, registry) {
   const route = {
@@ -15,10 +20,11 @@ module.exports = function register(app, registry) {
 
   app.get(route.path, async (req, res) => {
     try {
-      const { data: links } = await axios.get(
-        'https://raw.githubusercontent.com/rynxzyy/blue-archive-r-img/refs/heads/main/links.json',
-        { timeout: 10000 }
-      );
+      const links = await cache.wrap(LINKS_CACHE_KEY, LINKS_TTL_MS, async () => {
+        const { data } = await axios.get(LINKS_URL, { timeout: 10000 });
+        return data;
+      });
+
       const pick = links[Math.floor(Math.random() * links.length)];
       const { data: image } = await axios.get(pick, {
         responseType: 'arraybuffer',

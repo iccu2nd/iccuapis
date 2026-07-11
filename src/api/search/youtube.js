@@ -1,6 +1,9 @@
 'use strict';
 
 const yts = require('yt-search');
+const cache = require('../../cache');
+
+const TTL_MS = 5 * 60 * 1000; // 5 minutes — search results don't change second to second
 
 module.exports = function register(app, registry) {
   const route = {
@@ -23,14 +26,17 @@ module.exports = function register(app, registry) {
     }
 
     try {
-      const { videos } = await yts.search(q);
-      const results = videos.slice(0, 20).map((video) => ({
-        title: video.title,
-        channel: video.author.name,
-        duration: video.duration.timestamp,
-        thumbnail: video.thumbnail,
-        url: video.url
-      }));
+      const cacheKey = `youtube:${q.trim().toLowerCase()}`;
+      const results = await cache.wrap(cacheKey, TTL_MS, async () => {
+        const { videos } = await yts.search(q);
+        return videos.slice(0, 20).map((video) => ({
+          title: video.title,
+          channel: video.author.name,
+          duration: video.duration.timestamp,
+          thumbnail: video.thumbnail,
+          url: video.url
+        }));
+      });
       res.json({ result: results });
     } catch (err) {
       res.status(502).json({
