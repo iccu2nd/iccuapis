@@ -140,10 +140,11 @@ app.use((req, res, next) => {
 
     if (res.statusCode >= 500) {
       const errPayload = res.locals.errorPayload || {};
+      const detailPart = errPayload.detail ? ` — ${errPayload.detail}` : '';
       sendErrorAlert({
         endpoint: req.path,
         message: errPayload.message || `HTTP ${res.statusCode}`,
-        extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}`
+        extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}${detailPart}`
       });
     }
   });

@@ -1,10 +1,13 @@
 'use strict';
 
 const axios = require('axios');
+const CryptoJS = require('crypto-js');
+const yts = require('yt-search');
 const cache = require('../../cache');
 
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const TIMEOUT = 20000;
+const CRYPTO_KEY = 'C5D58EF67A7584E4A29F6C35BBC4EB12';
 
 module.exports = function register(app, registry) {
   const route = {
@@ -12,183 +15,174 @@ module.exports = function register(app, registry) {
     path: '/download/ytmp3',
     group: 'download',
     name: 'YouTube to MP3',
-    description: 'Download audio from a YouTube video as MP3.',
+    description: 'Download audio dari video YouTube. Bisa pakai URL langsung atau kata kunci pencarian.',
     params: [
-      { key: 'url', required: true, hint: 'YouTube video URL', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      { key: 'url', required: false, hint: 'URL video YouTube (opsional jika pakai query)', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+      { key: 'query', required: false, hint: 'Kata kunci pencarian (dipakai jika url kosong)', example: 'Semenjana - Soegi Bornean' }
     ]
   };
   registry.push(route);
 
   app.get(route.path, async (req, res) => {
-    const { url } = req.query;
+    const { url, query } = req.query;
 
-    if (!url || !url.trim()) {
+    if ((!url || !url.trim()) && (!query || !query.trim())) {
       return res.status(400).json({
         ok: false,
-        error: { code: 'MISSING_PARAM', message: 'The "url" parameter is required.' }
+        error: { code: 'MISSING_PARAM', message: 'Isi salah satu: parameter "url" atau "query".' }
       });
     }
 
-    const videoId = extractVideoId(url);
-    if (!videoId) {
-      return res.status(400).json({
-        ok: false,
-        error: { code: 'INVALID_URL', message: 'Could not extract a valid YouTube video ID from that URL.' }
-      });
-    }
+    try {
+      let video;
 
-    const cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    const cacheKey = `ytmp3:${videoId}`;
+      if (url && url.trim()) {
+        const videoId = extractVideoId(url);
+        if (!videoId) {
+          return res.status(400).json({
+            ok: false,
+            error: { code: 'INVALID_URL', message: 'URL YouTube tidak valid.' }
+          });
+        }
+        video = { id: videoId, url: `https://www.youtube.com/watch?v=${videoId}` };
+      } else {
+        const { videos } = await yts(query.trim());
+        if (!videos || !videos.length) {
+          return res.status(404).json({
+            ok: false,
+            error: { code: 'NOT_FOUND', message: `Tidak ada hasil untuk "${query}".` }
+          });
+        }
+        const top = videos[0];
+        video = {
+          id: top.videoId,
+          url: top.url,
+          title: top.title,
+          author: top.author?.name,
+          duration: top.duration?.timestamp,
+          thumbnail: top.thumbnail
+        };
+      }
 
-    const cached = cache.get(cacheKey);
-    if (cached) {
-      return res.json({ result: { ...cached, cache: true } });
-    }
+      const cacheKey = `ytmp3:${video.id}`;
+      const cached = cache.get(cacheKey);
+      if (cached) {
+        return res.json({ result: { ...cached, cache: true } });
+      }
 
-    const providers = [ytdown, savefrom, y2mate];
-    const errors = [];
+      const backends = [
+        { name: 'savetube', fn: () => savetube(video.url) },
+        { name: 'ytmp3ing', fn: () => ytmp3ing(video.url) }
+      ];
 
-    for (const provider of providers) {
-      try {
-        const data = await provider(cleanUrl);
-        if (data && data.url) {
+      const errors = [];
+      for (const backend of backends) {
+        try {
+          const dl = await backend.fn();
           const result = {
-            title: data.title || 'Unknown Title',
-            source: data.source,
-            url: data.url,
-            filename: data.filename || `${videoId}.mp3`
+            title: dl.title || video.title || 'Unknown Title',
+            author: video.author,
+            duration: dl.duration || video.duration,
+            thumbnail: dl.thumbnail || video.thumbnail,
+            backend: backend.name,
+            url: dl.downloadUrl,
+            filename: `${(dl.title || video.title || video.id).replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
           };
+          if (!result.url) throw new Error('Backend tidak mengembalikan link download');
+
           cache.set(cacheKey, result, CACHE_TTL_MS);
           return res.json({ result: { ...result, cache: false } });
+        } catch (err) {
+          errors.push(`${backend.name}: ${err.message}`);
         }
-        errors.push(`${provider.providerName}: no result`);
-      } catch (err) {
-        errors.push(`${provider.providerName}: ${err.message}`);
       }
+
+      const combinedError = errors.join(' | ');
+      console.error(`[ytmp3] all backends failed for videoId=${video.id}: ${combinedError}`);
+
+      res.status(502).json({
+        ok: false,
+        error: {
+          code: 'DOWNLOAD_FAILED',
+          message: 'Semua backend gagal memproses link ini.',
+          detail: combinedError
+        }
+      });
+    } catch (err) {
+      console.error('[ytmp3] unexpected error:', err.message);
+      res.status(502).json({
+        ok: false,
+        error: { code: 'UPSTREAM_ERROR', message: err.message || 'Gagal memproses permintaan.' }
+      });
     }
-
-    const combinedError = errors.join(' | ');
-    console.error(`[ytmp3] all providers failed for videoId=${videoId}: ${combinedError}`);
-
-    res.status(502).json({
-      ok: false,
-      error: { code: 'DOWNLOAD_FAILED', message: 'Semua provider gagal memproses link ini. Coba lagi nanti.' }
-    });
   });
 };
 
-function generateRandomIP() {
-  const ranges = [
-    [1, 1], [2, 2], [5, 5], [23, 23], [27, 27], [31, 31], [36, 36], [37, 37], [39, 39], [42, 42],
-    [46, 46], [49, 49], [50, 50], [60, 60], [114, 114], [117, 117], [118, 118], [119, 119], [120, 120],
-    [121, 121], [122, 122], [123, 123], [124, 124], [125, 125], [126, 126], [180, 180], [182, 182], [183, 183]
-  ];
-  const range = ranges[Math.floor(Math.random() * ranges.length)];
-  return [
-    range[0],
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256),
-    Math.floor(Math.random() * 256)
-  ].join('.');
+async function getSavetubeCdn() {
+  const { data } = await axios.get('https://media.savetube.vip/api/random-cdn', { timeout: TIMEOUT });
+  return data.cdn;
 }
 
-async function ytdown(url) {
-  const spoofedIp = generateRandomIP();
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'X-Forwarded-For': spoofedIp,
-    'X-Real-IP': spoofedIp,
-    'Client-IP': spoofedIp,
-    'True-Client-IP': spoofedIp,
-    'X-Originating-IP': spoofedIp,
-    'X-Cluster-Client-IP': spoofedIp,
-    Forwarded: `for=${spoofedIp}`,
-    Accept: '*/*',
-    'X-Requested-With': 'XMLHttpRequest',
-    Referer: 'https://ytdown.to/'
-  };
-
-  const { data } = await axios.post(
-    'https://app.ytdown.to/proxy.php',
-    `url=${encodeURIComponent(url)}`,
-    { headers, timeout: TIMEOUT }
+function decryptSavetube(base64) {
+  const raw = Buffer.from(base64, 'base64');
+  const iv = raw.slice(0, 16);
+  const encrypted = raw.slice(16);
+  const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY);
+  const decrypted = CryptoJS.AES.decrypt(
+    { ciphertext: CryptoJS.lib.WordArray.create(encrypted) },
+    key,
+    { iv: CryptoJS.lib.WordArray.create(iv), mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
   );
+  return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+}
 
-  const info = data?.api;
-  if (!info || info.status !== 'ok') throw new Error('Gagal mengambil info video');
+async function savetube(videoUrl, quality = '128') {
+  const cdn = await getSavetubeCdn();
+  const { data } = await axios.post(`https://${cdn}/v2/info`, { url: videoUrl }, { timeout: TIMEOUT });
+  if (!data.status) throw new Error(data.message || 'Gagal ambil info video');
 
-  const audios = (info.mediaItems || []).filter((v) => v.type === 'Audio');
-  const bestAudio = audios[0];
-  if (!bestAudio) throw new Error('Format audio tidak tersedia');
-
-  const step2 = await axios.post(
-    'https://app.ytdown.to/proxy.php',
-    `url=${encodeURIComponent(bestAudio.mediaUrl)}`,
-    { headers, timeout: TIMEOUT }
+  const info = decryptSavetube(data.data);
+  const { data: dl } = await axios.post(
+    `https://${cdn}/download`,
+    { downloadType: 'audio', quality, key: info.key },
+    { timeout: TIMEOUT }
   );
-
-  const fileData = step2.data?.api;
-  if (!fileData?.fileUrl) throw new Error('Gagal mengambil file audio final');
 
   return {
-    source: 'YTDown.to',
     title: info.title,
-    url: fileData.fileUrl,
-    filename: fileData.fileName
+    thumbnail: info.thumbnail,
+    duration: info.durationLabel,
+    downloadUrl: dl.data?.downloadUrl || ''
   };
 }
-ytdown.providerName = 'ytdown';
 
-async function savefrom(url) {
-  const { data } = await axios.get(`https://api.savefrom.net/2/?url=${encodeURIComponent(url)}`, {
-    headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' },
+async function ytmp3ing(videoUrl) {
+  const res = await axios.get('https://ytmp3.ing/', { timeout: TIMEOUT });
+  const cookie = res.headers['set-cookie']?.join('; ') || '';
+  const csrf = res.data.match(/value="([^"]+)"/)?.[1];
+  if (!csrf) throw new Error('Gagal dapat CSRF token ytmp3.ing');
+
+  const boundary = '----WebKitFormBoundaryAzbry';
+  const body = `${boundary}\r\nContent-Disposition: form-data; name="url"\r\n\r\n${videoUrl}\r\n${boundary}--\r\n`;
+
+  const response = await axios.post('https://ytmp3.ing/audio', body, {
+    headers: {
+      'content-type': `multipart/form-data; boundary=${boundary}`,
+      'x-csrftoken': csrf,
+      cookie
+    },
     timeout: TIMEOUT
   });
 
-  if (!data || !data.url) throw new Error('Gagal mengambil data dari SaveFrom');
-
-  const title = data.title || 'Unknown Title';
-  return {
-    source: 'SaveFrom',
-    title,
-    url: data.url,
-    filename: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
-  };
-}
-savefrom.providerName = 'savefrom';
-
-async function y2mate(url) {
-  const step1 = await axios.get(`https://y2mate.com/api/analyze?url=${encodeURIComponent(url)}`, {
-    headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' },
-    timeout: TIMEOUT
-  });
-
-  const result = step1.data?.result;
-  if (!result) throw new Error('Gagal menganalisis video');
-
-  const title = result.title || 'Unknown Title';
-  const audioFormats = (result.formats || []).filter((f) => f.type === 'mp3' || f.type === 'audio');
-  const target = audioFormats[0];
-  if (!target) throw new Error('Format audio tidak tersedia');
-
-  const step2 = await axios.post(
-    'https://y2mate.com/api/convert',
-    { url, format: target.format, quality: target.quality || 'best' },
-    { headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' }, timeout: TIMEOUT }
-  );
-
-  const finalUrl = step2.data?.url || target.url;
-  if (!finalUrl) throw new Error('Gagal mengonversi audio');
+  const encryptedUrl = response.data.url;
+  if (!encryptedUrl) throw new Error('Gagal ambil link download');
+  const downloadUrl = Buffer.from(encryptedUrl, 'base64').toString('utf-8');
 
   return {
-    source: 'Y2Mate',
-    title,
-    url: finalUrl,
-    filename: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
+    title: response.data.filename || 'Unknown',
+    downloadUrl
   };
 }
-y2mate.providerName = 'y2mate';
 
 function extractVideoId(url) {
   if (!url) return null;
