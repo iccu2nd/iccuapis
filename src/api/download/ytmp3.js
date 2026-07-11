@@ -2,7 +2,6 @@
 
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
-const yts = require('yt-search');
 const cache = require('../../cache');
 
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
@@ -15,54 +14,32 @@ module.exports = function register(app, registry) {
     path: '/download/ytmp3',
     group: 'download',
     name: 'YouTube to MP3',
-    description: 'Download audio dari video YouTube. Bisa pakai URL langsung atau kata kunci pencarian.',
+    description: 'Download audio dari video YouTube.',
     params: [
-      { key: 'url', required: false, hint: 'URL video YouTube (opsional jika pakai query)', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
-      { key: 'query', required: false, hint: 'Kata kunci pencarian (dipakai jika url kosong)', example: 'Semenjana - Soegi Bornean' }
+      { key: 'url', required: true, hint: 'URL video YouTube', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
     ]
   };
   registry.push(route);
 
   app.get(route.path, async (req, res) => {
-    const { url, query } = req.query;
+    const { url } = req.query;
 
-    if ((!url || !url.trim()) && (!query || !query.trim())) {
+    if (!url || !url.trim()) {
       return res.status(400).json({
         ok: false,
-        error: { code: 'MISSING_PARAM', message: 'Isi salah satu: parameter "url" atau "query".' }
+        error: { code: 'MISSING_PARAM', message: 'Parameter "url" wajib diisi.' }
       });
     }
 
     try {
-      let video;
-
-      if (url && url.trim()) {
-        const videoId = extractVideoId(url);
-        if (!videoId) {
-          return res.status(400).json({
-            ok: false,
-            error: { code: 'INVALID_URL', message: 'URL YouTube tidak valid.' }
-          });
-        }
-        video = { id: videoId, url: `https://www.youtube.com/watch?v=${videoId}` };
-      } else {
-        const { videos } = await yts(query.trim());
-        if (!videos || !videos.length) {
-          return res.status(404).json({
-            ok: false,
-            error: { code: 'NOT_FOUND', message: `Tidak ada hasil untuk "${query}".` }
-          });
-        }
-        const top = videos[0];
-        video = {
-          id: top.videoId,
-          url: top.url,
-          title: top.title,
-          author: top.author?.name,
-          duration: top.duration?.timestamp,
-          thumbnail: top.thumbnail
-        };
+      const videoId = extractVideoId(url);
+      if (!videoId) {
+        return res.status(400).json({
+          ok: false,
+          error: { code: 'INVALID_URL', message: 'URL YouTube tidak valid.' }
+        });
       }
+      const video = { id: videoId, url: `https://www.youtube.com/watch?v=${videoId}` };
 
       const cacheKey = `ytmp3:${video.id}`;
       const cached = cache.get(cacheKey);
@@ -80,13 +57,12 @@ module.exports = function register(app, registry) {
         try {
           const dl = await backend.fn();
           const result = {
-            title: dl.title || video.title || 'Unknown Title',
-            author: video.author,
-            duration: dl.duration || video.duration,
-            thumbnail: dl.thumbnail || video.thumbnail,
+            title: dl.title || 'Unknown Title',
+            duration: dl.duration,
+            thumbnail: dl.thumbnail,
             backend: backend.name,
             url: dl.downloadUrl,
-            filename: `${(dl.title || video.title || video.id).replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
+            filename: `${(dl.title || video.id).replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
           };
           if (!result.url) throw new Error('Backend tidak mengembalikan link download');
 
