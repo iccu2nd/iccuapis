@@ -210,12 +210,30 @@
     throw lastErr;
   }
 
+  let uptimeBaseSeconds = null;
+  let uptimeBaseAt = null;
+  let uptimeTickTimer = null;
+
+  function formatUptime(totalSeconds) {
+    const s = Math.max(0, Math.floor(totalSeconds));
+    const hours = Math.floor(s / 3600);
+    const minutes = Math.floor((s % 3600) / 60);
+    const seconds = s % 60;
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  function tickUptime() {
+    if (uptimeBaseSeconds === null) return;
+    const elapsed = (Date.now() - uptimeBaseAt) / 1000;
+    el('uptimeValue').textContent = formatUptime(uptimeBaseSeconds + elapsed);
+  }
+
   async function loadStats() {
     const [viewsRes, statsRes, myIpRes, healthRes] = await Promise.all([
       fetchJsonWithRetry('/api/views').catch(() => null),
       fetchJsonWithRetry('/api/stats').catch(() => null),
       fetchJsonWithRetry('/api/myip').catch(() => null),
-      fetchJsonWithRetry('/health').catch(() => null)
+      fetchJsonWithRetry('/health').catch((err) => { console.error('[health] fetch failed', err); return null; })
     ]);
 
     if (viewsRes && viewsRes.result) {
@@ -243,11 +261,17 @@
     }
     el('myIpValue').classList.remove('is-loading');
 
-    if (healthRes && typeof healthRes.uptimeSeconds === 'number') {
-      const totalSeconds = healthRes.uptimeSeconds;
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      el('uptimeValue').textContent = `${hours}h ${minutes}m`;
+    const uptimeSeconds = healthRes && typeof healthRes.uptimeSeconds === 'number'
+      ? healthRes.uptimeSeconds
+      : null;
+
+    if (uptimeSeconds !== null) {
+      uptimeBaseSeconds = uptimeSeconds;
+      uptimeBaseAt = Date.now();
+      el('uptimeValue').textContent = formatUptime(uptimeBaseSeconds);
+      if (!uptimeTickTimer) {
+        uptimeTickTimer = setInterval(tickUptime, 1000);
+      }
     } else {
       el('uptimeValue').textContent = '—';
     }
