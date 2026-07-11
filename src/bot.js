@@ -254,4 +254,25 @@ User Agent: ${escapeMarkdown(userAgent || 'Tidak diketahui')}
   });
 }
 
-module.exports = { startBot, sendNotification };
+function sendErrorAlert(context) {
+  if (!botInstance || !configInstance) return;
+
+  const ownerIds = configInstance.telegram?.ownerIds || [];
+  if (!ownerIds.length) return;
+
+  const { endpoint, message, extra } = context;
+  const text = `
+⚠️ Error di Endpoint
+
+Endpoint : ${escapeMarkdown(endpoint)}
+Error    : ${escapeMarkdown(message)}
+${extra ? `Detail   : ${escapeMarkdown(extra)}\n` : ''}Waktu    : ${new Date().toISOString()}
+  `;
+
+  ownerIds.forEach((ownerId) => {
+    botInstance.sendMessage(ownerId, text.trim(), { parse_mode: 'Markdown' })
+      .catch((err) => console.error('[bot] Failed to send error alert:', err.message));
+  });
+}
+
+module.exports = { startBot, sendNotification, sendErrorAlert };

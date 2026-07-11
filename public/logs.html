@@ -179,15 +179,6 @@ tbody tr.is-new {
 .cell-latency { font-family: var(--stat); font-weight: 600; }
 .cell-latency.slow { color: var(--bad); }
 
-.col-no {
-  width: 48px;
-}
-.cell-no {
-  font-family: var(--stat);
-  font-weight: 700;
-  color: var(--text-faint);
-}
-
 .pager {
   display: flex;
   align-items: center;
@@ -260,7 +251,6 @@ tbody tr.is-new {
     white-space: normal;
     word-break: break-word;
   }
-  .col-no { width: 22px; }
   .cell-time { font-size: 9.5px; }
   .cell-ip { font-size: 9.5px; }
   .method-tag { font-size: 9px; padding: 1px 4px; }
@@ -298,7 +288,6 @@ tbody tr.is-new {
     <table>
       <thead>
         <tr>
-          <th class="col-no">No.</th>
           <th>Waktu</th>
           <th>IP Address</th>
           <th>Method</th>
@@ -404,7 +393,6 @@ tbody tr.is-new {
       const latencyClass = entry.ms >= 2000 ? 'cell-latency slow' : 'cell-latency';
 
       tr.innerHTML = `
-        <td class="cell-no">${chronoNumber}</td>
         <td class="cell-time">${fmtTime(entry.at)}</td>
         <td class="cell-ip">${entry.ip}</td>
         <td><span class="method-tag">${entry.method}</span></td>

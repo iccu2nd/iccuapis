@@ -1,16 +1,10 @@
 'use strict';
 
-const { exec } = require('child_process');
-const { promisify } = require('util');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const axios = require('axios');
 const cache = require('../../cache');
 
-const execAsync = promisify(exec);
-const TIMEOUT = 60000;
-const ALLOWED_BITRATES = ['64', '128'];
-const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes — long enough to help reshares, short enough to not bloat memory
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const TIMEOUT = 20000;
 
 module.exports = function register(app, registry) {
   const route = {
@@ -18,16 +12,15 @@ module.exports = function register(app, registry) {
     path: '/download/ytmp3',
     group: 'download',
     name: 'YouTube to MP3',
-    description: 'Download audio from a YouTube video as MP3, using yt-dlp, with a choice of bitrate.',
+    description: 'Download audio from a YouTube video as MP3.',
     params: [
-      { key: 'url', required: true, hint: 'YouTube video URL', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
-      { key: 'bitrate', required: false, hint: 'Pilih kualitas audio', example: '128', options: ['64', '128'] }
+      { key: 'url', required: true, hint: 'YouTube video URL', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
     ]
   };
   registry.push(route);
 
   app.get(route.path, async (req, res) => {
-    const { url, bitrate } = req.query;
+    const { url } = req.query;
 
     if (!url || !url.trim()) {
       return res.status(400).json({
@@ -44,56 +37,143 @@ module.exports = function register(app, registry) {
       });
     }
 
-    const quality = ALLOWED_BITRATES.includes(String(bitrate)) ? String(bitrate) : '128';
-    const cacheKey = `ytmp3:${videoId}:${quality}`;
+    const cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const cacheKey = `ytmp3:${videoId}`;
 
-    const cachedBase64 = cache.get(cacheKey);
-    if (cachedBase64) {
-      const buffer = Buffer.from(cachedBase64, 'base64');
-      res.set('Content-Type', 'audio/mpeg');
-      res.set('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
-      res.set('X-Cache', 'HIT');
-      return res.send(buffer);
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return res.json({ result: { ...cached, cache: true } });
     }
 
-    const outPath = path.join(os.tmpdir(), `ytmp3_${videoId}_${Date.now()}.mp3`);
-    const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const providers = [ytdown, savefrom, y2mate];
+    const errors = [];
 
-    try {
-      await execAsync(
-        `yt-dlp -x --audio-format mp3 --audio-quality ${quality}K --no-playlist -o "${outPath}" "${ytUrl}"`,
-        { timeout: TIMEOUT }
-      );
-
-      if (!fs.existsSync(outPath)) {
-        throw new Error('yt-dlp did not produce an output file');
+    for (const provider of providers) {
+      try {
+        const data = await provider(cleanUrl);
+        if (data && data.url) {
+          const result = {
+            title: data.title || 'Unknown Title',
+            source: data.source,
+            url: data.url,
+            filename: data.filename || `${videoId}.mp3`
+          };
+          cache.set(cacheKey, result, CACHE_TTL_MS);
+          return res.json({ result: { ...result, cache: false } });
+        }
+        errors.push(`${provider.providerName}: no result`);
+      } catch (err) {
+        errors.push(`${provider.providerName}: ${err.message}`);
       }
-
-      const buffer = fs.readFileSync(outPath);
-      fs.unlinkSync(outPath);
-
-      if (buffer.length < 10000) {
-        throw new Error('Downloaded file is too small, likely failed');
-      }
-
-      // Only cache reasonably small files so memory doesn't balloon
-      if (buffer.length <= 15 * 1024 * 1024) {
-        cache.set(cacheKey, buffer.toString('base64'), CACHE_TTL_MS);
-      }
-
-      res.set('Content-Type', 'audio/mpeg');
-      res.set('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
-      res.set('X-Cache', 'MISS');
-      res.send(buffer);
-    } catch (err) {
-      if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
-      res.status(502).json({
-        ok: false,
-        error: { code: 'DOWNLOAD_FAILED', message: err.message || 'Failed to download audio.' }
-      });
     }
+
+    const combinedError = errors.join(' | ');
+    console.error(`[ytmp3] all providers failed for videoId=${videoId}: ${combinedError}`);
+
+    res.status(502).json({
+      ok: false,
+      error: { code: 'DOWNLOAD_FAILED', message: 'Semua provider gagal memproses link ini. Coba lagi nanti.' }
+    });
   });
 };
+
+async function ytdown(url) {
+  const step1 = await axios.post(
+    'https://app.ytdown.to/proxy.php',
+    `url=${encodeURIComponent(url)}`,
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'User-Agent': 'Mozilla/5.0',
+        Origin: 'https://app.ytdown.to',
+        Referer: 'https://app.ytdown.to/id2/',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      timeout: TIMEOUT
+    }
+  );
+
+  const info = step1.data?.api;
+  if (!info || info.status !== 'ok') throw new Error('Gagal mengambil info video');
+
+  const audios = (info.mediaItems || []).filter((v) => v.type === 'Audio');
+  const bestAudio = audios[0];
+  if (!bestAudio) throw new Error('Format audio tidak tersedia');
+
+  const step2 = await axios.post(
+    'https://app.ytdown.to/proxy.php',
+    `url=${encodeURIComponent(bestAudio.mediaUrl)}`,
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Origin: 'https://app.ytdown.to',
+        Referer: 'https://app.ytdown.to/id2/'
+      },
+      timeout: TIMEOUT
+    }
+  );
+
+  const fileData = step2.data?.api;
+  if (!fileData?.fileUrl) throw new Error('Gagal mengambil file audio final');
+
+  return {
+    source: 'YTDown.to',
+    title: info.title,
+    url: fileData.fileUrl,
+    filename: fileData.fileName
+  };
+}
+ytdown.providerName = 'ytdown';
+
+async function savefrom(url) {
+  const { data } = await axios.get(`https://api.savefrom.net/2/?url=${encodeURIComponent(url)}`, {
+    headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' },
+    timeout: TIMEOUT
+  });
+
+  if (!data || !data.url) throw new Error('Gagal mengambil data dari SaveFrom');
+
+  const title = data.title || 'Unknown Title';
+  return {
+    source: 'SaveFrom',
+    title,
+    url: data.url,
+    filename: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
+  };
+}
+savefrom.providerName = 'savefrom';
+
+async function y2mate(url) {
+  const step1 = await axios.get(`https://y2mate.com/api/analyze?url=${encodeURIComponent(url)}`, {
+    headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'application/json' },
+    timeout: TIMEOUT
+  });
+
+  const result = step1.data?.result;
+  if (!result) throw new Error('Gagal menganalisis video');
+
+  const title = result.title || 'Unknown Title';
+  const audioFormats = (result.formats || []).filter((f) => f.type === 'mp3' || f.type === 'audio');
+  const target = audioFormats[0];
+  if (!target) throw new Error('Format audio tidak tersedia');
+
+  const step2 = await axios.post(
+    'https://y2mate.com/api/convert',
+    { url, format: target.format, quality: target.quality || 'best' },
+    { headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' }, timeout: TIMEOUT }
+  );
+
+  const finalUrl = step2.data?.url || target.url;
+  if (!finalUrl) throw new Error('Gagal mengonversi audio');
+
+  return {
+    source: 'Y2Mate',
+    title,
+    url: finalUrl,
+    filename: `${title.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
+  };
+}
+y2mate.providerName = 'y2mate';
 
 function extractVideoId(url) {
   if (!url) return null;

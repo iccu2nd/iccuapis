@@ -9,12 +9,20 @@ const rateLimit = require('express-rate-limit');
 const config = require('./src/config');
 const monitor = require('./src/monitor');
 const cache = require('./src/cache');
-const { startBot, sendNotification } = require('./src/bot');
+const { startBot, sendNotification, sendErrorAlert } = require('./src/bot');
 const { getDb } = require('./src/mongoClient');
 
 if (typeof globalThis.File === 'undefined') {
   globalThis.File = require('node:buffer').File;
 }
+
+process.on('uncaughtException', (err) => {
+  console.error('[fatal] uncaughtException — server tetap jalan:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[fatal] unhandledRejection — server tetap jalan:', reason);
+});
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -91,6 +99,7 @@ app.use((req, res, next) => {
   const send = res.json.bind(res);
   res.json = (payload = {}) => {
     const { ok = true, result, error, meta } = payload;
+    if (error) res.locals.errorPayload = error;
     const envelope = {
       ok,
       provider: config.identity.name,
@@ -128,6 +137,15 @@ app.use((req, res, next) => {
     });
 
     sendNotification(ip, req.method, req.path, res.statusCode, Math.round(ms), userAgent, req.query);
+
+    if (res.statusCode >= 500) {
+      const errPayload = res.locals.errorPayload || {};
+      sendErrorAlert({
+        endpoint: req.path,
+        message: errPayload.message || `HTTP ${res.statusCode}`,
+        extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}`
+      });
+    }
   });
   next();
 });
