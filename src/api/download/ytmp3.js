@@ -5,10 +5,12 @@ const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const cache = require('../../cache');
 
 const execAsync = promisify(exec);
 const TIMEOUT = 60000;
 const ALLOWED_BITRATES = ['64', '128'];
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes — long enough to help reshares, short enough to not bloat memory
 
 module.exports = function register(app, registry) {
   const route = {
@@ -43,6 +45,17 @@ module.exports = function register(app, registry) {
     }
 
     const quality = ALLOWED_BITRATES.includes(String(bitrate)) ? String(bitrate) : '128';
+    const cacheKey = `ytmp3:${videoId}:${quality}`;
+
+    const cachedBase64 = cache.get(cacheKey);
+    if (cachedBase64) {
+      const buffer = Buffer.from(cachedBase64, 'base64');
+      res.set('Content-Type', 'audio/mpeg');
+      res.set('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
+      res.set('X-Cache', 'HIT');
+      return res.send(buffer);
+    }
+
     const outPath = path.join(os.tmpdir(), `ytmp3_${videoId}_${Date.now()}.mp3`);
     const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
@@ -63,8 +76,14 @@ module.exports = function register(app, registry) {
         throw new Error('Downloaded file is too small, likely failed');
       }
 
+      // Only cache reasonably small files so memory doesn't balloon
+      if (buffer.length <= 15 * 1024 * 1024) {
+        cache.set(cacheKey, buffer.toString('base64'), CACHE_TTL_MS);
+      }
+
       res.set('Content-Type', 'audio/mpeg');
       res.set('Content-Disposition', `attachment; filename="${videoId}.mp3"`);
+      res.set('X-Cache', 'MISS');
       res.send(buffer);
     } catch (err) {
       if (fs.existsSync(outPath)) fs.unlinkSync(outPath);

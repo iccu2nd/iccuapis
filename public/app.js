@@ -211,10 +211,11 @@
   }
 
   async function loadStats() {
-    const [viewsRes, statsRes, myIpRes] = await Promise.all([
+    const [viewsRes, statsRes, myIpRes, healthRes] = await Promise.all([
       fetchJsonWithRetry('/api/views').catch(() => null),
       fetchJsonWithRetry('/api/stats').catch(() => null),
-      fetchJsonWithRetry('/api/myip').catch(() => null)
+      fetchJsonWithRetry('/api/myip').catch(() => null),
+      fetchJsonWithRetry('/health').catch(() => null)
     ]);
 
     if (viewsRes && viewsRes.result) {
@@ -241,6 +242,16 @@
       el('myIpValue').textContent = '—';
     }
     el('myIpValue').classList.remove('is-loading');
+
+    if (healthRes && typeof healthRes.uptimeSeconds === 'number') {
+      const totalSeconds = healthRes.uptimeSeconds;
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      el('uptimeValue').textContent = `${hours}h ${minutes}m`;
+    } else {
+      el('uptimeValue').textContent = '—';
+    }
+    el('uptimeValue').classList.remove('is-loading');
   }
 
   async function loadData() {
@@ -699,5 +710,6 @@
   });
 
   loadStats();
+  setInterval(loadStats, 60000);
   boot();
 })();
