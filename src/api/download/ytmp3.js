@@ -77,23 +77,45 @@ module.exports = function register(app, registry) {
   });
 };
 
+function generateRandomIP() {
+  const ranges = [
+    [1, 1], [2, 2], [5, 5], [23, 23], [27, 27], [31, 31], [36, 36], [37, 37], [39, 39], [42, 42],
+    [46, 46], [49, 49], [50, 50], [60, 60], [114, 114], [117, 117], [118, 118], [119, 119], [120, 120],
+    [121, 121], [122, 122], [123, 123], [124, 124], [125, 125], [126, 126], [180, 180], [182, 182], [183, 183]
+  ];
+  const range = ranges[Math.floor(Math.random() * ranges.length)];
+  return [
+    range[0],
+    Math.floor(Math.random() * 256),
+    Math.floor(Math.random() * 256),
+    Math.floor(Math.random() * 256)
+  ].join('.');
+}
+
 async function ytdown(url) {
-  const step1 = await axios.post(
+  const spoofedIp = generateRandomIP();
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'X-Forwarded-For': spoofedIp,
+    'X-Real-IP': spoofedIp,
+    'Client-IP': spoofedIp,
+    'True-Client-IP': spoofedIp,
+    'X-Originating-IP': spoofedIp,
+    'X-Cluster-Client-IP': spoofedIp,
+    Forwarded: `for=${spoofedIp}`,
+    Accept: '*/*',
+    'X-Requested-With': 'XMLHttpRequest',
+    Referer: 'https://ytdown.to/'
+  };
+
+  const { data } = await axios.post(
     'https://app.ytdown.to/proxy.php',
     `url=${encodeURIComponent(url)}`,
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'User-Agent': 'Mozilla/5.0',
-        Origin: 'https://app.ytdown.to',
-        Referer: 'https://app.ytdown.to/id2/',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      timeout: TIMEOUT
-    }
+    { headers, timeout: TIMEOUT }
   );
 
-  const info = step1.data?.api;
+  const info = data?.api;
   if (!info || info.status !== 'ok') throw new Error('Gagal mengambil info video');
 
   const audios = (info.mediaItems || []).filter((v) => v.type === 'Audio');
@@ -103,14 +125,7 @@ async function ytdown(url) {
   const step2 = await axios.post(
     'https://app.ytdown.to/proxy.php',
     `url=${encodeURIComponent(bestAudio.mediaUrl)}`,
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Origin: 'https://app.ytdown.to',
-        Referer: 'https://app.ytdown.to/id2/'
-      },
-      timeout: TIMEOUT
-    }
+    { headers, timeout: TIMEOUT }
   );
 
   const fileData = step2.data?.api;
