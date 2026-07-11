@@ -10,8 +10,8 @@ const LINKS_URL = 'https://raw.githubusercontent.com/rynxzyy/blue-archive-r-img/
 module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
-    path: '/random/blue-archive',
-    group: 'random',
+    path: '/image/blue-archive',
+    group: 'image',
     name: 'Blue Archive',
     description: 'Returns one random Blue Archive image as a PNG.',
     params: []
