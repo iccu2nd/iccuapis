@@ -10,7 +10,7 @@ module.exports = function register(app, registry) {
     group: 'tools',
     name: 'Remove Background',
     description: 'Remove the background from an image and get back a hosted URL of the result.',
-    params: [{ key: 'url', required: true, hint: 'Direct URL of the image', example: 'https://example.com/photo.jpg' }]
+    params: [{ key: 'url', required: true, hint: 'Direct URL of the image', example: 'https://i.ibb.co/cKvjChq9/1b458a250595.jpg' }]
   };
   registry.push(route);
 
