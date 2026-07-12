@@ -16,14 +16,14 @@ module.exports = function register(app, registry) {
     path: '/image/pixiv',
     group: 'image',
     name: 'Pixiv Random Image',
-    description: 'Ambil gambar random dari Pixiv. Pilih mode SFW (aman) atau NSFW (dewasa).',
+    description: 'Ambil gambar random dari Pixiv. Default SFW (aman).',
     params: [
       {
         key: 'mode',
         required: false,
-        hint: 'Pilih mode gambar',
+        hint: 'Pilih mode gambar (default: sfw)',
         example: 'sfw',
-        options: ['sfw (aman)', 'nsfw (dewasa)']
+        options: ['sfw', 'nsfw']
       },
       {
         key: 'q',
@@ -36,7 +36,7 @@ module.exports = function register(app, registry) {
   registry.push(route);
 
   app.get(route.path, async (req, res) => {
-    const { mode = 'sfw (aman)', q = '' } = req.query;
+    const { mode = 'sfw', q = '' } = req.query;
 
     let r18 = 0;
     if (mode.toLowerCase().includes('nsfw') || mode.toLowerCase() === 'nsfw') {
