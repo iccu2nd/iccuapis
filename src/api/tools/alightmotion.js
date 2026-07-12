@@ -138,7 +138,7 @@ class AlightMotion {
       if (!tempResult.success) throw new Error('Gagal generate email temp');
       const emailAddress = tempResult.result.email;
 
-      const sendUrl = `https://am-prem.vxz.my.id/api/send?email=${encodeURIComponent(emailAddress)}&apikey=YOUR_KEY`;
+      const sendUrl = `https://am-prem.vxz.my.id/api/send?email=${encodeURIComponent(emailAddress)}&apikey=dkf_a027b3ff`;
       const sendResponse = await this._request(sendUrl);
       if (!sendResponse || sendResponse.success !== true) {
         throw new Error('Gagal kirim verifikasi');
@@ -161,7 +161,7 @@ class AlightMotion {
 
       if (!link) throw new Error('Link verifikasi tidak ditemukan');
 
-      const verifyUrl = `https://am-prem.vxz.my.id/api/verify?email=${encodeURIComponent(emailAddress)}&link=${encodeURIComponent(link)}&apply=true&apikey=YOUR_KEY`;
+      const verifyUrl = `https://am-prem.vxz.my.id/api/verify?email=${encodeURIComponent(emailAddress)}&link=${encodeURIComponent(link)}&apply=true&apikey=dkf_a027b3ff`;
       const verifyResponse = await this._request(verifyUrl);
       if (!verifyResponse || verifyResponse.success !== true) {
         throw new Error('Gagal verifikasi akun');
