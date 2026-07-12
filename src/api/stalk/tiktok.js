@@ -58,8 +58,8 @@ module.exports = function register(app, registry) {
     path: '/stalk/tiktok',
     group: 'stalk',
     name: 'TikTok Stalk',
-    description: 'Look up a TikTok profile by username: followers, likes, bio, and more.',
-    params: [{ key: 'username', required: true, hint: 'TikTok username (without @)', example: 'reiizyn3' }]
+    description: 'Cari informasi tentang profil TikTok berdasarkan nama pengguna: jumlah pengikut, suka, bio, dan lainnya.,
+    params: [{ key: 'username', required: true, hint: 'TikTok username (tanpa @)', example: 'rei.esemka' }]
   };
   registry.push(route);
 

@@ -60,7 +60,6 @@ module.exports = function register(app, registry) {
             title: dl.title || 'Unknown Title',
             duration: dl.duration,
             thumbnail: dl.thumbnail,
-            backend: backend.name,
             url: dl.downloadUrl,
             filename: `${(dl.title || video.id).replace(/[^a-zA-Z0-9]/g, '_')}.mp3`
           };
