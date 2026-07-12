@@ -80,8 +80,8 @@ button {
 }
 
 .topbar-logo {
-  width: 30px;
-  height: 30px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--border-strong);
@@ -302,6 +302,7 @@ button {
   gap: 10px;
 }
 .hamburger-menu-item:hover { background: var(--panel); }
+.hamburger-menu-item.is-active { color: var(--accent); background: var(--accent-soft); }
 
 .stats-row {
   display: flex;
@@ -347,10 +348,11 @@ button {
   min-width: 0;
 }
 .stat-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-faint);
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-dim);
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 .stat-value {
   font-family: var(--stat);
@@ -371,11 +373,11 @@ button {
 
 @media (max-width: 640px) {
   .stats-row { border-radius: 10px; }
-  .stat-card { padding: 10px; gap: 7px; }
-  .stat-label { display: none; }
-  .stat-icon { width: 24px; height: 24px; }
-  .stat-value { font-size: 13.5px; }
-  .stat-value-ip { font-size: 11.5px; }
+  .stat-card { padding: 9px 8px; gap: 6px; }
+  .stat-label { font-size: 8.5px; }
+  .stat-icon { width: 22px; height: 22px; }
+  .stat-value { font-size: 12px; }
+  .stat-value-ip { font-size: 10.5px; }
 }
 
 .views-row {
@@ -696,10 +698,10 @@ button {
 .row.open .row-body { display: block; }
 
 .desc {
-  color: var(--text-faint);
-  font-size: 12.5px;
+  color: var(--text-dim);
+  font-size: 13px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.55;
   letter-spacing: 0.005em;
   margin: 12px 0 0;
 }
@@ -1049,7 +1051,7 @@ button {
 
   <header class="topbar" id="topbar">
     <div class="topbar-mark">
-      <img src="https://i.ibb.co/nsKcJFhX/97a2fdfe2a95.jpg" alt="ICCU APIS" class="topbar-logo" />
+      <img src="https://i.ibb.co/xtmL2bTy/10f5f5aa3afe.jpg" alt="ICCU APIS" class="topbar-logo" />
     </div>
     <div class="topbar-actions">
       <div class="notif-wrap">
@@ -1155,6 +1157,10 @@ button {
 
 <div class="hamburger-menu" id="hamburgerMenu">
   <div class="hamburger-menu-title">Menu</div>
+  <a href="/" class="hamburger-menu-item is-active">
+    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    Docs
+  </a>
   <a href="/logs" class="hamburger-menu-item">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" fill="currentColor"/></svg>
     Request Log

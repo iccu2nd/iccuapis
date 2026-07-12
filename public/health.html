@@ -50,15 +50,88 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font-family: inherit; cursor: pointer; }
 
-.back-link {
-  display: inline-flex;
+.hamburger-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-dim);
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
-.back-link:hover { color: var(--accent); text-decoration: none; }
+.hamburger-btn:hover { background: var(--panel); }
+.hamburger-btn span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.hamburger-btn.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger-btn.is-open span:nth-child(2) { opacity: 0; }
+.hamburger-btn.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(20, 22, 26, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.menu-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hamburger-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 46;
+  width: 78%;
+  max-width: 300px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 16px;
+  gap: 2px;
+  transform: translateX(100%);
+  transition: transform 0.28s ease;
+  box-shadow: -8px 0 32px rgba(20, 22, 26, 0.10);
+}
+.hamburger-menu.is-open {
+  transform: translateX(0);
+}
+.hamburger-menu-title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--text);
+  padding: 6px 14px 16px;
+}
+.hamburger-menu-item {
+  padding: 13px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.12s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hamburger-menu-item:hover { background: var(--panel); }
+.hamburger-menu-item.is-active { color: var(--accent); background: var(--accent-soft); }
 
 .topbar {
   position: sticky;
@@ -188,10 +261,11 @@ button { font-family: inherit; cursor: pointer; }
   <div class="topbar-mark">
     <span>ICCU APIS</span>
   </div>
-  <a href="/" class="back-link">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    Kembali
-  </a>
+  <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </header>
 
 <main class="stage">
@@ -220,6 +294,24 @@ button { font-family: inherit; cursor: pointer; }
     </div>
   </div>
 </main>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<div class="hamburger-menu" id="hamburgerMenu">
+  <div class="hamburger-menu-title">Menu</div>
+  <a href="/" class="hamburger-menu-item">
+    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+    Docs
+  </a>
+  <a href="/logs" class="hamburger-menu-item">
+    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" fill="currentColor"/></svg>
+    Request Log
+  </a>
+  <a href="/health" class="hamburger-menu-item is-active">
+    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+    Health
+  </a>
+</div>
 
 <script>
 (() => {
@@ -287,6 +379,33 @@ button { font-family: inherit; cursor: pointer; }
 
   poll();
   setInterval(poll, POLL_MS);
+
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const hamburgerMenu = document.getElementById('hamburgerMenu');
+  const menuOverlay = document.getElementById('menuOverlay');
+
+  function openMenu() {
+    hamburgerBtn.classList.add('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    hamburgerMenu.classList.add('is-open');
+    menuOverlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    hamburgerBtn.classList.remove('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    hamburgerMenu.classList.remove('is-open');
+    menuOverlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+  hamburgerBtn.addEventListener('click', () => {
+    if (hamburgerMenu.classList.contains('is-open')) closeMenu();
+    else openMenu();
+  });
+  menuOverlay.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && hamburgerMenu.classList.contains('is-open')) closeMenu();
+  });
 })();
 </script>
 
