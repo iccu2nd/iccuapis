@@ -101,10 +101,11 @@ app.use((req, res, next) => {
     const { ok = true, result, error, meta } = payload;
     if (error) res.locals.errorPayload = error;
     const envelope = {
+      status: res.statusCode,
       ok,
-      provider: config.identity.name,
-      path: req.originalUrl,
+      creator: config.identity.creator,
       ...(result !== undefined ? { result } : {}),
+      path: req.originalUrl,
       ...(error !== undefined ? { error } : {}),
       ...(meta !== undefined ? { meta } : {}),
       timestamp: new Date().toISOString()
