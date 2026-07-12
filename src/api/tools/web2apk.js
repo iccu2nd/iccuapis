@@ -5,7 +5,7 @@ const FormData = require('form-data');
 
 module.exports = function register(app, registry) {
   const route = {
-    method: 'POST',
+    method: 'GET',
     path: '/tools/web2apk',
     group: 'tools',
     name: 'Web2Apk Builder',
@@ -39,8 +39,8 @@ module.exports = function register(app, registry) {
   };
   registry.push(route);
 
-  app.post(route.path, async (req, res) => {
-    const { url, name, icon, version = '1.0.0' } = req.body;
+  app.get(route.path, async (req, res) => {
+    const { url, name, icon, version = '1.0.0' } = req.query;
 
     if (!url || !/^https?:\/\//i.test(url)) {
       return res.status(400).json({
