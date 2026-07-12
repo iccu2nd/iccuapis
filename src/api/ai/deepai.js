@@ -14,7 +14,7 @@ module.exports = function register(app, registry) {
         key: 'prompt',
         required: true,
         hint: 'Pertanyaan atau perintah untuk AI',
-        example: 'Apa itu blackhole?'
+        example: 'Apa itu logic?'
       }
     ]
   };
