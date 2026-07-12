@@ -4,7 +4,7 @@ const axios = require('axios');
 
 module.exports = function register(app, registry) {
   const route = {
-    method: 'GET',  // ← Ubah jadi GET
+    method: 'GET',
     path: '/ai/deepai',
     group: 'ai',
     name: 'DeepAI Chat',
@@ -20,44 +20,8 @@ module.exports = function register(app, registry) {
   };
   registry.push(route);
 
-  // Support GET & POST
   app.get(route.path, async (req, res) => {
     const { prompt } = req.query;
-
-    if (!prompt || !prompt.trim()) {
-      return res.status(400).json({
-        ok: false,
-        error: {
-          code: 'MISSING_PARAM',
-          message: 'Parameter "prompt" wajib diisi.'
-        }
-      });
-    }
-
-    try {
-      const result = await deepai(prompt.trim());
-      
-      res.json({
-        result: {
-          prompt: prompt.trim(),
-          response: result,
-          source: 'DeepAI.org'
-        }
-      });
-    } catch (err) {
-      console.error('[deepai] error:', err.message);
-      res.status(502).json({
-        ok: false,
-        error: {
-          code: 'API_ERROR',
-          message: err.message || 'Gagal mendapatkan respons dari DeepAI'
-        }
-      });
-    }
-  });
-
-  app.post(route.path, async (req, res) => {
-    const { prompt } = req.body;
 
     if (!prompt || !prompt.trim()) {
       return res.status(400).json({
@@ -120,4 +84,4 @@ async function deepai(prompt) {
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message || 'DeepAI error');
   }
-                                  }
+}
