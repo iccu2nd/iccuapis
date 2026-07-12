@@ -7,30 +7,33 @@
 <link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #FFFFFF;
-  --panel: #F7F8FA;
-  --panel-raised: #F0F2F5;
-  --border: #E2E5EA;
-  --border-strong: #CBD1DA;
-  --text: #14161A;
-  --text-dim: #565C68;
-  --text-faint: #8A8F99;
-  --accent: #2E5CFF;
-  --accent-hover: #1E46E0;
-  --accent-soft: #EAEFFF;
-  --good: #17A860;
-  --good-soft: #E7F8EF;
-  --bad: #E0392B;
-  --bad-soft: #FDECEA;
-  --display: 'Space Grotesk', sans-serif;
+  --bg: #0B0F1E;
+  --panel: #131A2E;
+  --panel-raised: #1B2440;
+  --card: #161F38;
+  --border: #263258;
+  --border-strong: #3A4A82;
+  --text: #EEF3FF;
+  --text-dim: #9BA9CE;
+  --text-faint: #6C7BA3;
+  --accent: #4F86FF;
+  --accent-hover: #7AA6FF;
+  --accent-soft: rgba(79, 134, 255, 0.16);
+  --ba-pink: #FF6FA5;
+  --ba-yellow: #FFD54F;
+  --good: #45E0A8;
+  --good-soft: rgba(69, 224, 168, 0.14);
+  --bad: #FF5C7A;
+  --bad-soft: rgba(255, 92, 122, 0.14);
+  --display: 'Baloo 2', 'Space Grotesk', sans-serif;
   --stat: 'JetBrains Mono', ui-monospace, monospace;
-  --body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --body: 'Inter', -apple-system, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
-  --radius: 10px;
-  --radius-sm: 7px;
+  --radius: 14px;
+  --radius-sm: 9px;
 }
 
 * { box-sizing: border-box; }
@@ -38,7 +41,11 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 8px 8px, rgba(122, 166, 255, 0.06) 1.4px, transparent 1.4px) 0 0 / 22px 22px,
+    radial-gradient(1000px 560px at 90% -10%, rgba(79, 134, 255, 0.2), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--body);
   font-size: 16px;
@@ -46,7 +53,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent-hover); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font-family: inherit; cursor: pointer; }
 
@@ -68,12 +75,19 @@ button { font-family: inherit; cursor: pointer; }
   align-items: center;
   justify-content: space-between;
   padding: 14px 22px;
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(19, 26, 46, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
-.topbar-mark { font-family: var(--display); font-weight: 800; color: var(--text); }
+.topbar::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--ba-pink) 55%, var(--ba-yellow));
+  opacity: 0.9;
+}
 .topbar-mark {
   display: flex;
   align-items: center;
@@ -81,6 +95,7 @@ button { font-family: inherit; cursor: pointer; }
   font-family: var(--display);
   font-weight: 700;
   font-size: 15px;
+  color: #fff;
 }
 .stage {
   max-width: 980px;
@@ -97,6 +112,10 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 700;
   margin: 0 0 6px;
   letter-spacing: -0.01em;
+  background: linear-gradient(100deg, #fff 40%, var(--accent-hover) 75%, var(--ba-pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 .page-head p {
   margin: 0;
@@ -139,7 +158,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  background: #fff;
+  background: var(--card);
 }
 table {
   width: 100%;
@@ -198,7 +217,7 @@ tbody tr.is-new {
   height: 34px;
   border-radius: var(--radius-sm);
   border: 2px solid var(--border);
-  background: #fff;
+  background: var(--card);
   color: var(--text-dim);
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
