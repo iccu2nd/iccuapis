@@ -128,29 +128,6 @@
     }
   })();
 
-  const STATUS_NOTES = {
-    200: ['200 OK', 'Berhasil. Data yang kamu minta ada di bawah ini.'],
-    201: ['201 Created', 'Berhasil, dan ada data baru yang dibuat di server.'],
-    204: ['204 No Content', 'Berhasil, tapi server tidak mengirim balik isi apa pun.'],
-    400: ['400 Bad Request', 'Parameter yang dikirim salah, kurang, atau formatnya tidak sesuai.'],
-    401: ['401 Unauthorized', 'Butuh autentikasi, atau API key yang dipakai salah/kadaluarsa.'],
-    403: ['403 Forbidden', 'Akses ke endpoint ini ditolak server.'],
-    404: ['404 Not Found', 'Endpoint atau data yang dicari tidak ditemukan.'],
-    408: ['408 Timeout', 'Server kelamaan nunggu request kamu, coba ulangi.'],
-    429: ['429 Too Many Requests', 'Kena rate limit karena request terlalu sering, coba lagi nanti.'],
-    500: ['500 Server Error', 'Ada error di sisi server. Coba lagi, atau laporkan kalau terus terjadi.'],
-    502: ['502 Bad Gateway', 'Server upstream yang dipanggil endpoint ini lagi bermasalah.'],
-    503: ['503 Unavailable', 'Server sedang sibuk atau maintenance, coba lagi sebentar lagi.']
-  };
-
-  function noteForStatus(code) {
-    if (STATUS_NOTES[code]) return STATUS_NOTES[code];
-    if (code >= 200 && code < 300) return [`${code} OK`, 'Berhasil. Data yang kamu minta ada di bawah ini.'];
-    if (code >= 400 && code < 500) return [`${code} Error`, 'ada yang salah dari sisi request kamu, cek lagi parameternya.'];
-    if (code >= 500) return [`${code} Error`, 'ada masalah di sisi server, coba lagi nanti.'];
-    return [`${code}`, 'Kode status ini di luar dugaan, cek dokumentasi endpoint terkait.'];
-  }
-
   const rowTemplate = el('routeRowTemplate');
   const logEl = el('log');
   const bootLoader = el('bootLoader');
@@ -414,17 +391,6 @@
     const resultImage = node.querySelector('.result-image');
     const resultAudio = node.querySelector('.result-audio');
     const resultVideo = node.querySelector('.result-video');
-    const resultNote = node.querySelector('.result-note');
-    const resultNoteCode = node.querySelector('.result-note-code');
-    const resultNoteText = node.querySelector('.result-note-text');
-
-    function showResultNote(status, ok) {
-      const [label, text] = noteForStatus(status);
-      resultNoteCode.textContent = label;
-      resultNoteText.textContent = text;
-      resultNote.classList.toggle('err', !ok);
-      resultNote.hidden = false;
-    }
 
     let lastResultText = '';
     let lastResultBlob = null;
@@ -567,7 +533,6 @@
       if (resultImage) resultImage.hidden = true;
       if (resultAudio) resultAudio.hidden = true;
       if (resultVideo) resultVideo.hidden = true;
-      resultNote.hidden = true;
       runBtn.disabled = true;
 
       const stopLoading = () => {
@@ -630,7 +595,6 @@
         }
 
         resultHead.hidden = false;
-        showResultNote(response.status, response.ok);
       } catch (err) {
         const elapsedMs = Math.round(performance.now() - startedAt);
 
@@ -649,10 +613,6 @@
         }
         lastResultText = message;
         lastResultBlob = null;
-        resultNoteCode.textContent = 'Network Error';
-        resultNoteText.textContent = 'Request tidak sampai ke server — cek koneksi internet kamu atau coba lagi.';
-        resultNote.classList.add('err');
-        resultNote.hidden = false;
       } finally {
         clearTimeout(safetyTimeout);
         stopLoading();
@@ -678,8 +638,6 @@
       if (resultImage) { resultImage.hidden = true; resultImage.src = ''; }
       if (resultAudio) { resultAudio.hidden = true; resultAudio.src = ''; }
       if (resultVideo) { resultVideo.hidden = true; resultVideo.src = ''; }
-      resultNote.hidden = true;
-      resultNote.classList.remove('err');
 
       lastResultText = '';
       lastResultBlob = null;
