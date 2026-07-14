@@ -1,20 +1,20 @@
 :root {
-  --bg: #F5F9FC;
-  --panel: #EAF2F8;
-  --panel-raised: #DEEAF3;
+  --bg: #FFFFFF;
+  --panel: #F6F6F7;
+  --panel-raised: #EFEFF1;
   --card: #FFFFFF;
-  --border: #D5E3ED;
-  --border-strong: #B8CEDD;
-  --text: #1E2B36;
-  --text-dim: #5B6B78;
-  --text-faint: #8A98A5;
-  --accent: #2E8B9C;
-  --accent-hover: #24707E;
-  --accent-soft: #DCF0F1;
-  --good: #3F9E6B;
-  --good-soft: #DFF3E6;
-  --bad: #D46A3F;
-  --bad-soft: #FBE9DF;
+  --border: #E6E6E9;
+  --border-strong: #D1D1D6;
+  --text: #0B0B0C;
+  --text-dim: #57575C;
+  --text-faint: #9A9AA0;
+  --accent: #0B0B0C;
+  --accent-hover: #000000;
+  --accent-soft: #F0F0F1;
+  --good: #17803D;
+  --good-soft: #EEF7F0;
+  --bad: #C4291C;
+  --bad-soft: #FBEEEC;
   --display: 'Space Grotesk', sans-serif;
   --stat: 'Space Grotesk', sans-serif;
   --body: 'IBM Plex Sans', -apple-system, sans-serif;
@@ -613,6 +613,40 @@ button {
   font-size: 15.5px;
 }
 
+.category-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: 18px;
+  scrollbar-width: none;
+}
+.category-tabs::-webkit-scrollbar { display: none; }
+
+.category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-dim);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  padding: 9px 15px;
+  border-radius: 10px;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.category-tab:hover { border-color: var(--border-strong); color: var(--text); }
+.category-tab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.category-tab svg { display: block; flex-shrink: 0; }
+
 .search-cluster {
   margin-bottom: 20px;
   display: flex;
@@ -1012,12 +1046,12 @@ button {
 
 .run-btn {
   order: 3;
-  background: #1E2B36;
+  background: var(--accent);
   color: #fff;
   border: none;
   transition: background 0.12s ease, transform 0.08s ease;
 }
-.run-btn:hover { background: #131D25; }
+.run-btn:hover { background: var(--accent-hover); }
 .run-btn:active { transform: scale(0.98); }
 .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 

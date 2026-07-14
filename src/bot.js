@@ -254,24 +254,49 @@ User Agent: ${escapeMarkdown(userAgent || 'Tidak diketahui')}
   });
 }
 
+const TELEGRAM_MSG_LIMIT = 4000;
+
+function chunkText(text, size) {
+  const chunks = [];
+  for (let i = 0; i < text.length; i += size) {
+    chunks.push(text.slice(i, i + size));
+  }
+  return chunks;
+}
+
 function sendErrorAlert(context) {
   if (!botInstance || !configInstance) return;
 
   const ownerIds = configInstance.telegram?.ownerIds || [];
   if (!ownerIds.length) return;
 
-  const { endpoint, message, extra } = context;
-  const text = `
-⚠️ Error di Endpoint
+  const { endpoint, message, extra, stack } = context;
 
-Endpoint : ${escapeMarkdown(endpoint)}
-Error    : ${escapeMarkdown(message)}
-${extra ? `Detail   : ${escapeMarkdown(extra)}\n` : ''}Waktu    : ${new Date().toISOString()}
-  `;
+  // Plain text on purpose (no parse_mode): stack traces/params can contain
+  // characters that break Telegram's Markdown parser, which would silently
+  // drop the whole alert. Plain text always delivers.
+  let text = [
+    'ERROR DI ENDPOINT',
+    '',
+    `Endpoint : ${endpoint}`,
+    `Error    : ${message}`,
+    extra ? `Detail   : ${extra}` : null,
+    `Waktu    : ${new Date().toISOString()}`
+  ].filter(Boolean).join('\n');
+
+  if (stack) {
+    text += `\n\nStack trace:\n${stack}`;
+  }
+
+  const chunks = chunkText(text, TELEGRAM_MSG_LIMIT);
 
   ownerIds.forEach((ownerId) => {
-    botInstance.sendMessage(ownerId, text.trim(), { parse_mode: 'Markdown' })
-      .catch((err) => console.error('[bot] Failed to send error alert:', err.message));
+    chunks.reduce((prevPromise, chunk, i) => {
+      return prevPromise.then(() =>
+        botInstance.sendMessage(ownerId, chunks.length > 1 ? `[${i + 1}/${chunks.length}]\n${chunk}` : chunk)
+          .catch((err) => console.error('[bot] Failed to send error alert:', err.message))
+      );
+    }, Promise.resolve());
   });
 }
 

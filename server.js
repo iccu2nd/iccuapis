@@ -18,10 +18,21 @@ if (typeof globalThis.File === 'undefined') {
 
 process.on('uncaughtException', (err) => {
   console.error('[fatal] uncaughtException — server tetap jalan:', err);
+  sendErrorAlert({
+    endpoint: 'GLOBAL/uncaughtException',
+    message: err.message || String(err),
+    stack: err.stack
+  });
 });
 
 process.on('unhandledRejection', (reason) => {
   console.error('[fatal] unhandledRejection — server tetap jalan:', reason);
+  const err = reason instanceof Error ? reason : new Error(String(reason));
+  sendErrorAlert({
+    endpoint: 'GLOBAL/unhandledRejection',
+    message: err.message,
+    stack: err.stack
+  });
 });
 
 const app = express();
@@ -116,7 +127,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/manifest.json', (req, res) => res.json({ result: { identity: config.identity } }));
+app.get('/manifest.json', (req, res) => res.json({ result: { identity: config.identity, groups: config.groups } }));
 
 const registry = [];
 
@@ -142,16 +153,44 @@ app.use((req, res, next) => {
 
     if (res.statusCode >= 500) {
       const errPayload = res.locals.errorPayload || {};
+      const rawError = res.locals.rawError;
       const detailPart = errPayload.detail ? ` — ${errPayload.detail}` : '';
       sendErrorAlert({
         endpoint: req.path,
         message: errPayload.message || `HTTP ${res.statusCode}`,
-        extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}${detailPart}`
+        extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}${detailPart}`,
+        stack: rawError ? rawError.stack : undefined
       });
     }
   });
   next();
 });
+
+function wrapAsyncHandler(handler) {
+  return (req, res, next) => {
+    try {
+      const result = handler(req, res, next);
+      if (result && typeof result.catch === 'function') {
+        result.catch(next);
+      }
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+
+const HTTP_METHODS = ['get', 'post', 'put', 'delete', 'patch', 'all', 'use'];
+
+function makeSafeAppShim(realApp) {
+  const shim = Object.create(realApp);
+  HTTP_METHODS.forEach((method) => {
+    shim[method] = (routePath, ...handlers) => {
+      const wrapped = handlers.map((h) => (typeof h === 'function' ? wrapAsyncHandler(h) : h));
+      return realApp[method](routePath, ...wrapped);
+    };
+  });
+  return shim;
+}
 
 const apiRoot = path.join(__dirname, 'src/api');
 let loadedCount = 0;
@@ -165,10 +204,15 @@ fs.readdirSync(apiRoot, { withFileTypes: true })
       .forEach((file) => {
         try {
           const mod = require(path.join(groupPath, file));
-          mod(app, registry, { group: group.name });
+          mod(makeSafeAppShim(app), registry, { group: group.name });
           loadedCount += 1;
         } catch (err) {
           console.error(`[route-load-error] ${group.name}/${file}: ${err.message}`);
+          sendErrorAlert({
+            endpoint: `ROUTE_LOAD/${group.name}/${file}`,
+            message: err.message,
+            stack: err.stack
+          });
         }
       });
   });
@@ -245,6 +289,7 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error('[unhandled]', err);
+  res.locals.rawError = err;
   res.status(500).json({
     ok: false,
     error: { code: 'INTERNAL_ERROR', message: 'Something failed while handling this request.' }

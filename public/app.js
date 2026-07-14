@@ -138,6 +138,48 @@
   let manifest = null;
   let routes = [];
   let firstRender = true;
+  let activeCategory = 'all';
+
+  const CATEGORY_ICONS = {
+    all: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+    ai: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>',
+    search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+    image: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+    stalk: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>',
+    download: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
+    tools: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>'
+  };
+
+  function categoryIcon(key) {
+    return CATEGORY_ICONS[key] || CATEGORY_ICONS.tools;
+  }
+
+  function renderCategoryTabs() {
+    const wrap = el('categoryTabs');
+    if (!wrap) return;
+
+    const groups = [...new Set(routes.map((r) => r.group))].sort(
+      (a, b) => groupOrder(a) - groupOrder(b)
+    );
+
+    const tabs = [{ key: 'all', label: 'Semua' }, ...groups.map((g) => ({ key: g, label: groupLabel(g) }))];
+
+    wrap.innerHTML = '';
+    tabs.forEach((tab) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'category-tab' + (tab.key === activeCategory ? ' is-active' : '');
+      btn.dataset.key = tab.key;
+      btn.innerHTML = `${categoryIcon(tab.key)}<span>${tab.label}</span>`;
+      btn.addEventListener('click', () => {
+        if (activeCategory === tab.key) return;
+        activeCategory = tab.key;
+        [...wrap.children].forEach((c) => c.classList.toggle('is-active', c.dataset.key === activeCategory));
+        renderLog();
+      });
+      wrap.appendChild(btn);
+    });
+  }
 
   function groupLabel(key) {
     return manifest.groups?.[key]?.label || key;
@@ -259,6 +301,7 @@
     el('baseUrl').textContent = window.location.origin;
     document.title = manifest.identity.name;
 
+    renderCategoryTabs();
     renderLog();
   }
 
@@ -337,6 +380,7 @@
     );
 
     groups.forEach((g) => {
+      if (activeCategory !== 'all' && g !== activeCategory) return;
       const items = routes.filter((r) => {
         if (r.group !== g) return false;
         if (term && !(r.name.toLowerCase().includes(term) || r.path.toLowerCase().includes(term))) {
