@@ -307,10 +307,24 @@
       filterInput.disabled = false;
       filterInput.placeholder = 'Cari nama atau path endpoint...';
       hideSkeleton();
+      applyQueryFilter();
     } catch (err) {
       hideSkeleton();
       showBootError();
     }
+  }
+
+  function applyQueryFilter() {
+    const q = new URLSearchParams(window.location.search).get('q');
+    if (!q) return;
+    filterInput.value = q;
+    const toggleBtn = el('searchToggleBtn');
+    const searchRow = el('searchRow');
+    if (toggleBtn && searchRow) {
+      toggleBtn.hidden = true;
+      searchRow.hidden = false;
+    }
+    renderLog();
   }
 
   function renderLog() {
@@ -535,16 +549,14 @@
       if (resultVideo) resultVideo.hidden = true;
       runBtn.disabled = true;
 
-      const stopLoading = () => {
-        resultLoading.hidden = true;
-        runBtn.disabled = false;
-      };
-      const safetyTimeout = setTimeout(stopLoading, 20000);
+      const controller = new AbortController();
+      const timeoutMs = 20000;
+      const timeoutTimer = setTimeout(() => controller.abort(), timeoutMs);
 
       const startedAt = performance.now();
 
       try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: controller.signal });
         const elapsedMs = Math.round(performance.now() - startedAt);
         const contentType = response.headers.get('Content-Type') || '';
 
@@ -604,7 +616,9 @@
         resultTime.textContent = `${elapsedMs} ms`;
         resultSize.textContent = '—';
 
-        const message = `Request gagal: ${err.message}`;
+        const message = err.name === 'AbortError'
+          ? `Server tidak merespons dalam ${timeoutMs / 1000} detik. Endpoint ini mungkin lagi lambat/down, coba lagi.`
+          : `Request gagal: ${err.message}`;
         resultJson.textContent = message;
         resultJson.hidden = false;
         copyLabel.textContent = 'Salin';
@@ -614,8 +628,9 @@
         lastResultText = message;
         lastResultBlob = null;
       } finally {
-        clearTimeout(safetyTimeout);
-        stopLoading();
+        clearTimeout(timeoutTimer);
+        resultLoading.hidden = true;
+        runBtn.disabled = false;
         clearBtn.hidden = false;
       }
     });
