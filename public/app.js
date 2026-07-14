@@ -726,31 +726,6 @@
     });
   })();
 
-  (function setupExploreDocs() {
-    const btn = el('exploreDocsBtn');
-    const target = el('docsSection');
-    if (!btn || !target) return;
-    btn.addEventListener('click', () => {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  })();
-
-  (function setupCodeTabs() {
-    const buttons = document.querySelectorAll('.code-tab-btn');
-    const blocks = document.querySelectorAll('.code-block');
-    if (!buttons.length) return;
-    buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const lang = btn.dataset.lang;
-        buttons.forEach((b) => b.classList.toggle('is-active', b === btn));
-        blocks.forEach((b) => { b.hidden = b.dataset.lang !== lang; });
-      });
-    });
-    document.querySelectorAll('.code-base-url').forEach((n) => {
-      n.textContent = window.location.origin;
-    });
-  })();
-
   filterInput.addEventListener('input', renderLog);
 
   copyBaseBtn.addEventListener('click', () => {

@@ -49,6 +49,7 @@ app.get('/api/health', (req, res) => {
 
 const ALWAYS_ALLOWED_PATHS = new Set([
   '/',
+  '/docs',
   '/logs',
   '/health',
   '/api/health',
@@ -220,6 +221,11 @@ app.use('/', express.static(path.join(__dirname, 'public'), { index: false }));
 app.get('/', (req, res) => {
   monitor.recordVisit(req.ip);
   res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+app.get('/docs', (req, res) => {
+  monitor.recordVisit(req.ip);
+  res.sendFile(path.join(__dirname, 'public/docs.html'));
 });
 
 app.get('/logs', (req, res) => {
