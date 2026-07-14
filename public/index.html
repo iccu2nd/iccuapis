@@ -403,6 +403,167 @@ button {
   margin: 0 auto;
 }
 
+.hero {
+  padding: 40px 36px 44px;
+  margin-bottom: 40px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #1E2B36 0%, #24404A 100%);
+  color: #fff;
+}
+
+.hero-badge {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #BFE3E8;
+  background: rgba(255,255,255,0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.hero-title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+.hero-sub {
+  color: rgba(255,255,255,0.78);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 56ch;
+  margin: 0 0 26px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  color: #1E2B36;
+  background: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.hero-btn-primary:hover { background: var(--accent-soft); }
+.hero-btn-primary:active { transform: scale(0.98); }
+
+.hero-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.hero-btn-secondary:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
+
+.usage-section {
+  margin-bottom: 48px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+
+.usage-title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+
+.usage-sub {
+  color: var(--text-dim);
+  font-size: 14.5px;
+  line-height: 1.65;
+  max-width: 62ch;
+  margin: 0 0 18px;
+}
+.usage-sub code {
+  font-family: var(--mono);
+  background: var(--panel);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.usage-note {
+  color: var(--text-faint);
+  font-size: 13.5px;
+  margin: 14px 0 0;
+}
+
+.code-tabs {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--card);
+}
+
+.code-tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.code-tab-btn {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  padding: 11px 18px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.code-tab-btn:hover { color: var(--text); }
+.code-tab-btn.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.code-block {
+  margin: 0;
+  padding: 16px 18px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-block[hidden] { display: none; }
+.code-base-url { color: var(--accent); font-weight: 600; }
+
+@media (max-width: 640px) {
+  .hero { padding: 30px 22px 34px; border-radius: 14px; }
+  .hero-title { font-size: 26px; }
+  .hero-sub { font-size: 14px; }
+}
+
 .stage-head h1 {
   font-family: var(--display);
   font-weight: 800;
@@ -422,12 +583,32 @@ button {
 
 .search-cluster {
   margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
 }
+
+.search-toggle-btn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.search-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+.search-toggle-btn[hidden] { display: none; }
 
 .search-row {
   position: relative;
   margin-bottom: 0;
+  width: 100%;
 }
+.search-row[hidden] { display: none; }
 
 .search-icon {
   position: absolute;
@@ -441,35 +622,36 @@ button {
 .search-row input {
   width: 100%;
   background: var(--card);
-  border: 2px solid var(--border);
+  border: 2px solid var(--accent);
   border-radius: var(--radius);
   color: var(--text);
   font-family: var(--body);
   font-weight: 500;
   font-size: 15px;
-  padding: 13px 46px 13px 44px;
+  padding: 13px 44px 13px 44px;
   outline: none;
   transition: border-color 0.15s ease;
 }
 
 .search-row input::placeholder { color: var(--text-faint); }
-.search-row input:focus { border-color: var(--accent); }
 
-.search-row .kbd {
+.search-row .search-close-btn {
   position: absolute;
-  right: 12px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-faint);
-  border: 1px solid var(--border);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
   background: var(--panel);
-  border-radius: 5px;
-  padding: 3px 7px;
-  pointer-events: none;
-  font-weight: 600;
+  color: var(--text-dim);
+  border-radius: 50%;
+  transition: background 0.12s ease, color 0.12s ease;
 }
+.search-row .search-close-btn:hover { background: var(--bad-soft); color: var(--bad); }
 
 .content-stack {
   position: relative;
@@ -565,17 +747,26 @@ button {
 }
 
 .log-group-title {
-  font-family: var(--body);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: capitalize;
-  color: var(--text);
-  margin: 20px 0 10px;
-  padding-left: 10px;
-  border-left: 3px solid #000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 26px 2px 10px;
+  padding-left: 0;
+  border-left: none;
 }
 .log-group-title:first-child { margin-top: 0; }
+.log-group-title::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--border);
+}
 
 .empty-state {
   color: var(--text-faint);
@@ -606,13 +797,14 @@ button {
 .retry-btn:disabled { opacity: 0.6; cursor: default; }
 
 .row {
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  margin-bottom: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 7px;
   background: var(--card);
   overflow: hidden;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+.row:last-child { margin-bottom: 0; }
 
 .row.open {
   border-color: var(--border-strong);
@@ -639,10 +831,12 @@ button {
 .row-head .verb {
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--good);
   background: var(--good-soft);
-  padding: 3px 8px;
+  padding: 3px 0;
+  width: 42px;
+  text-align: center;
   border-radius: 5px;
   flex-shrink: 0;
 }
@@ -663,9 +857,13 @@ button {
 .row-head .path {
   font-family: var(--mono);
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: 14px;
   color: var(--text);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 62vw;
 }
 
 .row-head .name {
@@ -987,6 +1185,36 @@ button {
   border-radius: var(--radius-sm);
 }
 
+.result-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--good-soft);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.result-note.err { background: var(--bad-soft); }
+.result-note[hidden] { display: none; }
+
+.result-note-code {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--good);
+  background: var(--card);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+.result-note.err .result-note-code { color: var(--bad); }
+
+.result-note-text {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
 .stage-foot {
   margin-top: 48px;
   padding-top: 22px;
@@ -1078,7 +1306,41 @@ button {
 
   <main class="stage">
 
-    <header class="stage-head">
+    <section class="hero">
+      <span class="hero-badge">REST API Gateway</span>
+      <h1 class="hero-title">ICCU APIS</h1>
+      <p class="hero-sub">API pribadi buat kebutuhan bot dan project kamu sendiri. Satu base URL, banyak endpoint siap pakai — download, gambar, tools, sampai search — tinggal request lewat HTTP GET, respons langsung balik dalam JSON atau file.</p>
+      <div class="hero-actions">
+        <button class="hero-btn-primary" id="exploreDocsBtn" type="button">
+          Explore Docs
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <a class="hero-btn-secondary" href="#usageSection">Cara Penggunaan</a>
+      </div>
+    </section>
+
+    <section class="usage-section" id="usageSection">
+      <h2 class="usage-title">Cara Penggunaan</h2>
+      <p class="usage-sub">Semua endpoint pakai method <code>GET</code> biasa. Tinggal request ke base URL + path endpoint, tambahkan query parameter yang dibutuhkan, lalu ambil hasilnya dari respons. Nggak perlu API key buat mulai coba-coba.</p>
+      <div class="code-tabs">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn is-active" type="button" data-lang="node" role="tab">Node.js</button>
+          <button class="code-tab-btn" type="button" data-lang="python" role="tab">Python</button>
+          <button class="code-tab-btn" type="button" data-lang="curl" role="tab">cURL</button>
+        </div>
+        <pre class="code-block" data-lang="node"><code>const res = await fetch("<span class="code-base-url">https://api.sasane.eu.cc</span>/search/youtube?query=lofi");
+const data = await res.json();
+console.log(data);</code></pre>
+        <pre class="code-block" data-lang="python" hidden><code>import requests
+
+res = requests.get("<span class="code-base-url">https://api.sasane.eu.cc</span>/search/youtube", params={"query": "lofi"})
+print(res.json())</code></pre>
+        <pre class="code-block" data-lang="curl" hidden><code>curl "<span class="code-base-url">https://api.sasane.eu.cc</span>/search/youtube?query=lofi"</code></pre>
+      </div>
+      <p class="usage-note">Setiap endpoint punya parameter beda-beda, semuanya bisa dilihat dan dicoba langsung di daftar docs di bawah.</p>
+    </section>
+
+    <header class="stage-head" id="docsSection">
       <div class="stats-row">
         <div class="stat-card stat-card-wide">
           <span class="stat-icon" aria-hidden="true">
@@ -1111,10 +1373,15 @@ button {
       <h1>Semua endpoint, tinggal pilih.</h1>
       <p>Klik salah satu endpoint, isi kolom yang diminta, lalu jalankan. Hasilnya langsung tampil, lengkap dengan waktu respons.</p>
       <div class="search-cluster">
-        <div class="search-row">
+        <button class="search-toggle-btn" id="searchToggleBtn" type="button" aria-label="Cari endpoint">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="search-row" id="searchRow" hidden>
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           <input id="filterInput" type="text" placeholder="Cari nama atau path endpoint..." autocomplete="off" />
-          <span class="kbd">/</span>
+          <button class="search-close-btn" id="searchCloseBtn" type="button" aria-label="Tutup pencarian">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
         </div>
       </div>
     </header>
@@ -1230,6 +1497,10 @@ button {
         <img class="result-image" hidden alt="" />
         <audio class="result-audio" hidden controls></audio>
         <video class="result-video" hidden controls></video>
+        <div class="result-note" hidden>
+          <span class="result-note-code"></span>
+          <span class="result-note-text"></span>
+        </div>
       </div>
     </div>
   </article>
