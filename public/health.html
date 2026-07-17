@@ -10,21 +10,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #FFFFFF;
-  --panel: #F7F8FA;
-  --panel-raised: #F0F2F5;
-  --border: #E2E5EA;
-  --border-strong: #CBD1DA;
-  --text: #14161A;
-  --text-dim: #565C68;
-  --text-faint: #8A8F99;
-  --accent: #0B0B0C;
-  --accent-hover: #000000;
-  --accent-soft: #F0F0F1;
-  --good: #17803D;
-  --good-soft: #E7F8EF;
-  --bad: #C4291C;
-  --bad-soft: #FDECEA;
+  --bg: #000000;
+  --panel: #0E0E10;
+  --panel-raised: #17171A;
+  --card: #0A0A0C;
+  --border: #232327;
+  --border-strong: #35353B;
+  --text: #F5F5F7;
+  --text-dim: #A6A6AD;
+  --text-faint: #6B6B72;
+  --accent: #FFFFFF;
+  --accent-text: #0A0A0C;
+  --accent-hover: #D9D9DE;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --good: #35D07F;
+  --good-soft: rgba(53, 208, 127, 0.14);
+  --bad: #FF5C4D;
+  --bad-soft: rgba(255, 92, 77, 0.14);
   --display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --stat: 'JetBrains Mono', ui-monospace, monospace;
   --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -81,7 +83,7 @@ button { font-family: inherit; cursor: pointer; }
   position: fixed;
   inset: 0;
   z-index: 45;
-  background: rgba(20, 22, 26, 0.35);
+  background: rgba(0, 0, 0, 0.65);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -99,14 +101,14 @@ button { font-family: inherit; cursor: pointer; }
   z-index: 46;
   width: 78%;
   max-width: 300px;
-  background: #fff;
+  background: var(--card);
   display: flex;
   flex-direction: column;
   padding: 22px 16px;
   gap: 2px;
   transform: translateX(100%);
   transition: transform 0.28s ease;
-  box-shadow: -8px 0 32px rgba(20, 22, 26, 0.10);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
 }
 .hamburger-menu.is-open {
   transform: translateX(0);
@@ -141,7 +143,7 @@ button { font-family: inherit; cursor: pointer; }
   align-items: center;
   justify-content: space-between;
   padding: 14px 22px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(0, 0, 0, 0.86);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -222,7 +224,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px;
-  background: #fff;
+  background: var(--card);
 }
 .card-label {
   font-size: 12.5px;
@@ -252,6 +254,57 @@ button { font-family: inherit; cursor: pointer; }
 
 @media (max-width: 480px) {
   .grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  background: var(--card);
+  margin-top: 12px;
+}
+.chart-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.chart-card-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.chart-card-now {
+  font-family: var(--stat);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+.chart-card canvas {
+  display: block;
+  width: 100%;
+  height: 120px;
+  margin-top: 10px;
+}
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>
 </head>
@@ -293,6 +346,19 @@ button { font-family: inherit; cursor: pointer; }
       <div class="card-value" id="timestampValue" style="font-size: 15px;">—</div>
     </div>
   </div>
+
+  <div class="chart-card">
+    <div class="chart-card-head">
+      <span class="chart-card-title">Response Time</span>
+      <span class="chart-card-now" id="latencyNow">— ms</span>
+    </div>
+    <canvas id="latencyChart" width="600" height="120"></canvas>
+    <div class="chart-legend">
+      <span><i style="background: var(--good);"></i> Cepat (&lt;150ms)</span>
+      <span><i style="background: var(--accent);"></i> Normal</span>
+      <span><i style="background: var(--bad);"></i> Lambat (&gt;600ms)</span>
+    </div>
+  </div>
 </main>
 
 <div class="menu-overlay" id="menuOverlay"></div>
@@ -323,10 +389,96 @@ button { font-family: inherit; cursor: pointer; }
 
   const el = (id) => document.getElementById(id);
   const POLL_MS = 5000;
+  const HISTORY_MAX = 30;
 
   let baseSeconds = null;
   let baseAt = null;
   let tickTimer = null;
+  let latencyHistory = [];
+
+  function latencyColor(ms) {
+    if (ms < 150) return getCss('--good');
+    if (ms > 600) return getCss('--bad');
+    return getCss('--accent');
+  }
+
+  function getCss(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function drawChart() {
+    const canvas = el('latencyChart');
+    if (!canvas) return;
+    const ratio = window.devicePixelRatio || 1;
+    const cssWidth = canvas.clientWidth || 600;
+    const cssHeight = 120;
+    canvas.width = cssWidth * ratio;
+    canvas.height = cssHeight * ratio;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+    const border = getCss('--border');
+    const textFaint = getCss('--text-faint');
+
+    // grid lines
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 3; i++) {
+      const y = (cssHeight - 20) * (i / 3) + 8;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(cssWidth, y);
+      ctx.stroke();
+    }
+
+    if (latencyHistory.length < 2) {
+      ctx.fillStyle = textFaint;
+      ctx.font = '12px Inter, sans-serif';
+      ctx.fillText('Mengumpulkan data...', 10, cssHeight / 2);
+      return;
+    }
+
+    const max = Math.max(200, ...latencyHistory) * 1.15;
+    const plotH = cssHeight - 24;
+    const stepX = cssWidth / (HISTORY_MAX - 1);
+    const startIdx = HISTORY_MAX - latencyHistory.length;
+
+    // line
+    ctx.beginPath();
+    latencyHistory.forEach((ms, i) => {
+      const x = (startIdx + i) * stepX;
+      const y = plotH - (ms / max) * plotH + 8;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = getCss('--accent');
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // points
+    latencyHistory.forEach((ms, i) => {
+      const x = (startIdx + i) * stepX;
+      const y = plotH - (ms / max) * plotH + 8;
+      ctx.beginPath();
+      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = latencyColor(ms);
+      ctx.fill();
+    });
+  }
+
+  function recordLatency(ms) {
+    latencyHistory.push(Math.round(ms));
+    if (latencyHistory.length > HISTORY_MAX) latencyHistory.shift();
+    const latest = latencyHistory[latencyHistory.length - 1];
+    const latencyNowEl = el('latencyNow');
+    if (latencyNowEl) {
+      latencyNowEl.textContent = `${latest} ms`;
+      latencyNowEl.style.color = latencyColor(latest);
+    }
+    drawChart();
+  }
 
   function formatUptime(totalSeconds) {
     const s = Math.max(0, Math.floor(totalSeconds));
@@ -350,10 +502,12 @@ button { font-family: inherit; cursor: pointer; }
   }
 
   async function poll() {
+    const startedAt = performance.now();
     try {
       const res = await fetch('/api/health', { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      recordLatency(performance.now() - startedAt);
 
       el('statusBanner').classList.remove('is-down');
       el('statusText').textContent = 'Server berjalan normal';
@@ -381,8 +535,10 @@ button { font-family: inherit; cursor: pointer; }
     }
   }
 
+  drawChart();
   poll();
   setInterval(poll, POLL_MS);
+  window.addEventListener('resize', drawChart);
 
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const hamburgerMenu = document.getElementById('hamburgerMenu');

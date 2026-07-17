@@ -1,20 +1,21 @@
 :root {
-  --bg: #FFFFFF;
-  --panel: #F6F6F7;
-  --panel-raised: #EFEFF1;
-  --card: #FFFFFF;
-  --border: #E6E6E9;
-  --border-strong: #D1D1D6;
-  --text: #0B0B0C;
-  --text-dim: #57575C;
-  --text-faint: #9A9AA0;
-  --accent: #0B0B0C;
-  --accent-hover: #000000;
-  --accent-soft: #F0F0F1;
-  --good: #17803D;
-  --good-soft: #EEF7F0;
-  --bad: #C4291C;
-  --bad-soft: #FBEEEC;
+  --bg: #000000;
+  --panel: #0E0E10;
+  --panel-raised: #17171A;
+  --card: #0A0A0C;
+  --border: #232327;
+  --border-strong: #35353B;
+  --text: #F5F5F7;
+  --text-dim: #A6A6AD;
+  --text-faint: #6B6B72;
+  --accent: #FFFFFF;
+  --accent-text: #0A0A0C;
+  --accent-hover: #D9D9DE;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --good: #35D07F;
+  --good-soft: rgba(53, 208, 127, 0.14);
+  --bad: #FF5C4D;
+  --bad-soft: rgba(255, 92, 77, 0.14);
   --display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --stat: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -81,7 +82,7 @@ button {
   font-weight: 800;
   font-size: 16px;
   letter-spacing: -0.01em;
-  color: #fff;
+  color: var(--text);
 }
 
 .hamburger-btn {
@@ -149,23 +150,24 @@ button {
 
 .notif-panel {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   right: 0;
   z-index: 50;
   width: 380px;
   max-width: 92vw;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 12px 32px rgba(60, 52, 32, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(0.98);
   pointer-events: none;
   transition: opacity 0.16s ease, transform 0.16s ease;
+  overflow: hidden;
 }
 .notif-panel.is-open {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
@@ -173,11 +175,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border);
+  background: var(--panel-raised);
   font-family: var(--display);
-  font-weight: 700;
-  font-size: 15.5px;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.01em;
   color: var(--text);
 }
 
@@ -187,21 +191,23 @@ button {
   color: var(--accent);
   font-family: var(--body);
   font-weight: 600;
-  font-size: 13px;
-  padding: 5px 8px;
-  border-radius: 6px;
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  transition: background 0.12s ease;
 }
 .notif-clear-btn:hover { background: var(--accent-soft); }
 
 .notif-list {
-  max-height: 400px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
 .notif-empty {
-  padding: 28px 16px;
+  padding: 34px 18px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13.5px;
+  font-weight: 500;
   color: var(--text-faint);
 }
 
@@ -209,16 +215,18 @@ button {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 14px 16px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border);
+  transition: background 0.12s ease;
 }
 .notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--panel); }
 
 .notif-item-path {
   color: var(--text);
-  font-family: var(--body);
-  font-weight: 500;
-  font-size: 15px;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 13.5px;
   line-height: 1.5;
   white-space: normal;
   word-break: break-word;
@@ -226,7 +234,8 @@ button {
 }
 
 .notif-item-meta {
-  font-size: 12.5px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-faint);
   display: flex;
   gap: 8px;
@@ -240,7 +249,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 45;
-  background: rgba(43, 42, 37, 0.35);
+  background: rgba(0, 0, 0, 0.65);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -265,7 +274,7 @@ button {
   gap: 2px;
   transform: translateX(100%);
   transition: transform 0.28s ease;
-  box-shadow: -8px 0 32px rgba(60, 52, 32, 0.10);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
 }
 .hamburger-menu.is-open {
   transform: translateX(0);
@@ -483,7 +492,7 @@ button {
   font-family: var(--display);
   font-weight: 700;
   font-size: 14px;
-  color: #fff;
+  color: var(--accent-text);
   background: var(--accent);
   border: none;
   padding: 12px 20px;
@@ -643,7 +652,7 @@ button {
 .category-tab.is-active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--accent-text);
 }
 .category-tab svg { display: block; flex-shrink: 0; }
 
@@ -766,7 +775,7 @@ button {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
@@ -817,14 +826,14 @@ button {
   align-items: center;
   gap: 10px;
   font-family: var(--display);
-  font-size: 11.5px;
+  font-size: 14.5px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--text-faint);
-  margin: 26px 2px 10px;
-  padding-left: 0;
-  border-left: none;
+  color: var(--text);
+  margin: 30px 2px 12px;
+  padding: 0 0 10px;
+  border-bottom: 1.5px solid var(--border);
 }
 .log-group-title:first-child { margin-top: 0; }
 
@@ -853,7 +862,7 @@ button {
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
-.retry-btn:hover:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent); }
+.retry-btn:hover:not(:disabled) { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .retry-btn:disabled { opacity: 0.6; cursor: default; }
 
 .row {
@@ -868,7 +877,7 @@ button {
 
 .row.open {
   border-color: var(--border-strong);
-  box-shadow: 0 3px 14px rgba(60, 52, 32, 0.05);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
 }
 
 .row-head {
@@ -892,8 +901,8 @@ button {
   font-family: var(--mono);
   font-weight: 700;
   font-size: 11.5px;
-  color: #fff;
-  background: var(--text);
+  color: var(--accent-text);
+  background: var(--accent);
   padding: 5px 0;
   width: 46px;
   text-align: center;
@@ -1039,7 +1048,7 @@ button {
 .run-btn {
   order: 3;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-text);
   border: none;
   transition: background 0.12s ease, transform 0.08s ease;
 }
@@ -1125,7 +1134,7 @@ button {
 }
 
 .copy-endpoint-btn:hover { background: var(--border); color: var(--text); }
-.copy-endpoint-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
+.copy-endpoint-btn.copied { background: var(--good); color: var(--accent-text); border-color: var(--good); }
 
 .result {
   margin-top: 0;
@@ -1210,8 +1219,8 @@ button {
   border-radius: var(--radius-sm);
   transition: background 0.12s ease, color 0.12s ease;
 }
-.copy-result-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-.copy-result-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
+.copy-result-btn:hover { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.copy-result-btn.copied { background: var(--good); color: var(--accent-text); border-color: var(--good); }
 
 .result-json {
   margin: 0;
@@ -1280,8 +1289,8 @@ button {
   border-radius: var(--radius-sm);
   transition: background 0.12s ease, color 0.12s ease;
 }
-.copy-base-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-.copy-base-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
+.copy-base-btn:hover { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.copy-base-btn.copied { background: var(--good); color: var(--accent-text); border-color: var(--good); }
 
 @media (max-width: 860px) {
   .stage { padding: 32px 18px 60px; }
