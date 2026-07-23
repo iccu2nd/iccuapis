@@ -167,6 +167,63 @@
     });
   })();
 
+  (function setupHeroConsole() {
+    const consoleEl = el('heroConsole');
+    const pathEl = el('termPath');
+    const statusEl = el('termStatus');
+    const timeEl = el('termTime');
+    const jsonEl = el('termJson');
+    const titlebarUrlEl = el('termTitlebarUrl');
+    if (!consoleEl || !pathEl || !statusEl || !timeEl || !jsonEl) return;
+
+    titlebarUrlEl.textContent = window.location.host || 'api.sasane.eu.cc';
+
+    const samples = [
+      {
+        path: '/search/youtube?query=lofi hip hop',
+        time: '124ms',
+        json: [['title', '"lofi hip hop radio - beats to relax"'], ['duration', '"1:59:04"'], ['url', '"https://youtu.be/..."']]
+      },
+      {
+        path: '/image/pixiv?id=123456789',
+        time: '206ms',
+        json: [['title', '"original artwork"'], ['author', '"..."'], ['images', '[ "https://..." ]']]
+      },
+      {
+        path: '/download/spotify?url=...',
+        time: '318ms',
+        json: [['title', '"..."'], ['artist', '"..."'], ['download', '"https://..."']]
+      },
+      {
+        path: '/tools/removebg?url=...',
+        time: '542ms',
+        json: [['content-type', '"image/png"'], ['status', '"processed"']]
+      }
+    ];
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function render(sample) {
+      pathEl.textContent = sample.path;
+      timeEl.textContent = `· ${sample.time}`;
+      jsonEl.innerHTML = ['{', ...sample.json.map(([k, v], i, arr) =>
+        `  <span class="k">"${k}":</span> <span class="v">${v}</span>${i < arr.length - 1 ? ',' : ''}`
+      ), '}'].join('\n');
+    }
+
+    let i = 0;
+    render(samples[0]);
+    if (prefersReducedMotion) return;
+
+    setInterval(() => {
+      i = (i + 1) % samples.length;
+      consoleEl.classList.remove('is-swapping');
+      void consoleEl.offsetWidth;
+      consoleEl.classList.add('is-swapping');
+      render(samples[i]);
+    }, 3400);
+  })();
+
   (function setupCodeTabs() {
     const buttons = document.querySelectorAll('.code-tab-btn');
     const blocks = document.querySelectorAll('.code-block');
