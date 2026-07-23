@@ -138,10 +138,9 @@
   let manifest = null;
   let routes = [];
   let firstRender = true;
-  let activeCategory = 'all';
+  const openGroups = new Set();
 
   const CATEGORY_ICONS = {
-    all: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
     ai: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>',
     search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
     image: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
@@ -152,33 +151,6 @@
 
   function categoryIcon(key) {
     return CATEGORY_ICONS[key] || CATEGORY_ICONS.tools;
-  }
-
-  function renderCategoryTabs() {
-    const wrap = el('categoryTabs');
-    if (!wrap) return;
-
-    const groups = [...new Set(routes.map((r) => r.group))].sort(
-      (a, b) => groupOrder(a) - groupOrder(b)
-    );
-
-    const tabs = [{ key: 'all', label: 'Semua' }, ...groups.map((g) => ({ key: g, label: groupLabel(g) }))];
-
-    wrap.innerHTML = '';
-    tabs.forEach((tab) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'category-tab' + (tab.key === activeCategory ? ' is-active' : '');
-      btn.dataset.key = tab.key;
-      btn.innerHTML = `${categoryIcon(tab.key)}<span>${tab.label}</span>`;
-      btn.addEventListener('click', () => {
-        if (activeCategory === tab.key) return;
-        activeCategory = tab.key;
-        [...wrap.children].forEach((c) => c.classList.toggle('is-active', c.dataset.key === activeCategory));
-        renderLog();
-      });
-      wrap.appendChild(btn);
-    });
   }
 
   function groupLabel(key) {
@@ -301,7 +273,6 @@
     el('baseUrl').textContent = window.location.origin;
     document.title = manifest.identity.name;
 
-    renderCategoryTabs();
     renderLog();
   }
 
@@ -380,7 +351,6 @@
     );
 
     groups.forEach((g) => {
-      if (activeCategory !== 'all' && g !== activeCategory) return;
       const items = routes.filter((r) => {
         if (r.group !== g) return false;
         if (term && !(r.name.toLowerCase().includes(term) || r.path.toLowerCase().includes(term))) {
@@ -391,16 +361,43 @@
 
       if (!items.length) return;
 
-      const title = document.createElement('div');
-      title.className = 'log-group-title';
-      title.textContent = groupLabel(g);
-      logEl.appendChild(title);
+      const isOpen = term ? true : openGroups.has(g);
+
+      const folder = document.createElement('div');
+      folder.className = 'folder' + (isOpen ? ' is-open' : '');
+
+      const head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'folder-head';
+      head.setAttribute('aria-expanded', String(isOpen));
+      head.innerHTML = `
+        <span class="folder-icon">${categoryIcon(g)}</span>
+        <span class="folder-label">${groupLabel(g)}</span>
+        <span class="folder-count">${items.length}</span>
+        <span class="folder-chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      `;
+      head.addEventListener('click', () => {
+        if (openGroups.has(g)) {
+          openGroups.delete(g);
+        } else {
+          openGroups.add(g);
+        }
+        renderLog();
+      });
+
+      const body = document.createElement('div');
+      body.className = 'folder-body';
+      body.hidden = !isOpen;
 
       items.forEach((route, i) => {
         const row = buildRow(route);
         row.style.animationDelay = `${Math.min(i, 10) * 0.05}s`;
-        logEl.appendChild(row);
+        body.appendChild(row);
       });
+
+      folder.appendChild(head);
+      folder.appendChild(body);
+      logEl.appendChild(folder);
     });
 
     if (!logEl.children.length) {
