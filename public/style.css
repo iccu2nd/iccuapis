@@ -29,6 +29,7 @@
   --term-green: #35D07F;
   --term-green-soft: rgba(53, 208, 127, 0.14);
   --term-amber: #E8A33D;
+  --term-amber-soft: rgba(232, 163, 61, 0.14);
 }
 
 * { box-sizing: border-box; }
@@ -1183,7 +1184,7 @@ button {
   padding: 7px 14px; /* 2px border compensates so visual height matches .run-btn */
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
-.autofill-btn:hover { border-color: var(--accent); color: var(--accent); }
+.autofill-btn:hover { border-color: var(--term-amber); color: var(--term-amber); background: var(--term-amber-soft); }
 .autofill-btn:active { transform: scale(0.98); }
 .autofill-btn[style*="display: none"] { display: none !important; }
 
@@ -1212,10 +1213,10 @@ button {
   display: flex;
   flex-direction: column;
   margin-bottom: 12px;
-  border: 1px solid var(--term-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--term-bg);
-  padding: 11px 12px;
+  background: var(--panel);
+  padding: 10px 12px;
 }
 
 .endpoint-box[hidden] { display: none; }
@@ -1223,17 +1224,7 @@ button {
 .endpoint-line {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.endpoint-line::before {
-  content: 'GET';
-  flex-shrink: 0;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--term-green);
+  gap: 8px;
 }
 
 .endpoint-box .built-url {
@@ -1241,8 +1232,8 @@ button {
   min-width: 0;
   font-family: var(--mono);
   font-size: 13px;
-  font-weight: 500;
-  color: var(--term-text);
+  font-weight: 600;
+  color: var(--text);
   overflow-wrap: anywhere;
   word-break: break-all;
   line-height: 1.5;
@@ -1253,17 +1244,17 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: var(--term-bg-raised);
-  border: 1px solid var(--term-border);
+  width: 28px;
+  height: 28px;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  color: var(--term-dim);
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  color: var(--text-faint);
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
-.copy-endpoint-btn:hover { background: var(--term-border); color: var(--term-text); }
-.copy-endpoint-btn.copied { background: var(--term-green-soft); color: var(--term-green); border-color: var(--term-green); }
+.copy-endpoint-btn:hover { background: var(--border); color: var(--text); }
+.copy-endpoint-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
 
 .result {
   margin-top: 0;
