@@ -149,8 +149,10 @@
     tools: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>'
   };
 
+  const DEFAULT_CATEGORY_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>';
+
   function categoryIcon(key) {
-    return CATEGORY_ICONS[key] || CATEGORY_ICONS.tools;
+    return CATEGORY_ICONS[key] || DEFAULT_CATEGORY_ICON;
   }
 
   function groupLabel(key) {
@@ -373,7 +375,7 @@
       head.innerHTML = `
         <span class="folder-icon">${categoryIcon(g)}</span>
         <span class="folder-label">${groupLabel(g)}</span>
-        <span class="folder-count">${items.length}</span>
+        <span class="folder-count">(${items.length})</span>
         <span class="folder-chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       `;
       head.addEventListener('click', () => {
