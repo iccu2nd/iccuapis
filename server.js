@@ -40,10 +40,6 @@ const PORT = process.env.PORT || 4000;
 
 app.disable('x-powered-by');
 app.set('json spaces', 2);
-// Number of reverse proxy hops in front of this server (Cloudflare, Nginx,
-// your host's own load balancer, etc). If this is wrong, req.ip will NOT be
-// the real client IP and IP blocking will silently stop working. Set
-// TRUST_PROXY_HOPS in your env if you're not sure — see note above isBlocked check.
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 1);
 
 app.use(cors());
@@ -77,15 +73,8 @@ const ALWAYS_ALLOWED_PATHS = new Set([
   '/api/notifications'
 ]);
 
-// Populated later (line ~132) when route modules under src/api/** are loaded.
-// Declared here so the block middleware below can close over it — by the time
-// any real request comes in (after app.listen), this array is fully populated.
 const registry = [];
 
-// Fail-closed: only pages/assets we explicitly recognize as safe are allowed
-// through for a blocked IP. Everything that actually does work (every route
-// under src/api/**, plus any other /api/* path we haven't explicitly
-// whitelisted) is blocked, full stop — no guessing based on file extensions.
 function isExecutableEndpoint(req) {
   if (registry.some((r) => r.method === req.method && r.path === req.path)) return true;
   if (req.path.startsWith('/api/') && !ALWAYS_ALLOWED_PATHS.has(req.path)) return true;
@@ -93,12 +82,6 @@ function isExecutableEndpoint(req) {
 }
 
 function getClientIp(req) {
-  // req.ip already honors X-Forwarded-For according to the 'trust proxy'
-  // setting below. If you sit behind more than one reverse proxy (e.g.
-  // Cloudflare in front of your host's own proxy/load balancer), 'trust
-  // proxy' MUST equal the number of proxy hops, or req.ip will resolve to
-  // an intermediate proxy instead of the real client — which silently makes
-  // IP blocking useless. Adjust TRUST_PROXY_HOPS via env if needed.
   return req.ip;
 }
 
@@ -216,9 +199,6 @@ function makeSafeAppShim(realApp) {
 const apiRoot = path.join(__dirname, 'src/api');
 let loadedCount = 0;
 
-// Grup di UI dibangun otomatis dari nama folder di src/api/**.
-// Cukup tambah folder baru (mis. src/api/downloader/) berisi file .js
-// route, dan grup itu langsung muncul di UI — tidak perlu daftar manual.
 const autoGroups = {};
 fs.readdirSync(apiRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())

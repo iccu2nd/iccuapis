@@ -3,7 +3,7 @@
 const axios = require('axios');
 const cache = require('../../cache');
 
-const LINKS_TTL_MS = 30 * 60 * 1000; // 30 minutes — the source list rarely changes
+const LINKS_TTL_MS = 30 * 60 * 1000;
 const LINKS_CACHE_KEY = 'blue-archive:links';
 const LINKS_URL = 'https://raw.githubusercontent.com/rynxzyy/blue-archive-r-img/refs/heads/main/links.json';
 

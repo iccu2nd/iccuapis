@@ -3,12 +3,8 @@
 const axios = require('axios');
 const cache = require('../../cache');
 
-// konachan.com sering nyodorin Cloudflare challenge dan balikin 403 kalau
-// request-nya kelihatan kayak bot. Kita coba beberapa mirror + header yang
-// lebih mirip browser asli, dan cache hasil listing-nya biar gak nembak
-// upstream tiap request (ngurangin kemungkinan kena challenge lagi).
 const MIRRORS = ['https://konachan.com', 'https://konachan.net'];
-const LIST_TTL_MS = 5 * 60 * 1000; // 5 menit
+const LIST_TTL_MS = 5 * 60 * 1000;
 
 const BROWSER_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',

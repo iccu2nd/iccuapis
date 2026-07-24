@@ -3,7 +3,7 @@
 const yts = require('yt-search');
 const cache = require('../../cache');
 
-const TTL_MS = 5 * 60 * 1000; // 5 minutes — search results don't change second to second
+const TTL_MS = 5 * 60 * 1000;
 
 module.exports = function register(app, registry) {
   const route = {

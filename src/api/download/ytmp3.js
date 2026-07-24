@@ -4,7 +4,7 @@ const axios = require('axios');
 const CryptoJS = require('crypto-js');
 const cache = require('../../cache');
 
-const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const CACHE_TTL_MS = 15 * 60 * 1000;
 const TIMEOUT = 20000;
 const CRYPTO_KEY = 'C5D58EF67A7584E4A29F6C35BBC4EB12';
 

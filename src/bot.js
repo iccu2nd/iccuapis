@@ -272,9 +272,6 @@ function sendErrorAlert(context) {
 
   const { endpoint, message, extra, stack } = context;
 
-  // Plain text on purpose (no parse_mode): stack traces/params can contain
-  // characters that break Telegram's Markdown parser, which would silently
-  // drop the whole alert. Plain text always delivers.
   let text = [
     'ERROR DI ENDPOINT',
     '',

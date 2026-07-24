@@ -32,7 +32,7 @@
       }
 
       function setLastSeenAt(iso) {
-        try { localStorage.setItem(NOTIF_SEEN_KEY, iso); } catch (err) { /* ignore */ }
+        try { localStorage.setItem(NOTIF_SEEN_KEY, iso); } catch (err) {}
       }
 
       function updateNotifDot() {

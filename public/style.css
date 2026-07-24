@@ -565,7 +565,6 @@ button {
   margin-top: 18px;
 }
 
-/* ===== Section divider & generic content blocks (homepage) ===== */
 .page-divider {
   border: none;
   border-top: 1px solid var(--border);
@@ -1136,7 +1135,7 @@ button {
   background: var(--card);
   color: var(--text-dim);
   border: 2px solid var(--border);
-  padding: 7px 14px; /* 2px border compensates so visual height matches .run-btn */
+  padding: 7px 14px;
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 .autofill-btn:hover { border-color: var(--accent); color: var(--accent); }
