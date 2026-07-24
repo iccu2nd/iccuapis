@@ -283,23 +283,15 @@
   }
 
   function hideSkeleton() {
-    const realHeight = logEl.scrollHeight;
-    if (realHeight > 0) {
-      contentStack.style.minHeight = `${realHeight}px`;
-    }
-    bootLoader.style.opacity = '0';
-    contentStack.classList.remove('is-booting');
+    bootLoader.classList.add('is-leaving');
     setTimeout(() => {
       bootLoader.hidden = true;
-      bootLoader.style.opacity = '';
-      contentStack.style.minHeight = '';
-    }, 300);
+    }, 350);
   }
 
   async function boot() {
     bootLoader.hidden = false;
-    bootLoader.style.opacity = '';
-    contentStack.classList.add('is-booting');
+    bootLoader.classList.remove('is-leaving');
     logEl.hidden = true;
     logEl.classList.remove('is-visible');
     try {

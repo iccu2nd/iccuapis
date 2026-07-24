@@ -12,6 +12,13 @@
 </head>
 <body>
 
+<div class="boot-splash" id="bootLoader">
+  <svg class="boot-splash-svg" viewBox="0 0 200 200" aria-hidden="true">
+    <path class="boot-splash-path" d="M145 45 C120 20 60 20 60 60 C60 90 95 90 120 95 C150 100 150 140 110 150 C80 160 50 145 45 125"/>
+  </svg>
+  <p class="boot-splash-text">Installing API</p>
+</div>
+
 <div class="frame">
 
   <span id="tagline" style="display:none;"></span>
@@ -95,10 +102,6 @@
     </header>
 
     <div class="content-stack" id="contentStack">
-      <div class="boot-loader" id="bootLoader">
-        <p class="boot-loader-text">Installing API...</p>
-        <div class="boot-loader-track"><div class="boot-loader-fill"></div></div>
-      </div>
       <div class="log" id="log" role="list" hidden></div>
     </div>
 

@@ -801,40 +801,71 @@ button {
   position: relative;
 }
 
-.boot-loader {
+.boot-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 18px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  background: var(--bg);
+  transition: opacity 0.35s ease;
 }
 
-.boot-loader-text {
+.boot-splash.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-splash[hidden] { display: none; }
+
+.boot-splash-svg {
+  width: 130px;
+  height: 130px;
+}
+
+.boot-splash-path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 520;
+  stroke-dashoffset: 520;
+  filter: drop-shadow(0 0 10px var(--accent-soft));
+  animation: bootSplashDraw 2s linear infinite;
+}
+
+@keyframes bootSplashDraw {
+  0% { stroke-dashoffset: 520; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.boot-splash-text {
+  font-family: var(--display);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 5px;
   color: var(--text-dim);
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.boot-loader-track {
-  width: 140px;
-  height: 3px;
-  border-radius: 999px;
-  background: var(--border);
-  overflow: hidden;
+.boot-splash-text::after {
+  content: '';
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: bootSplashDots 1.5s steps(4) infinite;
 }
 
-.boot-loader-fill {
-  height: 100%;
-  width: 40%;
-  border-radius: 999px;
-  background: var(--accent, currentColor);
-  animation: bootLoaderFill 1.1s ease-in-out infinite;
-}
-
-@keyframes bootLoaderFill {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(350%); }
+@keyframes bootSplashDots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
 }
 
 @keyframes rowRise {
@@ -847,8 +878,6 @@ button {
     transform: translateY(0);
   }
 }
-
-.boot-loader[hidden] { display: none; }
 
 .log {
   display: flex;
