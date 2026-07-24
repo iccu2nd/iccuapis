@@ -41,6 +41,21 @@
         notifDot.hidden = !hasUnread;
       }
 
+      const infoBanner = el('infoBanner');
+      const infoBannerText = el('infoBannerText');
+
+      function renderInfoBanner(items) {
+        if (!infoBanner || !infoBannerText) return;
+        if (!items || !items.length) {
+          infoBanner.hidden = true;
+          return;
+        }
+        const latest = items[0];
+        const text = String(latest.text || '').replace(/^\s*info\s*[:\-]?\s*/i, '');
+        infoBannerText.textContent = text;
+        infoBanner.hidden = false;
+      }
+
       function renderNotifList(items) {
         notifList.innerHTML = '';
         if (!items || !items.length) {
@@ -73,6 +88,7 @@
             latestNotifAt = items[0].at;
           }
           renderNotifList(items);
+          renderInfoBanner(items);
           if (notifPanel.classList.contains('is-open') && latestNotifAt) {
             setLastSeenAt(latestNotifAt);
           }
@@ -310,12 +326,6 @@
     const q = new URLSearchParams(window.location.search).get('q');
     if (!q) return;
     filterInput.value = q;
-    const toggleBtn = el('searchToggleBtn');
-    const searchRow = el('searchRow');
-    if (toggleBtn && searchRow) {
-      toggleBtn.hidden = true;
-      searchRow.hidden = false;
-    }
     renderLog();
   }
 
@@ -654,42 +664,18 @@
     return node;
   }
 
-  (function setupSearchToggle() {
-    const toggleBtn = el('searchToggleBtn');
-    const searchRow = el('searchRow');
-    const closeBtn = el('searchCloseBtn');
-    if (!toggleBtn || !searchRow || !closeBtn) return;
-
-    function openSearch() {
-      toggleBtn.hidden = true;
-      searchRow.hidden = false;
+  document.addEventListener('keydown', (e) => {
+    const activeTag = document.activeElement && document.activeElement.tagName;
+    const isTypingElsewhere = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT' || (document.activeElement && document.activeElement.isContentEditable);
+    if (e.key === '/' && !isTypingElsewhere) {
+      e.preventDefault();
       filterInput.focus();
     }
-
-    function closeSearch() {
-      searchRow.hidden = true;
-      toggleBtn.hidden = false;
-      if (filterInput.value) {
-        filterInput.value = '';
-        renderLog();
-      }
+    if (e.key === 'Escape' && document.activeElement === filterInput && filterInput.value) {
+      filterInput.value = '';
+      renderLog();
     }
-
-    toggleBtn.addEventListener('click', openSearch);
-    closeBtn.addEventListener('click', closeSearch);
-
-    document.addEventListener('keydown', (e) => {
-      const activeTag = document.activeElement && document.activeElement.tagName;
-      const isTypingElsewhere = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT' || (document.activeElement && document.activeElement.isContentEditable);
-      if (e.key === '/' && !isTypingElsewhere && searchRow.hidden) {
-        e.preventDefault();
-        openSearch();
-      }
-      if (e.key === 'Escape' && !searchRow.hidden && document.activeElement === filterInput) {
-        closeSearch();
-      }
-    });
-  })();
+  });
 
   filterInput.addEventListener('input', renderLog);
 
