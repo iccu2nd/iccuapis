@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Request Log — ICCU APIS</title>
+<title>Request Log — Sasane APIS</title>
 <link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #FFFFFF;
-  --panel: #F7F8FA;
-  --panel-raised: #F0F2F5;
-  --border: #E2E5EA;
-  --border-strong: #CBD1DA;
-  --text: #14161A;
-  --text-dim: #565C68;
-  --text-faint: #8A8F99;
-  --accent: #0B0B0C;
-  --accent-hover: #000000;
-  --accent-soft: #F0F0F1;
-  --good: #17803D;
-  --good-soft: #E7F8EF;
-  --bad: #C4291C;
-  --bad-soft: #FDECEA;
-  --display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --panel: #FAFAFB;
+  --panel-raised: #F0F1F3;
+  --border: #ECECEF;
+  --border-strong: #E4E6EB;
+  --text: #12141C;
+  --text-dim: #767B87;
+  --text-faint: #9498A3;
+  --accent: #2F6FED;
+  --accent-hover: #2158C7;
+  --accent-soft: #EAF1FE;
+  --good: #2E9E5B;
+  --good-soft: #E9F7EF;
+  --bad: #D64545;
+  --bad-soft: #FBEBEA;
+  --display: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --stat: 'JetBrains Mono', ui-monospace, monospace;
-  --body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
-  --radius: 10px;
-  --radius-sm: 7px;
+  --radius: 16px;
+  --radius-sm: 10px;
 }
 
 * { box-sizing: border-box; }
@@ -113,7 +113,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .hamburger-menu-title {
   font-family: var(--display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 15px;
   color: var(--text);
   padding: 6px 14px 16px;
@@ -146,7 +146,7 @@ button { font-family: inherit; cursor: pointer; }
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
-.topbar-mark { font-family: var(--display); font-weight: 800; color: var(--text); }
+.topbar-mark { font-family: var(--display); font-weight: 700; color: var(--text); }
 .topbar-mark {
   display: flex;
   align-items: center;
@@ -340,7 +340,7 @@ tbody tr.is-new {
 
 <header class="topbar">
   <div class="topbar-mark">
-    <span>ICCU APIS</span>
+    <span>Sasane APIS</span>
   </div>
   <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
     <span></span>
@@ -422,7 +422,7 @@ tbody tr.is-new {
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 10;
   const POLL_MS = 3000;
   const CACHE_KEY = 'iccu_logs_cache_v1';
 

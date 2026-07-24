@@ -2,7 +2,7 @@
 
 module.exports = {
   identity: {
-    name: 'ICCU APIS',
+    name: 'Sasane APIS',
     creator: 'reisange',
     tagline: 'Rest API simple, free, dan 100% lebih lengkap.',
     version: '1.0.0'
