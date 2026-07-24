@@ -829,18 +829,30 @@ button {
 .boot-splash-path {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 7;
+  stroke-width: 8;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 520;
-  stroke-dashoffset: 520;
-  filter: drop-shadow(0 0 10px var(--accent-soft));
-  animation: bootSplashDraw 2s linear infinite;
+  stroke-dasharray: 390;
+  stroke-dashoffset: 390;
+  filter: drop-shadow(0 0 6px var(--accent-soft));
+  animation:
+    bootSplashDraw 1s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+    bootSplashPulse 1.6s ease-in-out 1s infinite;
 }
 
 @keyframes bootSplashDraw {
-  0% { stroke-dashoffset: 520; }
-  100% { stroke-dashoffset: 0; }
+  from { stroke-dashoffset: 390; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes bootSplashPulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px var(--accent-soft));
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 14px var(--accent-soft));
+  }
 }
 
 .boot-splash-text {
