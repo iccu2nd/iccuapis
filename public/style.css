@@ -936,8 +936,8 @@ button {
 
 .row {
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  margin-bottom: 9px;
+  border-radius: 14px;
+  margin-bottom: 10px;
   background: var(--card);
   overflow: hidden;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -953,8 +953,8 @@ button {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 15px;
+  gap: 12px;
+  padding: 13px 16px;
   background: none;
   border: none;
   border-left: 2px solid transparent;
@@ -970,14 +970,15 @@ button {
   font-family: var(--mono);
   font-weight: 700;
   font-size: 11px;
-  color: #fff;
-  background: var(--text);
+  color: var(--text-dim);
+  background: var(--panel-raised);
+  border: 1.5px solid var(--border-strong);
   padding: 4px 0;
-  width: 40px;
+  width: 42px;
   text-align: center;
-  border-radius: 7px;
+  border-radius: 8px;
   flex-shrink: 0;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .row-head .path {
