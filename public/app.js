@@ -386,7 +386,7 @@
     const resultSize = node.querySelector('.result-size');
     const copyResultBtn = node.querySelector('.copy-result-btn');
     const copyLabel = node.querySelector('.copy-label');
-    const resultIcon = node.querySelector('.icon-copy-result');
+    let resultIcon = node.querySelector('.icon-copy-result');
     const resultJson = node.querySelector('.result-json');
     const resultImage = node.querySelector('.result-image');
     const resultAudio = node.querySelector('.result-audio');
@@ -573,6 +573,7 @@
           copyLabel.textContent = 'Unduh';
           if (resultIcon) {
             resultIcon.outerHTML = '<svg class="icon-copy-result" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+            resultIcon = copyResultBtn.querySelector('.icon-copy-result');
           }
           lastResultText = url;
         } else {
@@ -588,6 +589,7 @@
           copyLabel.textContent = 'Salin';
           if (resultIcon) {
             resultIcon.outerHTML = '<svg class="icon-copy-result" width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>';
+            resultIcon = copyResultBtn.querySelector('.icon-copy-result');
           }
           lastResultText = pretty;
         }
@@ -610,6 +612,7 @@
         copyLabel.textContent = 'Salin';
         if (resultIcon) {
           resultIcon.outerHTML = '<svg class="icon-copy-result" width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>';
+          resultIcon = copyResultBtn.querySelector('.icon-copy-result');
         }
         lastResultText = message;
         lastResultBlob = null;

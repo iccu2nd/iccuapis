@@ -1242,8 +1242,8 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-top-color: currentColor;
