@@ -21,11 +21,11 @@
   --mono: 'JetBrains Mono', ui-monospace, monospace;
   --radius: 16px;
   --radius-sm: 10px;
-  --code-bg: #16171C;
-  --code-bg-raised: #1F2026;
-  --code-border: #2B2C33;
-  --code-text: #E7E9EE;
-  --code-text-dim: #9498A3;
+  --code-bg: #F6F7F9;
+  --code-bg-raised: #ECEDF1;
+  --code-border: #E1E3E8;
+  --code-text: #12141C;
+  --code-text-dim: #767B87;
   --run: #1C1D23;
   --run-hover: #000000;
 }
@@ -1269,10 +1269,10 @@ button {
 .result-status {
   padding: 3px 9px;
   border-radius: 5px;
-  background: rgba(46, 158, 91, 0.18);
-  color: #4ADE80;
+  background: var(--good-soft);
+  color: var(--good);
 }
-.result-status.err { background: rgba(214, 69, 69, 0.2); color: #FF8A8A; }
+.result-status.err { background: var(--bad-soft); color: var(--bad); }
 
 .result-time, .result-size { color: var(--code-text-dim); }
 
