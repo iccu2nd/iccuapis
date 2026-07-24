@@ -59,13 +59,25 @@
           Explore Docs
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
-        <a class="hero-btn-secondary" href="#usageSection">Cara Penggunaan</a>
+        <a class="hero-btn-secondary" href="#caraPakai">Cara Pakai</a>
       </div>
     </section>
 
-    <section class="usage-section" id="usageSection">
-      <h2 class="usage-title">Cara Penggunaan</h2>
-      <p class="usage-sub">Semua endpoint pakai method <code>GET</code> biasa. Tinggal request ke base URL + path endpoint, tambahkan query parameter yang dibutuhkan, lalu ambil hasilnya dari respons. Nggak perlu API key buat mulai coba-coba.</p>
+    <hr class="page-divider">
+
+    <section class="content-section" id="caraPakai">
+      <h2>Cara Pakai</h2>
+      <ol class="steps-list">
+        <li><p><strong>Pilih Endpoint:</strong> Buka halaman Docs, lalu pilih kategori dan endpoint yang mau dipakai — AI, Search, Image, Stalk, Downloader, atau Tools.</p></li>
+        <li><p><strong>Kirim Request:</strong> Semua endpoint pakai method GET biasa, tinggal request ke base URL + path endpoint + query parameter yang dibutuhkan.</p></li>
+        <li><p><strong>Ambil Hasil:</strong> Respons langsung balik dalam format JSON atau file (gambar/audio/video), siap dipakai langsung di project kamu. Nggak perlu API key buat mulai coba-coba.</p></li>
+      </ol>
+    </section>
+
+    <hr class="page-divider">
+
+    <section class="content-section" id="usageSection">
+      <h2>Contoh Request</h2>
       <div class="code-tabs">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn is-active" type="button" data-lang="node" role="tab">Node.js</button>
@@ -84,6 +96,42 @@ print(res.json())</code></pre>
       <p class="usage-note">Setiap endpoint punya parameter beda-beda, semuanya bisa dilihat dan dicoba langsung di halaman docs.</p>
       <a class="hero-btn-secondary usage-docs-link" href="/docs">Lihat semua endpoint di Docs →</a>
     </section>
+
+    <hr class="page-divider">
+
+    <section class="content-section">
+      <h2>Kategori Endpoint</h2>
+      <div class="services-list">
+        <div class="service-card">
+          <h3>AI</h3>
+          <p>Endpoint AI kayak image generation dan text processing (DeepAI), tinggal panggil langsung dari kode kamu.</p>
+        </div>
+        <div class="service-card">
+          <h3>Search</h3>
+          <p>Cari YouTube dan lirik lagu, hasilnya balik rapi dalam JSON, gampang diolah lagi di bot atau aplikasi.</p>
+        </div>
+        <div class="service-card">
+          <h3>Image</h3>
+          <p>Ambil gambar dari sumber seperti Pixiv, Konachan, dan Blue Archive lewat satu endpoint sederhana.</p>
+        </div>
+        <div class="service-card">
+          <h3>Stalk</h3>
+          <p>Ambil informasi publik dari profil TikTok dengan satu request, cocok buat fitur cek akun di bot kamu.</p>
+        </div>
+        <div class="service-card">
+          <h3>Downloader</h3>
+          <p>Download audio dari Spotify dan YouTube (ytmp3) langsung dari link, tanpa proses ribet.</p>
+        </div>
+        <div class="service-card">
+          <h3>Tools</h3>
+          <p>Utilitas harian: remove background gambar, skip shortlink iklan, spam OTP, sampai convert web ke APK.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      &copy; 2026 Sasane APIS. Semua endpoint aktif dan siap dipakai kapan aja.
+    </footer>
 
   </main>
 
