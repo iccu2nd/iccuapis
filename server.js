@@ -148,7 +148,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/manifest.json', (req, res) => res.json({ result: { identity: config.identity, groups: config.groups } }));
+app.get('/manifest.json', (req, res) => {
+  res.json({ result: { identity: config.identity, groups: autoGroups, links: config.links } });
+});
 
 app.use((req, res, next) => {
   const startedAt = process.hrtime.bigint();
@@ -213,6 +215,20 @@ function makeSafeAppShim(realApp) {
 
 const apiRoot = path.join(__dirname, 'src/api');
 let loadedCount = 0;
+
+// Grup di UI dibangun otomatis dari nama folder di src/api/**.
+// Cukup tambah folder baru (mis. src/api/downloader/) berisi file .js
+// route, dan grup itu langsung muncul di UI — tidak perlu daftar manual.
+const autoGroups = {};
+fs.readdirSync(apiRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .forEach((group, index) => {
+    autoGroups[group.name] = {
+      label: group.name.charAt(0).toUpperCase() + group.name.slice(1),
+      order: index + 1,
+      icon: group.name
+    };
+  });
 
 fs.readdirSync(apiRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())

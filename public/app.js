@@ -41,21 +41,6 @@
         notifDot.hidden = !hasUnread;
       }
 
-      const infoBanner = el('infoBanner');
-      const infoBannerText = el('infoBannerText');
-
-      function renderInfoBanner(items) {
-        if (!infoBanner || !infoBannerText) return;
-        if (!items || !items.length) {
-          infoBanner.hidden = true;
-          return;
-        }
-        const latest = items[0];
-        const text = String(latest.text || '').replace(/^\s*info\s*[:\-]?\s*/i, '');
-        infoBannerText.textContent = text;
-        infoBanner.hidden = false;
-      }
-
       function renderNotifList(items) {
         notifList.innerHTML = '';
         if (!items || !items.length) {
@@ -88,7 +73,6 @@
             latestNotifAt = items[0].at;
           }
           renderNotifList(items);
-          renderInfoBanner(items);
           if (notifPanel.classList.contains('is-open') && latestNotifAt) {
             setLastSeenAt(latestNotifAt);
           }

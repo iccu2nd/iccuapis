@@ -14,7 +14,8 @@
 
 <div class="boot-splash" id="bootLoader">
   <svg class="boot-splash-svg" viewBox="0 0 200 200" aria-hidden="true">
-    <path class="boot-splash-path" d="M140,60 A40,40 0 1,0 100,100 A40,40 0 1,1 60,140"/>
+    <text x="100" y="146" text-anchor="middle" class="boot-splash-s-fill">S</text>
+    <text x="100" y="146" text-anchor="middle" class="boot-splash-s-outline">S</text>
   </svg>
   <p class="boot-splash-text">Installing API</p>
 </div>
@@ -87,10 +88,6 @@
       </div>
       <h1>Semua endpoint, tinggal pilih.</h1>
       <p>Klik salah satu endpoint, isi kolom yang diminta, lalu jalankan. Hasilnya langsung tampil, lengkap dengan waktu respons.</p>
-      <div class="info-banner" id="infoBanner" hidden>
-        <span class="info-banner-label">Info Terbaru</span>
-        <p class="info-banner-text" id="infoBannerText"></p>
-      </div>
     </header>
 
     <div class="content-stack" id="contentStack">
@@ -110,10 +107,6 @@
       <div class="views-row">
         <span class="stage-foot-views" id="viewStat">Views: <span id="viewCount" class="is-loading">0</span></span>
       </div>
-      <a class="wa-channel-box" href="#" target="_blank" rel="noopener">
-        <span class="wa-channel-title">Saluran WhatsApp</span>
-        <span class="wa-channel-sub">Gabung buat update &amp; info terbaru</span>
-      </a>
     </footer>
 
   </main>
@@ -139,6 +132,11 @@
   <a href="/health" class="hamburger-menu-item">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
     Health
+  </a>
+  <div class="hamburger-menu-spacer"></div>
+  <a href="#" id="waChannelMenuItem" class="hamburger-menu-item hamburger-menu-wa" target="_blank" rel="noopener" hidden>
+    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+    Saluran WhatsApp
   </a>
 </div>
 
@@ -210,6 +208,7 @@
 </template>
 
 <script src="/click-sound.js"></script>
+<script src="/wa-channel.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>
