@@ -33,7 +33,11 @@
   --radius-sm: 10px;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+a, button, [role="button"] { -webkit-touch-callout: none; }
 
 html, body {
   margin: 0;
@@ -448,7 +452,7 @@ tbody tr.is-new {
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 15;
   const POLL_MS = 3000;
   const CACHE_KEY = 'iccu_logs_cache_v1';
 

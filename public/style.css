@@ -30,7 +30,11 @@
   --run-hover: #000000;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+a, button, [role="button"] { -webkit-touch-callout: none; }
 
 html, body {
   margin: 0;
