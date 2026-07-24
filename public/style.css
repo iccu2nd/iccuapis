@@ -790,26 +790,43 @@ button {
   font-size: 140px;
 }
 
+.boot-splash-plate {
+  fill: var(--accent);
+  opacity: 0;
+  transform-origin: center;
+  transform: scale(0.88);
+  animation: bootSplashPlateIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .boot-splash-s-outline {
   fill: none;
-  stroke: var(--accent);
+  stroke: #FFFFFF;
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 520;
   stroke-dashoffset: 520;
-  filter: drop-shadow(0 0 6px var(--accent-soft));
-  animation: bootSplashDraw 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+  animation:
+    bootSplashOutlineIn 0.01s 0.35s forwards,
+    bootSplashDraw 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
 }
 
 .boot-splash-s-fill {
-  fill: var(--accent);
-  opacity: 0;
-  transform-origin: center;
-  transform: scale(0.94);
+  fill: #FFFFFF;
+  clip-path: inset(100% 0 0 0);
   animation:
-    bootSplashFill 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.15s forwards,
-    bootSplashPulse 2.2s ease-in-out 1.85s infinite;
+    bootSplashFill 0.75s cubic-bezier(0.65, 0, 0.35, 1) 1.5s forwards,
+    bootSplashPulse 2.2s ease-in-out 2.3s infinite;
+}
+
+@keyframes bootSplashPlateIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bootSplashOutlineIn {
+  to { opacity: 1; }
 }
 
 @keyframes bootSplashDraw {
@@ -818,18 +835,18 @@ button {
 }
 
 @keyframes bootSplashFill {
-  from { opacity: 0; transform: scale(0.94); }
-  to { opacity: 1; transform: scale(1); }
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0% 0 0 0); }
 }
 
 @keyframes bootSplashPulse {
   0%, 100% {
     opacity: 1;
-    filter: drop-shadow(0 0 6px var(--accent-soft));
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.5));
   }
   50% {
     opacity: 0.75;
-    filter: drop-shadow(0 0 12px var(--accent-soft));
+    filter: drop-shadow(0 0 12px rgba(255,255,255,0.5));
   }
 }
 
