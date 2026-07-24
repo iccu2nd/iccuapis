@@ -16,34 +16,39 @@
     if (!audioCtx) return;
     const now = audioCtx.currentTime;
 
-    const osc = audioCtx.createOscillator();
-    const oscGain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(1300, now);
-    osc.frequency.exponentialRampToValueAtTime(280, now + 0.045);
-    oscGain.gain.setValueAtTime(0.16, now);
-    oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-    osc.connect(oscGain).connect(audioCtx.destination);
-    osc.start(now);
-    osc.stop(now + 0.06);
-
-    const bufferSize = Math.floor(audioCtx.sampleRate * 0.02);
-    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i += 1) {
-      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    function noiseBurst(startTime, duration, filterType, filterFreq, peakGain, q) {
+      const bufferSize = Math.max(1, Math.floor(audioCtx.sampleRate * duration));
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = filterType;
+      filter.frequency.value = filterFreq;
+      if (q) filter.Q.value = q;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(peakGain, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      src.connect(filter).connect(gain).connect(audioCtx.destination);
+      src.start(startTime);
+      src.stop(startTime + duration);
     }
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = buffer;
-    const noiseFilter = audioCtx.createBiquadFilter();
-    noiseFilter.type = 'highpass';
-    noiseFilter.frequency.value = 2500;
-    const noiseGain = audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(0.3, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
-    noise.connect(noiseFilter).connect(noiseGain).connect(audioCtx.destination);
-    noise.start(now);
-    noise.stop(now + 0.03);
+
+    noiseBurst(now, 0.012, 'bandpass', 4200, 0.55, 1.1);
+    noiseBurst(now + 0.001, 0.02, 'highpass', 6500, 0.22, 0.9);
+
+    const thud = audioCtx.createOscillator();
+    const thudGain = audioCtx.createGain();
+    thud.type = 'square';
+    thud.frequency.setValueAtTime(150, now);
+    thudGain.gain.setValueAtTime(0.1, now);
+    thudGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+    thud.connect(thudGain).connect(audioCtx.destination);
+    thud.start(now);
+    thud.stop(now + 0.02);
   }
 
   const CLICKABLE_SELECTOR = [
