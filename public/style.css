@@ -956,7 +956,7 @@ button {
 
 .row {
   border: 1.5px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
   margin-bottom: 12px;
   background: var(--card);
   overflow: hidden;
@@ -1044,7 +1044,7 @@ button {
 
 .row-body {
   display: none;
-  padding: 4px 16px 18px 34px;
+  padding: 4px 18px 18px;
   border-top: 1px solid var(--border);
 }
 
@@ -1068,8 +1068,8 @@ button {
 .fields {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .field label {
@@ -1084,14 +1084,14 @@ button {
 .field input, .field select {
   width: 100%;
   background: var(--card);
-  border: 2px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: var(--mono);
   font-size: 14px;
-  padding: 10px 12px;
+  padding: 11px 14px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease;
 }
 
 .field select { cursor: pointer; }
@@ -1181,11 +1181,11 @@ button {
 .endpoint-box {
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
-  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--panel);
-  padding: 10px 12px;
+  padding: 12px 14px;
 }
 
 .endpoint-box[hidden] { display: none; }
@@ -1227,7 +1227,7 @@ button {
 
 .result {
   margin-top: 0;
-  border: 2px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--panel);
   overflow: hidden;
@@ -1384,7 +1384,6 @@ button {
 @media (max-width: 860px) {
   .stage { padding: 32px 18px 60px; }
   .stage-head h1 { font-size: 28px; }
-  .row-body { padding-left: 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
