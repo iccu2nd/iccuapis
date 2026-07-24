@@ -1238,17 +1238,22 @@ button {
   display: none;
 }
 
-.spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--code-border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+.spinner-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spinner-spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spinner-spin {
+  to { transform: rotate(360deg); }
+}
 
 .result-head {
   display: flex;
@@ -1393,6 +1398,6 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner { animation: none; }
+  .spinner-logo { animation: none; }
   * { transition: none !important; }
 }
