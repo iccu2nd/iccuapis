@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Health — Sasane APIS</title>
+<title>Test Scraper — Sasane APIS</title>
 <link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,6 +182,10 @@ button { font-family: inherit; cursor: pointer; }
 
 .page-head {
   margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 .page-head h1 {
   font-family: var(--display);
@@ -195,119 +199,121 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--text-dim);
   font-size: 14.5px;
 }
-
-.status-banner {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 26px 24px;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: linear-gradient(135deg, #E9F7EF 0%, #F5FCF8 60%, #FFFFFF 100%);
-  margin-bottom: 16px;
-  box-shadow: 0 16px 36px -20px rgba(46, 158, 91, 0.35);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-.status-banner.is-down {
-  background: linear-gradient(135deg, #FBEBEA 0%, #FDF4F3 60%, #FFFFFF 100%);
-  box-shadow: 0 16px 36px -20px rgba(214, 69, 69, 0.35);
-}
-.status-dot-wrap {
-  position: relative;
-  width: 40px;
-  height: 40px;
+.key-btn {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.status-dot-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--good);
-  opacity: 0.18;
-  animation: ring 1.8s ease-out infinite;
-}
-.status-banner.is-down .status-dot-ring { background: var(--bad); animation: none; opacity: 0.12; }
-@keyframes ring {
-  0% { transform: scale(0.5); opacity: 0.35; }
-  100% { transform: scale(1); opacity: 0; }
-}
-.status-dot {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: var(--good);
-  flex-shrink: 0;
-  box-shadow: 0 0 0 4px rgba(46, 158, 91, 0.16);
-}
-.status-banner.is-down .status-dot { background: var(--bad); box-shadow: 0 0 0 4px rgba(214, 69, 69, 0.16); }
-.status-banner-copy { display: flex; flex-direction: column; gap: 2px; }
-.status-banner-text {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 17px;
-  color: var(--good);
-  letter-spacing: -0.01em;
-}
-.status-banner.is-down .status-banner-text { color: var(--bad); }
-.status-banner-sub {
-  font-size: 12.5px;
-  color: var(--text-faint);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-.card {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 20px;
+  border: 1px solid var(--border-strong);
   background: #fff;
-  box-shadow: 0 10px 24px -18px rgba(20, 22, 26, 0.25);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: background 0.12s ease;
 }
-.card:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -18px rgba(20, 22, 26, 0.28); }
-.card-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-.card-label {
-  font-size: 12px;
+.key-btn:hover { background: var(--panel); }
+
+.field-label {
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 6px;
+  margin: 18px 0 8px;
 }
-.card-value {
-  font-family: var(--stat);
-  font-weight: 700;
-  font-size: 23px;
-  letter-spacing: -0.01em;
-  background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.card.is-wide { grid-column: 1 / -1; }
-.card.is-wide .card-value { font-size: 15px; }
+.field-label:first-of-type { margin-top: 0; }
 
-@media (max-width: 480px) {
-  .grid { grid-template-columns: 1fr; }
+textarea, input[type="text"] {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--panel);
+  resize: vertical;
+}
+textarea:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+}
+#scraperCode { min-height: 260px; }
+
+.row-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  .row-2 { grid-template-columns: 1fr; }
+}
+
+.run-btn {
+  margin-top: 18px;
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  transition: background 0.12s ease;
+}
+.run-btn:hover { background: var(--accent-hover); }
+.run-btn:disabled { opacity: 0.55; cursor: default; }
+
+.result-panel {
+  margin-top: 22px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+  background: #fff;
+  display: none;
+}
+.result-panel.is-shown { display: block; }
+.result-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.result-badge {
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 999px;
+  color: var(--good);
+  background: var(--good-soft);
+}
+.result-badge.is-bad { color: var(--bad); background: var(--bad-soft); }
+.result-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.result-fn {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.result-fn code {
+  font-family: var(--mono);
+  background: var(--panel-raised);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+pre#resultOutput {
+  margin: 0;
+  padding: 14px;
+  background: var(--panel-raised);
+  border-radius: 12px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow: auto;
 }
 </style>
 </head>
@@ -326,43 +332,31 @@ button { font-family: inherit; cursor: pointer; }
 
 <main class="stage">
   <div class="page-head">
-    <h1>Health</h1>
-    <p>Status server secara langsung. Halaman ini refresh sendiri tiap beberapa detik.</p>
+    <div>
+      <h1>Test Scraper</h1>
+      <p>Tempel kode scraper, jalankan, langsung kelihatan masih jalan atau nggak sebelum ditambah jadi endpoint.</p>
+    </div>
+    <button class="key-btn" id="keyBtn" type="button">Ganti Key</button>
   </div>
 
-  <div class="status-banner" id="statusBanner">
-    <div class="status-dot-wrap">
-      <span class="status-dot-ring"></span>
-      <span class="status-dot" id="statusDot"></span>
-    </div>
-    <div class="status-banner-copy">
-      <span class="status-banner-text" id="statusText">Memeriksa status...</span>
-      <span class="status-banner-sub">Auto-refresh tiap 5 detik</span>
-    </div>
+  <div class="field-label">Kode Scraper</div>
+  <textarea id="scraperCode" placeholder="Tempel isi file scraper di sini (module.exports = ... atau class ...)" spellcheck="false"></textarea>
+
+  <div class="field-label">Input Test &amp; Nama Fungsi (opsional)</div>
+  <div class="row-2">
+    <input type="text" id="scraperInput" placeholder="URL atau query buat di-test, cth: https://open.spotify.com/track/..." autocomplete="off" />
+    <input type="text" id="scraperFn" placeholder="nama fungsi (opsional)" autocomplete="off" />
   </div>
 
-  <div class="grid">
-    <div class="card">
-      <div class="card-icon">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-      </div>
-      <div class="card-label">Server Uptime</div>
-      <div class="card-value" id="uptimeValue">—</div>
+  <button class="run-btn" id="runBtn" type="button">Jalankan Test</button>
+
+  <div class="result-panel" id="resultPanel">
+    <div class="result-head">
+      <span class="result-badge" id="resultBadge">Berhasil</span>
+      <span class="result-meta" id="resultMeta"></span>
     </div>
-    <div class="card">
-      <div class="card-icon">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
-      </div>
-      <div class="card-label">Cache Entries</div>
-      <div class="card-value" id="cacheValue">—</div>
-    </div>
-    <div class="card is-wide">
-      <div class="card-icon">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18"/><path d="M8 2v4M16 2v4"/></svg>
-      </div>
-      <div class="card-label">Last Checked</div>
-      <div class="card-value" id="timestampValue">—</div>
-    </div>
+    <div class="result-fn" id="resultFn"></div>
+    <pre id="resultOutput"></pre>
   </div>
 </main>
 
@@ -382,11 +376,11 @@ button { font-family: inherit; cursor: pointer; }
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" fill="currentColor"/></svg>
     Request Log
   </a>
-  <a href="/health" class="hamburger-menu-item is-active">
+  <a href="/health" class="hamburger-menu-item">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
     Health
   </a>
-  <a href="/scraper-test" class="hamburger-menu-item">
+  <a href="/scraper-test" class="hamburger-menu-item is-active">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-6 10a2 2 0 001.7 3h12.6a2 2 0 001.7-3l-6-10V3"/></svg>
     Test Scraper
   </a>
@@ -404,67 +398,107 @@ button { font-family: inherit; cursor: pointer; }
   'use strict';
 
   const el = (id) => document.getElementById(id);
-  const POLL_MS = 5000;
+  const KEY_STORAGE = 'iccu_scraper_test_key';
 
-  let baseSeconds = null;
-  let baseAt = null;
-  let tickTimer = null;
-
-  function formatUptime(totalSeconds) {
-    const s = Math.max(0, Math.floor(totalSeconds));
-    const hours = Math.floor(s / 3600);
-    const minutes = Math.floor((s % 3600) / 60);
-    const seconds = s % 60;
-    return `${hours}h ${minutes}m ${seconds}s`;
+  function getKey() {
+    return localStorage.getItem(KEY_STORAGE) || '';
   }
 
-  function tick() {
-    if (baseSeconds === null) return;
-    const elapsed = (Date.now() - baseAt) / 1000;
-    el('uptimeValue').textContent = formatUptime(baseSeconds + elapsed);
-  }
-
-  function setDown() {
-    el('statusBanner').classList.add('is-down');
-    el('statusText').textContent = 'Server tidak merespons';
-    el('uptimeValue').textContent = '—';
-    el('cacheValue').textContent = '—';
-  }
-
-  async function poll() {
-    try {
-      const res = await fetch('/api/health', { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-
-      el('statusBanner').classList.remove('is-down');
-      el('statusText').textContent = 'Server berjalan normal';
-
-      if (typeof data.uptimeSeconds === 'number') {
-        baseSeconds = data.uptimeSeconds;
-        baseAt = Date.now();
-        el('uptimeValue').textContent = formatUptime(baseSeconds);
-        if (!tickTimer) tickTimer = setInterval(tick, 1000);
-      }
-
-      if (typeof data.cacheEntries === 'number') {
-        el('cacheValue').textContent = data.cacheEntries.toLocaleString('id-ID');
-      }
-
-      if (data.timestamp) {
-        const d = new Date(data.timestamp);
-        el('timestampValue').textContent = d.toLocaleString('id-ID', {
-          day: '2-digit', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
-        });
-      }
-    } catch (err) {
-      setDown();
+  function promptForKey() {
+    const value = prompt('Masukin SCRAPER_TEST_KEY (di-set di environment server):', getKey());
+    if (value !== null && value.trim()) {
+      localStorage.setItem(KEY_STORAGE, value.trim());
     }
   }
 
-  poll();
-  setInterval(poll, POLL_MS);
+  el('keyBtn').addEventListener('click', promptForKey);
+
+  function showResult(success, payload, ms, usedFunction) {
+    const panel = el('resultPanel');
+    const badge = el('resultBadge');
+    const meta = el('resultMeta');
+    const fn = el('resultFn');
+    const output = el('resultOutput');
+
+    panel.classList.add('is-shown');
+    badge.textContent = success ? 'Berhasil' : 'Gagal';
+    badge.classList.toggle('is-bad', !success);
+    meta.textContent = `${ms}ms`;
+    fn.innerHTML = usedFunction ? `Fungsi dipanggil: <code>${usedFunction}</code>` : '';
+
+    if (typeof payload === 'string') {
+      output.textContent = payload;
+    } else {
+      try {
+        output.textContent = JSON.stringify(payload, null, 2);
+      } catch (err) {
+        output.textContent = String(payload);
+      }
+    }
+  }
+
+  async function runTest() {
+    const code = el('scraperCode').value;
+    const input = el('scraperInput').value.trim();
+    const fnName = el('scraperFn').value.trim();
+
+    if (!code.trim()) {
+      alert('Tempel kode scraper dulu.');
+      return;
+    }
+    if (!getKey()) {
+      promptForKey();
+      if (!getKey()) return;
+    }
+
+    const runBtn = el('runBtn');
+    runBtn.disabled = true;
+    runBtn.textContent = 'Menjalankan...';
+    const startedAt = performance.now();
+
+    try {
+      const res = await fetch('/api/scraper-test/run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-scraper-key': getKey()
+        },
+        body: JSON.stringify({ code, input, fnName: fnName || undefined })
+      });
+      const data = await res.json();
+      const ms = Math.round(performance.now() - startedAt);
+
+      if (res.status === 401) {
+        localStorage.removeItem(KEY_STORAGE);
+        showResult(false, data.error?.message || 'Key salah.', ms, null);
+        promptForKey();
+        return;
+      }
+
+      if (res.status === 503) {
+        showResult(false, data.error?.message || 'Fitur belum dikonfigurasi.', ms, null);
+        return;
+      }
+
+      if (data.ok === false) {
+        showResult(false, data.error?.message || 'Gagal menjalankan scraper.', ms, null);
+        return;
+      }
+
+      const installed = data.result.installedModules || [];
+      const fnLabel = installed.length
+        ? `${data.result.usedFunction} (auto-install: ${installed.join(', ')}, sudah dihapus lagi)`
+        : data.result.usedFunction;
+      showResult(true, data.result.output, ms, fnLabel);
+    } catch (err) {
+      showResult(false, err.message, Math.round(performance.now() - startedAt), null);
+    } finally {
+      runBtn.disabled = false;
+      runBtn.textContent = 'Jalankan Test';
+    }
+  }
+
+  el('runBtn').addEventListener('click', runTest);
 
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const hamburgerMenu = document.getElementById('hamburgerMenu');

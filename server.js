@@ -11,6 +11,7 @@ const monitor = require('./src/monitor');
 const cache = require('./src/cache');
 const { startBot, sendNotification, sendErrorAlert } = require('./src/bot');
 const { getDb } = require('./src/mongoClient');
+const { runScraperTest } = require('./src/scraperSandbox');
 
 if (typeof globalThis.File === 'undefined') {
   globalThis.File = require('node:buffer').File;
@@ -293,6 +294,41 @@ app.get('/logs', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/health.html'));
+});
+
+app.get('/scraper-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/scraper-test.html'));
+});
+
+function requireScraperKey(req, res, next) {
+  const expected = process.env.SCRAPER_TEST_KEY;
+  if (!expected) {
+    return res.status(503).json({
+      ok: false,
+      error: { code: 'NOT_CONFIGURED', message: 'SCRAPER_TEST_KEY belum di-set di environment server.' }
+    });
+  }
+  if (req.headers['x-scraper-key'] !== expected) {
+    return res.status(401).json({
+      ok: false,
+      error: { code: 'UNAUTHORIZED', message: 'Scraper test key salah atau belum diisi.' }
+    });
+  }
+  next();
+}
+
+app.post('/api/scraper-test/run', requireScraperKey, (req, res) => {
+  const { code, input, fnName } = req.body || {};
+  runScraperTest({ code, input, fnName })
+    .then(({ usedFunction, output, installedModules }) => {
+      res.json({ result: { usedFunction, output, installedModules } });
+    })
+    .catch((err) => {
+      res.json({
+        ok: false,
+        error: { code: 'SCRAPER_TEST_FAILED', message: err.message }
+      });
+    });
 });
 
 app.use((req, res) => {
