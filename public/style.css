@@ -54,6 +54,16 @@ a { color: var(--accent); }
 button {
   font-family: inherit;
   cursor: pointer;
+  outline: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .frame {
