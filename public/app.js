@@ -420,13 +420,6 @@
         input.dataset.key = param.key;
         input.dataset.required = param.required ? '1' : '0';
 
-        if (!param.required) {
-          const emptyOpt = document.createElement('option');
-          emptyOpt.value = '';
-          emptyOpt.textContent = param.hint || 'Pilih...';
-          input.appendChild(emptyOpt);
-        }
-
         param.options.forEach((opt) => {
           const optionEl = document.createElement('option');
           optionEl.value = opt;

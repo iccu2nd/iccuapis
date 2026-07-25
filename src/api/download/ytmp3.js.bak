@@ -13,7 +13,7 @@ module.exports = function register(app, registry) {
     method: 'GET',
     path: '/download/ytmp3',
     group: 'download',
-    name: 'YouTube Mp3',
+    name: 'YouTube to MP3',
     description: 'Download audio dari video YouTube.',
     params: [
       { key: 'url', required: true, hint: 'URL video YouTube', example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
