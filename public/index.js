@@ -3,6 +3,42 @@
 
   const el = (id) => document.getElementById(id);
 
+  (function setupBootSplash() {
+    const bootLoader = el('bootLoader');
+    if (!bootLoader) return;
+
+    let hidden = false;
+    function hide() {
+      if (hidden) return;
+      hidden = true;
+      bootLoader.classList.add('is-leaving');
+      setTimeout(() => { bootLoader.hidden = true; }, 350);
+    }
+
+    let animDone = false;
+    let pageLoaded = document.readyState === 'complete';
+
+    function tryHide() {
+      if (animDone && pageLoaded) hide();
+    }
+
+    window.addEventListener('bootlogo:done', () => {
+      animDone = true;
+      tryHide();
+    }, { once: true });
+
+    if (pageLoaded) {
+      tryHide();
+    } else {
+      window.addEventListener('load', () => {
+        pageLoaded = true;
+        tryHide();
+      }, { once: true });
+    }
+
+    setTimeout(hide, 5000);
+  })();
+
   (function setupNotifBell() {
     try {
       const notifBtn = el('notifBtn');

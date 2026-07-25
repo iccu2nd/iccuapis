@@ -12,6 +12,46 @@
 </head>
 <body>
 
+<div class="boot-splash" id="bootLoader">
+  <div class="boot-logo-wrap">
+    <div class="boot-halo" id="bootHalo"></div>
+    <svg class="boot-logo-svg" viewBox="0 0 640 640" aria-hidden="true">
+      <defs>
+        <filter id="bootOutlineGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="bootDotGlow" x="-200%" y="-200%" width="500%" height="500%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="s"/>
+          <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="bootBloomStrong" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="bl"/>
+          <feMerge><feMergeNode in="bl"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="bootDotGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#17181F" stop-opacity="1"/>
+          <stop offset="55%" stop-color="#17181F" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#17181F" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <g id="bootFillGroup" transform="translate(0,640) scale(0.1,-0.1)">
+        <path id="bootFillPath" d="M2800 4195 l-395 -141 0 -205 c0 -186 2 -211 23 -279 59 -189 207 -341 399 -412 52 -19 86 -22 334 -27 l275 -6 59 -30 c62 -32 105 -77 129 -136 l15 -37 -214 -191 c-117 -105 -219 -191 -225 -191 -6 0 -110 88 -231 196 l-219 196 0 53 c0 51 -1 54 -32 64 -58 20 -177 101 -238 162 -33 33 -64 58 -70 54 -6 -4 -10 -96 -10 -249 l0 -243 391 -349 c215 -192 399 -349 408 -349 19 0 54 30 540 464 l263 236 -5 100 c-14 270 -180 489 -431 572 -77 25 -94 27 -351 32 -251 6 -273 8 -310 28 -63 33 -121 103 -140 167 -30 104 -39 96 213 204 l222 96 223 -96 222 -96 3 -110 3 -110 31 -13 c59 -24 173 -107 233 -168 33 -33 65 -61 72 -61 11 0 13 72 11 367 l-3 367 -235 84 c-129 46 -309 110 -400 141 l-165 57 -395 -141z"/>
+      </g>
+
+      <g transform="translate(0,640) scale(0.1,-0.1)">
+        <path id="bootOutlinePath" d="M2800 4195 l-395 -141 0 -205 c0 -186 2 -211 23 -279 59 -189 207 -341 399 -412 52 -19 86 -22 334 -27 l275 -6 59 -30 c62 -32 105 -77 129 -136 l15 -37 -214 -191 c-117 -105 -219 -191 -225 -191 -6 0 -110 88 -231 196 l-219 196 0 53 c0 51 -1 54 -32 64 -58 20 -177 101 -238 162 -33 33 -64 58 -70 54 -6 -4 -10 -96 -10 -249 l0 -243 391 -349 c215 -192 399 -349 408 -349 19 0 54 30 540 464 l263 236 -5 100 c-14 270 -180 489 -431 572 -77 25 -94 27 -351 32 -251 6 -273 8 -310 28 -63 33 -121 103 -140 167 -30 104 -39 96 213 204 l222 96 223 -96 222 -96 3 -110 3 -110 31 -13 c59 -24 173 -107 233 -168 33 -33 65 -61 72 -61 11 0 13 72 11 367 l-3 367 -235 84 c-129 46 -309 110 -400 141 l-165 57 -395 -141z"/>
+      </g>
+
+      <g transform="translate(0,640) scale(0.1,-0.1)">
+        <circle id="bootGlowDot" r="130" fill="url(#bootDotGradient)" filter="url(#bootDotGlow)"/>
+      </g>
+    </svg>
+  </div>
+  <p class="boot-splash-text">Memuat Halaman</p>
+</div>
+
 <div class="frame">
 
   <header class="topbar" id="topbar">
@@ -166,6 +206,7 @@ print(res.json())</code></pre>
 
 <script src="/click-sound.js"></script>
 <script src="/menu-contacts.js"></script>
+<script src="/boot-logo.js"></script>
 <script src="/index.js"></script>
 </body>
 </html>
