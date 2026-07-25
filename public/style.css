@@ -416,12 +416,16 @@ button {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 380px;
-  max-width: 92%;
-  height: 300px;
+  width: 420px;
+  max-width: 96%;
+  height: 236px;
   background-image: url('/assets/hero-art.jpg');
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: top center;
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 72%, transparent 100%);
   z-index: 0;
   pointer-events: none;
 }
@@ -432,15 +436,15 @@ button {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 460px;
+  width: 500px;
   max-width: 100%;
-  height: 320px;
-  background: radial-gradient(ellipse 58% 52% at 50% 26%,
+  height: 246px;
+  background: radial-gradient(ellipse 60% 42% at 50% 14%,
     transparent 0%,
-    transparent 32%,
-    rgba(255, 255, 255, 0.45) 55%,
-    rgba(255, 255, 255, 0.9) 74%,
-    var(--bg) 90%
+    transparent 18%,
+    rgba(255, 255, 255, 0.55) 36%,
+    rgba(255, 255, 255, 0.92) 52%,
+    var(--bg) 68%
   );
   z-index: 1;
   pointer-events: none;
