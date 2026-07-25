@@ -98,6 +98,24 @@ function startBot(config) {
     botInstance.sendMessage(msg.chat.id, `✅ Notif #${result.insertedId} ditambahkan ke website.`);
   });
 
+  botInstance.onText(/\/listnotif/, async (msg) => {
+    if (!isOwner(msg)) return deny(msg.chat.id);
+    const db = await getDb();
+    if (!db) {
+      botInstance.sendMessage(msg.chat.id, '❌ MongoDB tidak terhubung.');
+      return;
+    }
+
+    const list = await db.collection('notifications').find().sort({ createdAt: -1 }).toArray();
+    if (!list.length) {
+      botInstance.sendMessage(msg.chat.id, '📭 Belum ada notif tersimpan.');
+      return;
+    }
+
+    const lines = list.map((n) => `#${n._id}  ${n.text}`).join('\n\n');
+    botInstance.sendMessage(msg.chat.id, `📋 Semua notif tersimpan (${list.length}):\n\n${lines}`);
+  });
+
   botInstance.onText(/\/delnotif(?:\s+(\S+))?/, async (msg, match) => {
     if (!isOwner(msg)) return deny(msg.chat.id);
     const id = match[1];

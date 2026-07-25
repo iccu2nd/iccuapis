@@ -1,5 +1,5 @@
 {
-  "name": "gateway-api",
+  "name": "sasane-apis",
   "version": "1.0.0",
   "description": "Self-documenting REST API gateway with auto-loaded routes",
   "main": "server.js",

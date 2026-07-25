@@ -13,7 +13,7 @@ module.exports = function register(app, registry) {
     path: '/image/blue-archive',
     group: 'image',
     name: 'Blue Archive',
-    description: 'Returns one random Blue Archive image as a PNG.',
+    description: 'Mengambil satu gambar acak dari Blue Archive.',
     params: []
   };
   registry.push(route);

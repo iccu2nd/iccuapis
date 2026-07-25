@@ -496,6 +496,8 @@ button {
 }
 
 .hero-btn-primary {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -511,6 +513,54 @@ button {
 }
 .hero-btn-primary:hover { background: var(--accent-hover); opacity: 0.9; }
 .hero-btn-primary:active { transform: scale(0.98); }
+
+.hero-btn-primary::before {
+  content: "";
+  position: absolute;
+  top: -160%;
+  left: -170%;
+  width: 22%;
+  height: 420%;
+  transform: rotate(-25deg);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.02) 30%,
+    rgba(255, 255, 255, 0.15) 42%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.15) 58%,
+    rgba(255, 255, 255, 0.02) 70%,
+    transparent 100%
+  );
+  filter: blur(8px);
+  opacity: 0;
+  animation: premiumShine 2.2s cubic-bezier(.22, .61, .36, 1) infinite;
+  pointer-events: none;
+}
+
+.hero-btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -160%;
+  left: -170%;
+  width: 14%;
+  height: 420%;
+  transform: rotate(-25deg);
+  background: #fff;
+  filter: blur(24px);
+  opacity: .18;
+  animation: premiumShine 2.2s cubic-bezier(.22, .61, .36, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes premiumShine {
+  0% { left: -170%; opacity: 0; }
+  10% { opacity: .3; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  90% { opacity: .3; }
+  100% { left: 170%; opacity: 0; }
+}
 
 .hero-btn-secondary {
   display: inline-flex;
