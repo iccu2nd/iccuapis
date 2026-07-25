@@ -404,19 +404,23 @@ button {
 }
 
 .hero {
+  position: relative;
   text-align: center;
-  padding: 0 24px 44px;
+  padding: 52px 24px 44px;
   margin-bottom: 0;
 }
 
 .hero-art {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(640px, 90vw);
+  z-index: 0;
+  opacity: 0.28;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 36%, black 0%, black 32%, transparent 80%);
+  mask-image: radial-gradient(ellipse 62% 58% at 50% 36%, black 0%, black 32%, transparent 80%);
 }
 
 .hero-art img {
@@ -425,11 +429,19 @@ button {
   height: auto;
 }
 
+.hero-badge,
+.hero-title,
+.hero-sub,
+.hero-chips,
+.hero-actions {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 28px;
   font-family: var(--display);
   font-size: 11.5px;
   font-weight: 600;
