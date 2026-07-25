@@ -866,8 +866,8 @@ button {
 
 .boot-logo-wrap {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: min(46vmin, 260px);
+  height: min(46vmin, 260px);
 }
 
 .boot-logo-svg {
