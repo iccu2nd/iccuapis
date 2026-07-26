@@ -11,7 +11,6 @@ const monitor = require('./src/monitor');
 const cache = require('./src/cache');
 const { startBot, sendNotification, sendErrorAlert } = require('./src/bot');
 const { getDb } = require('./src/mongoClient');
-const registerScraperTest = require('./src/scraperTest');
 
 if (typeof globalThis.File === 'undefined') {
   globalThis.File = require('node:buffer').File;
@@ -276,8 +275,6 @@ app.get('/api/myip', (req, res) => {
   res.json({ result: { ip: req.ip } });
 });
 
-registerScraperTest(app);
-
 app.use('/', express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.get('/', (req, res) => {
@@ -296,11 +293,6 @@ app.get('/logs', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/health.html'));
-});
-
-app.get('/scraper-test', (req, res) => {
-  monitor.recordVisit(req.ip);
-  res.sendFile(path.join(__dirname, 'public/scraper-test.html'));
 });
 
 app.use((req, res) => {
