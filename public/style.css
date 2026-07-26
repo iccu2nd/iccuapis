@@ -1474,6 +1474,28 @@ button {
 .copy-base-btn.copied { background: var(--good); color: #fff; border-color: var(--good); }
 
 .hamburger-menu-spacer { flex: 1; }
+.menu-music-toggle {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 14px 6px 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.menu-music-toggle:hover { background: var(--panel); color: var(--text-dim); }
+.menu-music-toggle .music-mute-line {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.menu-music-toggle.is-muted .music-mute-line { opacity: 1; }
 .hamburger-menu-contacts {
   margin-top: 8px;
   padding-top: 10px;

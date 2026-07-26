@@ -137,6 +137,28 @@ button { font-family: inherit; cursor: pointer; }
 .hamburger-menu-item:hover { background: var(--panel); }
 .hamburger-menu-item.is-active { color: var(--accent); background: var(--accent-soft); }
 .hamburger-menu-spacer { flex: 1; }
+.menu-music-toggle {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 14px 6px 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.menu-music-toggle:hover { background: var(--panel); color: var(--text-dim); }
+.menu-music-toggle .music-mute-line {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.menu-music-toggle.is-muted .music-mute-line { opacity: 1; }
 .hamburger-menu-contacts {
   margin-top: 8px;
   padding-top: 10px;
@@ -434,6 +456,14 @@ tbody tr.is-new {
     Health
   </a>
   <div class="hamburger-menu-spacer"></div>
+  <button type="button" class="menu-music-toggle" id="menuMusicToggle" aria-pressed="true" aria-label="Matikan musik">
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+      <line class="music-mute-line" x1="3" y1="3" x2="21" y2="21"/>
+    </svg>
+  </button>
   <div class="hamburger-menu-contacts">
     <a href="#" id="waChannelMenuItem" class="hamburger-menu-contact-link" target="_blank" rel="noopener" hidden>Saluran WhatsApp</a>
     <a href="#" id="ownerContactMenuItem" class="hamburger-menu-contact-link" target="_blank" rel="noopener" hidden>Contact Owner</a>
@@ -442,6 +472,7 @@ tbody tr.is-new {
 
 <script src="/click-sound.js"></script>
 <script src="/menu-contacts.js"></script>
+<script src="/bg-audio.js"></script>
 <script>
 (function () {
   const logBody = document.getElementById('logBody');

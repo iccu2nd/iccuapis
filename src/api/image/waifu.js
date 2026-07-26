@@ -18,14 +18,14 @@ module.exports = function register(app, registry) {
     name: 'Waifu Random Image',
     description: 'Ambil gambar waifu random (SFW/NSFW). Tanpa count kirim 1 file gambar langsung, count 2+ kirim JSON.',
     params: [
-      { key: 'nsfw', required: false, hint: 'pilih sfw atau nsfw (default: sfw)', example: 'sfw', options: ['sfw', 'nsfw'] },
+      { key: 'nsfw', required: false, hint: 'true untuk NSFW, false untuk SFW (default: false)', example: 'false' },
       { key: 'count', required: false, hint: 'jumlah gambar yang akan dikirim', example: '5' }
     ]
   };
   registry.push(route);
 
   app.get(route.path, async (req, res) => {
-    const nsfw = String(req.query.nsfw).toLowerCase() === 'nsfw';
+    const nsfw = String(req.query.nsfw).toLowerCase() === 'true';
     const count = Math.min(Math.max(parseInt(req.query.count, 10) || 1, 1), 10);
 
     try {
