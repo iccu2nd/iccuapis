@@ -41,7 +41,7 @@ module.exports = function register(app, registry) {
     method: 'GET',
     path: '/download/all',
     group: 'download',
-    name: 'All-in-One Downloader',
+    name: 'AIO Downloader',
     description: 'Download media dari berbagai platform (TikTok, Instagram, YouTube, Facebook, dan lainnya) lewat satu endpoint.',
     params: [
       { key: 'url', required: true, hint: 'URL konten yang mau didownload', example: 'https://vt.tiktok.com/xxxxxxx' }
