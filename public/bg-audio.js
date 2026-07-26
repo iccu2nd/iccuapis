@@ -2,7 +2,8 @@
   'use strict';
 
   const AUDIO_SRC = 'https://u.pone.rs/qbpakthg.mpeg';
-  const STORAGE_KEY = 'bgAudioMuted';
+  const MUTED_KEY = 'bgAudioMuted';
+  const TIME_KEY = 'bgAudioTime';
 
   const audio = new Audio(AUDIO_SRC);
   audio.loop = true;
@@ -10,16 +11,12 @@
   audio.volume = 0.55;
 
   function isMuted() {
-    return localStorage.getItem(STORAGE_KEY) === '1';
+    return localStorage.getItem(MUTED_KEY) === '1';
   }
 
-  function setMuted(muted) {
-    localStorage.setItem(STORAGE_KEY, muted ? '1' : '0');
-    updateButtons();
-    if (muted) {
-      audio.pause();
-    } else {
-      attemptPlay();
+  function saveTime() {
+    if (isFinite(audio.currentTime)) {
+      localStorage.setItem(TIME_KEY, String(audio.currentTime));
     }
   }
 
@@ -35,6 +32,35 @@
         document.addEventListener('pointerdown', resume, { once: true });
         document.addEventListener('keydown', resume, { once: true });
       });
+    }
+  }
+
+  function startPlayback() {
+    const saved = parseFloat(localStorage.getItem(TIME_KEY));
+    const hasSaved = !isNaN(saved) && saved > 0;
+
+    function playFromSavedPosition() {
+      if (hasSaved && isFinite(audio.duration) && saved < audio.duration) {
+        audio.currentTime = saved;
+      }
+      attemptPlay();
+    }
+
+    if (!hasSaved || audio.readyState >= 1) {
+      playFromSavedPosition();
+    } else {
+      audio.addEventListener('loadedmetadata', playFromSavedPosition, { once: true });
+    }
+  }
+
+  function setMuted(muted) {
+    localStorage.setItem(MUTED_KEY, muted ? '1' : '0');
+    updateButtons();
+    if (muted) {
+      saveTime();
+      audio.pause();
+    } else {
+      attemptPlay();
     }
   }
 
@@ -59,8 +85,18 @@
     updateButtons();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    bindButtons();
-    attemptPlay();
-  });
+  // Keep the saved position fresh so navigating to another page resumes
+  // close to where playback left off instead of restarting from zero.
+  audio.addEventListener('timeupdate', saveTime);
+  window.addEventListener('pagehide', saveTime);
+  window.addEventListener('beforeunload', saveTime);
+
+  // Script tags for this file are placed after the menu markup in the HTML,
+  // so the DOM nodes we need already exist — no need to wait for
+  // DOMContentLoaded, which lets playback start as early as possible.
+  bindButtons();
+  startPlayback();
+
+  // Fallback in case this script ever loads before the menu markup.
+  document.addEventListener('DOMContentLoaded', bindButtons);
 })();
