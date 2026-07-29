@@ -231,9 +231,11 @@
         const ch = chars[i];
         if (!/[0-9]/.test(ch)) return;
         const spinTime = 450 + i * 90;
+        let counter = 0;
         const intervalId = setInterval(() => {
-          span.textContent = String(Math.floor(Math.random() * 10));
-        }, 45);
+          span.textContent = String(counter % 10);
+          counter++;
+        }, 55);
         setTimeout(() => {
           clearInterval(intervalId);
           span.textContent = ch;
