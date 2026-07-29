@@ -203,6 +203,69 @@
     });
   })();
 
+  (function setupHeroStats() {
+    const ipEl = el('myIpValue');
+    const totalEl = el('totalRequestCount');
+    const todayEl = el('todayRequestCount');
+    if (!ipEl && !totalEl && !todayEl) return;
+
+    function slotRoll(elm, finalText) {
+      if (!elm) return;
+      const chars = String(finalText).split('');
+      elm.innerHTML = '';
+      elm.classList.add('slot-machine');
+      const spans = chars.map((ch) => {
+        const span = document.createElement('span');
+        span.className = 'slot-char';
+        span.textContent = /[0-9]/.test(ch) ? '0' : ch;
+        elm.appendChild(span);
+        return span;
+      });
+
+      spans.forEach((span, i) => {
+        const ch = chars[i];
+        if (!/[0-9]/.test(ch)) return;
+        const spinTime = 450 + i * 90;
+        const intervalId = setInterval(() => {
+          span.textContent = String(Math.floor(Math.random() * 10));
+        }, 45);
+        setTimeout(() => {
+          clearInterval(intervalId);
+          span.textContent = ch;
+          span.classList.add('slot-settled');
+        }, spinTime);
+      });
+    }
+
+    async function loadHeroStats() {
+      const [statsRes, myIpRes] = await Promise.all([
+        fetch('/api/stats', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch('/api/myip', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+      ]);
+
+      if (statsRes && statsRes.result) {
+        const s = statsRes.result;
+        slotRoll(totalEl, s.allTime.totalRequests.toLocaleString('id-ID'));
+        slotRoll(todayEl, s.today.totalRequests.toLocaleString('id-ID'));
+      } else {
+        if (totalEl) totalEl.textContent = '—';
+        if (todayEl) todayEl.textContent = '—';
+      }
+      if (totalEl) totalEl.classList.remove('is-loading');
+      if (todayEl) todayEl.classList.remove('is-loading');
+
+      if (myIpRes && myIpRes.result && myIpRes.result.ip) {
+        slotRoll(ipEl, myIpRes.result.ip);
+      } else if (ipEl) {
+        ipEl.textContent = '—';
+      }
+      if (ipEl) ipEl.classList.remove('is-loading');
+    }
+
+    loadHeroStats();
+    setInterval(loadHeroStats, 60000);
+  })();
+
   (function setupCodeTabs() {
     const buttons = document.querySelectorAll('.code-tab-btn');
     const blocks = document.querySelectorAll('.code-block');

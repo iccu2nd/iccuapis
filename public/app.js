@@ -214,11 +214,7 @@
   }
 
   async function loadStats() {
-    const [viewsRes, statsRes, myIpRes] = await Promise.all([
-      fetchJsonWithRetry('/api/views').catch(() => null),
-      fetchJsonWithRetry('/api/stats').catch(() => null),
-      fetchJsonWithRetry('/api/myip').catch(() => null)
-    ]);
+    const viewsRes = await fetchJsonWithRetry('/api/views').catch(() => null);
 
     if (viewsRes && viewsRes.result) {
       el('viewCount').textContent = viewsRes.result.totalViews.toLocaleString('id-ID');
@@ -226,24 +222,6 @@
       el('viewCount').textContent = '—';
     }
     el('viewCount').classList.remove('is-loading');
-
-    if (statsRes && statsRes.result) {
-      const s = statsRes.result;
-      el('totalRequestCount').textContent = s.allTime.totalRequests.toLocaleString('id-ID');
-      el('todayRequestCount').textContent = s.today.totalRequests.toLocaleString('id-ID');
-    } else {
-      el('totalRequestCount').textContent = '—';
-      el('todayRequestCount').textContent = '—';
-    }
-    el('totalRequestCount').classList.remove('is-loading');
-    el('todayRequestCount').classList.remove('is-loading');
-
-    if (myIpRes && myIpRes.result && myIpRes.result.ip) {
-      el('myIpValue').textContent = myIpRes.result.ip;
-    } else {
-      el('myIpValue').textContent = '—';
-    }
-    el('myIpValue').classList.remove('is-loading');
   }
 
   async function loadData() {

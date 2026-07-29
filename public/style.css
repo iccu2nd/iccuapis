@@ -368,6 +368,31 @@ button {
   .stat-value-ip { font-size: 11.5px; }
 }
 
+.hero-stats {
+  max-width: 480px;
+  margin: 32px auto 0;
+  background: var(--card);
+  text-align: left;
+}
+
+.slot-machine {
+  display: inline-flex;
+  align-items: baseline;
+}
+.slot-char {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.slot-char.slot-settled {
+  animation: slotSettle 0.28s ease;
+}
+@keyframes slotSettle {
+  0% { transform: translateY(-30%); opacity: 0.4; }
+  60% { transform: translateY(4%); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
 .views-row {
   display: flex;
   justify-content: center;
@@ -822,7 +847,9 @@ button {
 }
 
 .list-search input {
+  box-sizing: border-box;
   width: 100%;
+  height: 46px;
   background: var(--accent-soft);
   border: none;
   border-radius: 999px;
@@ -830,7 +857,7 @@ button {
   font-family: var(--body);
   font-weight: 500;
   font-size: 15px;
-  padding: 13px 16px 13px 46px;
+  padding: 0 16px 0 46px;
   outline: none;
   transition: background 0.15s ease;
 }
@@ -843,16 +870,18 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 46px;
   height: 46px;
-  background: none;
+  background: var(--accent-soft);
   border: none;
+  border-radius: 999px;
   color: var(--text);
   flex-shrink: 0;
-  transition: color 0.12s ease;
+  transition: background 0.15s ease, color 0.12s ease;
 }
-.group-filter-btn:hover { color: var(--accent); }
-.group-filter-btn.is-active { color: var(--accent); }
+.group-filter-btn:hover { background: var(--border-strong); color: var(--accent); }
+.group-filter-btn.is-active { background: var(--accent-soft); color: var(--accent); }
 
 .group-filter-panel {
   position: absolute;
