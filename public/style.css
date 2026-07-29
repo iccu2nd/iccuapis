@@ -302,7 +302,7 @@ button {
   position: relative;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--card);
+  background: #F5F5F5;
   padding: 18px 20px;
   min-width: 0;
 }
@@ -313,7 +313,7 @@ button {
   gap: 12px;
 }
 .stat-lg-label {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -355,7 +355,7 @@ button {
 @media (max-width: 640px) {
   .stats-row { gap: 10px; }
   .stat-card-lg { padding: 15px 16px; border-radius: 14px; }
-  .stat-lg-label { font-size: 10px; }
+  .stat-lg-label { font-size: 13px; }
   .stat-lg-icon { width: 32px; height: 32px; border-radius: 9px; }
   .stat-lg-icon svg { width: 15px; height: 15px; }
   .stat-lg-value { font-size: 24px; margin-top: 10px; }

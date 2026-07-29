@@ -39,7 +39,7 @@ async function downloadAll(url) {
 module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
-    path: '/download/all',
+    path: '/download/aio',
     group: 'download',
     name: 'AIO Downloader',
     description: 'Download media dari berbagai platform (TikTok, Instagram, YouTube, Facebook, dan lainnya) lewat satu endpoint.',
