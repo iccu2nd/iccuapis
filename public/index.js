@@ -211,7 +211,8 @@
     const ipEl = el('myIpValue');
     const totalEl = el('totalRequestCount');
     const todayEl = el('todayRequestCount');
-    if (!ipEl && !totalEl && !todayEl) return;
+    const visitorEl = el('totalVisitorCount');
+    if (!ipEl && !totalEl && !todayEl && !visitorEl) return;
 
     function slotRoll(elm, finalText) {
       if (!elm) return;
@@ -242,9 +243,10 @@
     }
 
     async function loadHeroStats() {
-      const [statsRes, myIpRes] = await Promise.all([
+      const [statsRes, myIpRes, viewsRes] = await Promise.all([
         fetch('/api/stats', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-        fetch('/api/myip', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        fetch('/api/myip', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch('/api/views', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
       ]);
 
       if (statsRes && statsRes.result) {
@@ -264,6 +266,13 @@
         ipEl.textContent = '—';
       }
       if (ipEl) ipEl.classList.remove('is-loading');
+
+      if (viewsRes && viewsRes.result && typeof viewsRes.result.totalViews === 'number') {
+        slotRoll(visitorEl, viewsRes.result.totalViews.toLocaleString('id-ID'));
+      } else if (visitorEl) {
+        visitorEl.textContent = '—';
+      }
+      if (visitorEl) visitorEl.classList.remove('is-loading');
     }
 
     splashGone.then(() => {
