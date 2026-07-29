@@ -293,17 +293,18 @@ button {
 .hamburger-menu-item.is-active { color: var(--accent); background: var(--accent-soft); }
 
 .stats-row {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 22px;
+  margin-bottom: 0;
 }
 .stat-card-lg {
   position: relative;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--card);
-  padding: 20px 22px;
+  padding: 16px 18px;
+  min-width: 0;
 }
 .stat-lg-top {
   display: flex;
@@ -319,9 +320,9 @@ button {
   color: var(--text-dim);
 }
 .stat-lg-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -329,15 +330,15 @@ button {
   background: var(--panel-raised);
   color: var(--text);
 }
-.stat-lg-icon svg { width: 20px; height: 20px; display: block; }
+.stat-lg-icon svg { width: 16px; height: 16px; display: block; }
 .stat-lg-icon.is-good { background: var(--good-soft); color: var(--good); }
 .stat-lg-icon.is-bad { background: var(--bad-soft); color: var(--bad); }
 
 .stat-lg-value {
   display: block;
-  margin-top: 14px;
+  margin-top: 12px;
   font-family: var(--stat);
-  font-size: 34px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -348,23 +349,35 @@ button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stat-lg-value-ip { font-size: 26px; }
+.stat-lg-value-ip { font-size: 19px; }
 .stat-lg-value.is-loading { opacity: 0; }
 
 @media (max-width: 640px) {
-  .stats-row { gap: 10px; }
-  .stat-card-lg { padding: 16px 18px; border-radius: 14px; }
-  .stat-lg-label { font-size: 10.5px; }
-  .stat-lg-icon { width: 36px; height: 36px; border-radius: 10px; }
-  .stat-lg-icon svg { width: 17px; height: 17px; }
-  .stat-lg-value { font-size: 26px; margin-top: 10px; }
-  .stat-lg-value-ip { font-size: 20px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card-lg { padding: 14px 16px; border-radius: 14px; }
+  .stat-lg-label { font-size: 10px; }
+  .stat-lg-icon { width: 30px; height: 30px; border-radius: 9px; }
+  .stat-lg-icon svg { width: 14px; height: 14px; }
+  .stat-lg-value { font-size: 21px; margin-top: 10px; }
+  .stat-lg-value-ip { font-size: 16px; }
+}
+
+@media (max-width: 420px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .stat-lg-value { font-size: 19px; }
 }
 
 .hero-stats {
-  max-width: 520px;
-  margin: 32px auto 0;
+  max-width: 620px;
+  margin: 28px auto 0;
   text-align: left;
+}
+
+.hero-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  max-width: 620px;
+  margin: 28px auto 28px;
 }
 
 .slot-machine {
