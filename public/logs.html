@@ -220,6 +220,8 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--accent-hover);
   font-weight: 600;
 }
+.status-left .status-pill { font-size: 12.5px; }
+.status-left .status-pill + .status-pill { margin-left: 6px; }
 .status-count {
   font-family: var(--stat);
   font-weight: 700;
@@ -382,6 +384,10 @@ tbody tr.is-new {
     <div class="status-left">
       <span><span class="status-count" id="logCount">0</span> request hari ini</span>
     </div>
+    <div class="status-left">
+      <span class="status-pill ok"><span id="successRate">0%</span> sukses</span>
+      <span class="status-pill err"><span id="failRate">0%</span> gagal</span>
+    </div>
     <span class="reset-note" id="resetNote">Reset otomatis tiap pergantian hari (WIB)</span>
   </div>
 
@@ -446,6 +452,8 @@ tbody tr.is-new {
 (function () {
   const logBody = document.getElementById('logBody');
   const logCount = document.getElementById('logCount');
+  const successRate = document.getElementById('successRate');
+  const failRate = document.getElementById('failRate');
   const emptyState = document.getElementById('emptyState');
   const pager = document.getElementById('pager');
   const pagerInfo = document.getElementById('pagerInfo');
@@ -494,6 +502,14 @@ tbody tr.is-new {
     logCount.textContent = total.toLocaleString('id-ID');
     emptyState.hidden = total > 0;
     pager.hidden = total <= PAGE_SIZE;
+
+    let okCount = 0;
+    lastEntries.forEach((entry) => {
+      if (entry.status >= 200 && entry.status < 400) okCount += 1;
+    });
+    const failCount = total - okCount;
+    successRate.textContent = total ? `${Math.round((okCount / total) * 100)}%` : '0%';
+    failRate.textContent = total ? `${Math.round((failCount / total) * 100)}%` : '0%';
 
     const pages = totalPages();
     if (currentPage > pages) currentPage = pages;
