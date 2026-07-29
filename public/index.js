@@ -3,15 +3,19 @@
 
   const el = (id) => document.getElementById(id);
 
+  let signalSplashGone = () => {};
+  const splashGone = new Promise((resolve) => { signalSplashGone = resolve; });
+
   (function setupBootSplash() {
     const bootLoader = el('bootLoader');
-    if (!bootLoader) return;
+    if (!bootLoader) { signalSplashGone(); return; }
 
     let hidden = false;
     function hide() {
       if (hidden) return;
       hidden = true;
       bootLoader.classList.add('is-leaving');
+      signalSplashGone();
       setTimeout(() => { bootLoader.hidden = true; }, 350);
     }
 
@@ -262,8 +266,10 @@
       if (ipEl) ipEl.classList.remove('is-loading');
     }
 
-    loadHeroStats();
-    setInterval(loadHeroStats, 60000);
+    splashGone.then(() => {
+      loadHeroStats();
+      setInterval(loadHeroStats, 60000);
+    });
   })();
 
   (function setupCodeTabs() {
