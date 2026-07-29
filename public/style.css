@@ -1029,8 +1029,8 @@ button {
 .retry-btn:disabled { opacity: 0.6; cursor: default; }
 
 .row {
-  border: 2px solid #D5D7DE;
-  border-radius: 14px;
+  border: 1.5px solid #D5D7DE;
+  border-radius: 8px;
   margin-bottom: 10px;
   background: var(--card);
   overflow: hidden;
@@ -1073,9 +1073,9 @@ button {
 }
 
 .row-head .verb.verb-get {
-  color: #7C3AED;
-  background: #F1EAFE;
-  border: 1.5px solid #DDBCFA;
+  color: var(--text);
+  background: #DEE1E7;
+  border: none;
 }
 
 .row-head .path {
