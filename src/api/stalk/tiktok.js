@@ -56,7 +56,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/stalk/tiktok',
-    group: 'stalk',
+    group: 'api',
     name: 'TikTok Stalk',
     description: 'Cari informasi tentang profil TikTok berdasarkan nama pengguna: jumlah pengikut, suka, bio, dan lainnya.',
     params: [{ key: 'username', required: true, hint: 'username tiktok (tanpa @)', example: 'rei.esemka' }]

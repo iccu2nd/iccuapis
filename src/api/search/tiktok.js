@@ -130,7 +130,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/search/tiktok',
-    group: 'search',
+    group: 'api',
     name: 'TikTok Search',
     description: 'Cari konten TikTok (video, photo, atau semuanya)',
     params: [

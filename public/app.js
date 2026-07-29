@@ -333,11 +333,6 @@
 
       if (!items.length) return;
 
-      const title = document.createElement('div');
-      title.className = 'log-group-title';
-      title.textContent = groupLabel(g);
-      logEl.appendChild(title);
-
       items.forEach((route, i) => {
         const row = buildRow(route);
         row.style.animationDelay = `${Math.min(i, 10) * 0.05}s`;

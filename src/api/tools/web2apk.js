@@ -7,7 +7,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/tools/web2apk',
-    group: 'tools',
+    group: 'api',
     name: 'Web2Apk Builder',
     description: 'Ubah website jadi APK Android. Kirim URL icon dan URL website.',
     params: [

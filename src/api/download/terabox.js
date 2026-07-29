@@ -52,7 +52,7 @@ module.exports = function register(app, registry) {
     const route = {
         method: 'GET',
         path: '/downloader/terabox',
-        group: 'download',
+        group: 'api',
         name: 'TeraBox Downloader',
         description: 'Download file dari TeraBox (support video, audio, file)',
         params: [

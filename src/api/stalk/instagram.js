@@ -52,7 +52,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/stalk/instagram',
-    group: 'stalk',
+    group: 'api',
     name: 'Instagram Stalk',
     description: 'Analisa profil Instagram: followers, uploads, engagement rate, rata-rata likes/komentar, dan proyeksi pertumbuhan ke depan.',
     params: [{ key: 'username', required: true, hint: 'username instagram (tanpa @)', example: 'instagram' }]

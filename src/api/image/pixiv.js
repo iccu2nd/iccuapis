@@ -14,7 +14,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/image/pixiv',
-    group: 'image',
+    group: 'api',
     name: 'Pixiv Random Image',
     description: 'Ambil gambar random dari Pixiv. Default SFW (aman).',
     params: [

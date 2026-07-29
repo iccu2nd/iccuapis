@@ -14,7 +14,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/image/waifu',
-    group: 'image',
+    group: 'api',
     name: 'Waifu Random Image',
     description: 'Ambil gambar waifu random (SFW/NSFW). Tanpa count kirim 1 file gambar langsung, count 2+ kirim JSON.',
     params: [

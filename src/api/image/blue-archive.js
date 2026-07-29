@@ -11,7 +11,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/image/blue-archive',
-    group: 'image',
+    group: 'api',
     name: 'Blue Archive',
     description: 'Mengambil satu gambar acak dari Blue Archive.',
     params: []

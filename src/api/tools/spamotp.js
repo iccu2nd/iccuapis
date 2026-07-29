@@ -6,7 +6,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/tools/spamotp',
-    group: 'tools',
+    group: 'api',
     name: 'Spam OTP',
     description: 'Kirim spam OTP ke nomor target',
     params: [

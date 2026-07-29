@@ -9,7 +9,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/tools/lyrics',
-    group: 'tools',
+    group: 'api',
     name: 'Lyrics Finder',
     description: 'Cari lirik lagu berdasarkan judul. Response cepat dengan cache.',
     params: [
