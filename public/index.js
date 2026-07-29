@@ -227,21 +227,31 @@
         return span;
       });
 
-      spans.forEach((span, i) => {
+      const spinDuration = 160;
+      const tickSpeed = 35;
+
+      function animateDigit(i) {
+        if (i >= spans.length) return;
+        const span = spans[i];
         const ch = chars[i];
-        if (!/[0-9]/.test(ch)) return;
-        const spinTime = 450 + i * 90;
+        if (!/[0-9]/.test(ch)) {
+          animateDigit(i + 1);
+          return;
+        }
         let counter = 0;
         const intervalId = setInterval(() => {
           span.textContent = String(counter % 10);
           counter++;
-        }, 55);
+        }, tickSpeed);
         setTimeout(() => {
           clearInterval(intervalId);
           span.textContent = ch;
           span.classList.add('slot-settled');
-        }, spinTime);
-      });
+          animateDigit(i + 1);
+        }, spinDuration);
+      }
+
+      animateDigit(0);
     }
 
     async function loadHeroStats() {
