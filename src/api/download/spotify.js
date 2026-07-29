@@ -124,7 +124,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/download/spotify',
-    group: 'api',
+    group: 'download',
     name: 'Spotify Downloader',
     description: 'Download audio dari track Spotify.',
     params: [

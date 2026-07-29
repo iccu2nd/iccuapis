@@ -133,11 +133,14 @@
   const bootLoader = el('bootLoader');
   const contentStack = el('contentStack');
   const filterInput = el('filterInput');
+  const groupFilterBtn = el('groupFilterBtn');
+  const groupFilterPanel = el('groupFilterPanel');
   const copyBaseBtn = el('copyBaseBtn');
 
   let manifest = null;
   let routes = [];
   let firstRender = true;
+  let selectedGroup = null;
 
   function groupLabel(key) {
     return manifest.groups?.[key]?.label || key;
@@ -323,6 +326,7 @@
     );
 
     groups.forEach((g) => {
+      if (selectedGroup && g !== selectedGroup) return;
       const items = routes.filter((r) => {
         if (r.group !== g) return false;
         if (term && !(r.name.toLowerCase().includes(term) || r.path.toLowerCase().includes(term))) {
@@ -351,6 +355,65 @@
       requestAnimationFrame(() => logEl.classList.add('is-visible'));
       firstRender = false;
     }
+
+    if (groupFilterBtn) groupFilterBtn.classList.toggle('is-active', selectedGroup !== null);
+  }
+
+  function renderGroupFilterPanel() {
+    if (!groupFilterPanel) return;
+    const groups = [...new Set(routes.map((r) => r.group))].sort(
+      (a, b) => groupOrder(a) - groupOrder(b)
+    );
+
+    groupFilterPanel.innerHTML = '';
+
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = 'group-filter-option' + (selectedGroup === null ? ' is-selected' : '');
+    allBtn.innerHTML = `<span>Semua</span><span class="count">${routes.length}</span>`;
+    allBtn.addEventListener('click', () => {
+      selectedGroup = null;
+      closeGroupFilterPanel();
+      renderLog();
+    });
+    groupFilterPanel.appendChild(allBtn);
+
+    groups.forEach((g) => {
+      const count = routes.filter((r) => r.group === g).length;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'group-filter-option' + (selectedGroup === g ? ' is-selected' : '');
+      btn.innerHTML = `<span>${groupLabel(g)}</span><span class="count">${count}</span>`;
+      btn.addEventListener('click', () => {
+        selectedGroup = g;
+        closeGroupFilterPanel();
+        renderLog();
+      });
+      groupFilterPanel.appendChild(btn);
+    });
+
+    groupFilterBtn.classList.toggle('is-active', selectedGroup !== null);
+  }
+
+  function closeGroupFilterPanel() {
+    if (!groupFilterPanel) return;
+    groupFilterPanel.hidden = true;
+    groupFilterBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  if (groupFilterBtn && groupFilterPanel) {
+    groupFilterBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = groupFilterPanel.hidden;
+      if (willOpen) renderGroupFilterPanel();
+      groupFilterPanel.hidden = !willOpen;
+      groupFilterBtn.setAttribute('aria-expanded', String(willOpen));
+    });
+    document.addEventListener('click', (e) => {
+      if (!groupFilterPanel.hidden && !groupFilterPanel.contains(e.target) && e.target !== groupFilterBtn) {
+        closeGroupFilterPanel();
+      }
+    });
   }
 
   function sampleFor(param) {

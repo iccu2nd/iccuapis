@@ -56,7 +56,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/download/pinterest',
-    group: 'api',
+    group: 'download',
     name: 'Pinterest Downloader',
     description: 'Download foto/video dari pin Pinterest.',
     params: [

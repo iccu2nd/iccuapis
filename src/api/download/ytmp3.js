@@ -12,7 +12,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/download/ytmp3',
-    group: 'api',
+    group: 'download',
     name: 'YouTube Mp3',
     description: 'Download audio dari video YouTube.',
     params: [

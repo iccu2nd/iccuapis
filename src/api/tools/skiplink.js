@@ -6,7 +6,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/tools/skiplink',
-    group: 'api',
+    group: 'tools',
     name: 'Skip SFL',
     description: 'Bongkar shortlink sfl.gl / safelinkblogger jadi link asli.',
     params: [

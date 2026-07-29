@@ -133,7 +133,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/search/wikipedia',
-    group: 'api',
+    group: 'search',
     name: 'Wikipedia Search',
     description: 'Cari artikel Wikipedia dan ambil isi lengkapnya: ringkasan, section, infobox, dan gambar.',
     params: [

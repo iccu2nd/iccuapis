@@ -80,7 +80,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/maker/meme',
-    group: 'api',
+    group: 'maker',
     name: 'Meme Text Maker',
     description: 'Timpa foto dari URL dengan teks meme (atas/bawah), font Impact, auto-resize otomatis, no crop.',
     params: [

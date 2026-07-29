@@ -32,7 +32,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/image/konachan',
-    group: 'api',
+    group: 'image',
     name: 'Konachan Random Image',
     description: 'Ambil gambar random dari Konachan.',
     params: [

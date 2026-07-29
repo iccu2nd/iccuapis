@@ -9,7 +9,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/search/youtube',
-    group: 'api',
+    group: 'search',
     name: 'YouTube search',
     description: 'Search YouTube videos and get back title, channel, duration and link.',
     params: [{ key: 'q', required: true, hint: 'Search keywords', example: 'dj full bass' }]
