@@ -1039,7 +1039,7 @@ button {
 .row:last-child { margin-bottom: 0; }
 
 .row.open {
-  border-color: var(--border-strong);
+  border-color: var(--accent);
   box-shadow: 0 3px 14px rgba(60, 52, 32, 0.05);
 }
 
