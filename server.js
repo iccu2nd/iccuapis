@@ -275,7 +275,12 @@ app.get('/api/myip', (req, res) => {
   res.json({ result: { ip: req.ip } });
 });
 
-app.use('/', express.static(path.join(__dirname, 'public'), { index: false }));
+app.use('/', express.static(path.join(__dirname, 'public'), {
+  index: false,
+  etag: true,
+  lastModified: true,
+  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache')
+}));
 
 app.get('/', (req, res) => {
   monitor.recordVisit(req.ip);
