@@ -220,8 +220,41 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--accent-hover);
   font-weight: 600;
 }
-.status-left .status-pill { font-size: 12.5px; }
-.status-left .status-pill + .status-pill { margin-left: 6px; }
+
+.rate-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.rate-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.rate-box-value {
+  font-family: var(--stat);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.1;
+}
+.rate-box-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.rate-box-ok { background: var(--good-soft); border-color: var(--good-soft); }
+.rate-box-ok .rate-box-value { color: var(--good); }
+.rate-box-err { background: var(--bad-soft); border-color: var(--bad-soft); }
+.rate-box-err .rate-box-value { color: var(--bad); }
+
+@media (max-width: 640px) {
+  .rate-box-value { font-size: 20px; }
+  .rate-box { padding: 12px 14px; }
+}
 .status-count {
   font-family: var(--stat);
   font-weight: 700;
@@ -384,11 +417,18 @@ tbody tr.is-new {
     <div class="status-left">
       <span><span class="status-count" id="logCount">0</span> request hari ini</span>
     </div>
-    <div class="status-left">
-      <span class="status-pill ok"><span id="successRate">0%</span> sukses</span>
-      <span class="status-pill err"><span id="failRate">0%</span> gagal</span>
-    </div>
     <span class="reset-note" id="resetNote">Reset otomatis tiap pergantian hari (WIB)</span>
+  </div>
+
+  <div class="rate-boxes">
+    <div class="rate-box rate-box-ok">
+      <span class="rate-box-value" id="successRate">0%</span>
+      <span class="rate-box-label">Sukses</span>
+    </div>
+    <div class="rate-box rate-box-err">
+      <span class="rate-box-value" id="failRate">0%</span>
+      <span class="rate-box-label">Gagal</span>
+    </div>
   </div>
 
   <div class="table-wrap">
