@@ -294,7 +294,7 @@ button {
 
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 0;
 }
@@ -303,7 +303,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--card);
-  padding: 16px 18px;
+  padding: 18px 20px;
   min-width: 0;
 }
 .stat-lg-top {
@@ -320,8 +320,8 @@ button {
   color: var(--text-dim);
 }
 .stat-lg-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -330,7 +330,7 @@ button {
   background: var(--panel-raised);
   color: var(--text);
 }
-.stat-lg-icon svg { width: 16px; height: 16px; display: block; }
+.stat-lg-icon svg { width: 17px; height: 17px; display: block; }
 .stat-lg-icon.is-good { background: var(--good-soft); color: var(--good); }
 .stat-lg-icon.is-bad { background: var(--bad-soft); color: var(--bad); }
 
@@ -338,7 +338,7 @@ button {
   display: block;
   margin-top: 12px;
   font-family: var(--stat);
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
@@ -349,22 +349,22 @@ button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stat-lg-value-ip { font-size: 19px; }
+.stat-lg-value-ip { font-size: 23px; }
 .stat-lg-value.is-loading { opacity: 0; }
 
 @media (max-width: 640px) {
-  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .stat-card-lg { padding: 14px 16px; border-radius: 14px; }
+  .stats-row { gap: 10px; }
+  .stat-card-lg { padding: 15px 16px; border-radius: 14px; }
   .stat-lg-label { font-size: 10px; }
-  .stat-lg-icon { width: 30px; height: 30px; border-radius: 9px; }
-  .stat-lg-icon svg { width: 14px; height: 14px; }
-  .stat-lg-value { font-size: 21px; margin-top: 10px; }
-  .stat-lg-value-ip { font-size: 16px; }
+  .stat-lg-icon { width: 32px; height: 32px; border-radius: 9px; }
+  .stat-lg-icon svg { width: 15px; height: 15px; }
+  .stat-lg-value { font-size: 24px; margin-top: 10px; }
+  .stat-lg-value-ip { font-size: 18px; }
 }
 
-@media (max-width: 420px) {
-  .stats-row { grid-template-columns: 1fr 1fr; }
-  .stat-lg-value { font-size: 19px; }
+@media (max-width: 380px) {
+  .stat-lg-value { font-size: 21px; }
+  .stat-lg-value-ip { font-size: 16px; }
 }
 
 .hero-stats {
