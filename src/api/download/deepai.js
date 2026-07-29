@@ -6,7 +6,7 @@ module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/ai/deepai',
-    group: 'ai',
+    group: 'download',
     name: 'DeepAI Chat',
     description: 'Chat dengan AI DeepAI (gratis). Kirim prompt dan dapatkan respons.',
     params: [

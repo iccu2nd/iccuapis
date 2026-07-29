@@ -827,7 +827,7 @@ button {
 .list-search input {
   width: 100%;
   background: var(--card);
-  border: 2px solid var(--border);
+  border: 3px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
   font-family: var(--body);
@@ -837,7 +837,7 @@ button {
   outline: none;
   transition: border-color 0.15s ease;
 }
-.list-search input:focus { border-color: var(--accent); }
+.list-search input:focus { border-color: var(--accent); border-width: 3px; }
 .list-search input::placeholder { color: var(--text-faint); }
 
 .content-stack {
