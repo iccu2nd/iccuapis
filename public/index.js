@@ -214,35 +214,23 @@
     const ipEl = el('statApiIp');
     if (!visitorEl && !logListEl && !ipEl) return;
 
-    const geoCache = new Map();
-
-    async function fetchGeo(ip) {
-      if (!ip) return null;
-      if (geoCache.has(ip)) return geoCache.get(ip);
-      const promise = fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { cache: 'no-store' })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((data) => (data && data.success !== false ? data : null))
-        .catch(() => null);
-      geoCache.set(ip, promise);
-      return promise;
-    }
-
-    function truncatePath(path, max = 30) {
+    function truncatePath(path, max = 34) {
       if (!path) return '';
       return path.length > max ? `${path.slice(0, max - 1)}…` : path;
     }
 
-    function formatLocalTime(iso, timezoneId) {
-      try {
-        const d = new Date(iso);
-        return new Intl.DateTimeFormat('id-ID', {
-          hour: '2-digit', minute: '2-digit', second: '2-digit',
-          hour12: false,
-          timeZone: timezoneId || 'Asia/Jakarta'
-        }).format(d);
-      } catch (err) {
-        return '--.--.--';
-      }
+    function timeAgo(iso) {
+      const then = new Date(iso).getTime();
+      if (Number.isNaN(then)) return '—';
+      const diffSec = Math.max(0, Math.floor((Date.now() - then) / 1000));
+      if (diffSec < 5) return 'baru saja';
+      if (diffSec < 60) return `${diffSec}d lalu`;
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m lalu`;
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) return `${diffHour}j lalu`;
+      const diffDay = Math.floor(diffHour / 24);
+      return `${diffDay}h lalu`;
     }
 
     async function loadVisitor() {
@@ -268,25 +256,20 @@
           logListEl.innerHTML = '<div class="stat-api-log-empty">Belum ada request hari ini.</div>';
           return;
         }
-        const rows = await Promise.all(entries.map(async (entry) => {
-          const geo = await fetchGeo(entry.ip);
-          const flag = (geo && geo.flag && geo.flag.emoji) || '🏳️';
-          const tz = geo && geo.timezone && geo.timezone.id;
-          const time = formatLocalTime(entry.at, tz);
+        logListEl.innerHTML = entries.map((entry) => {
           const ok = entry.status >= 200 && entry.status < 400;
           return `
-            <div class="stat-api-log-row">
-              <span class="stat-api-log-status ${ok ? 'ok' : 'err'}">${entry.status}</span>
-              <span class="stat-api-log-method">${entry.method}</span>
-              <span class="stat-api-log-path" title="${entry.path}">${truncatePath(entry.path)}</span>
-              <span class="stat-api-log-ms">${entry.ms}ms</span>
-              <span class="stat-api-log-flag">${flag} ${time}</span>
+            <div class="stat-api-log-row${ok ? '' : ' is-err'}">
+              <div class="stat-api-log-main">
+                <span class="stat-api-log-path" title="${entry.path}">${entry.method} ${truncatePath(entry.path)}</span>
+                <span class="stat-api-log-meta"><span class="stat-api-log-status${ok ? '' : ' err'}">${entry.status}</span> · ${entry.ms}ms</span>
+              </div>
+              <span class="stat-api-log-time">${timeAgo(entry.at)}</span>
             </div>
           `;
-        }));
-        logListEl.innerHTML = rows.join('');
+        }).join('');
       } catch (err) {
-        logListEl.innerHTML = '<div class="stat-api-log-empty">Gagal memuat log.</div>';
+        logListEl.innerHTML = '<div class="stat-api-log-empty">Gagal memuat aktivitas.</div>';
       }
     }
 
