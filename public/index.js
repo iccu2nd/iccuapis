@@ -209,12 +209,13 @@
 
   (function setupStatApi() {
     const visitorEl = el('statApiVisitor');
+    const todayEl = el('statApiToday');
     const refreshBtn = el('statApiRefreshBtn');
     const logListEl = el('statApiLogList');
     const ipEl = el('statApiIp');
-    if (!visitorEl && !logListEl && !ipEl) return;
+    if (!visitorEl && !todayEl && !logListEl && !ipEl) return;
 
-    function truncatePath(path, max = 34) {
+    function truncatePath(path, max = 30) {
       if (!path) return '';
       return path.length > max ? `${path.slice(0, max - 1)}…` : path;
     }
@@ -233,17 +234,26 @@
       return `${diffDay}h lalu`;
     }
 
-    async function loadVisitor() {
-      if (!visitorEl) return;
+    async function loadSummary() {
+      if (!visitorEl && !todayEl) return;
       try {
         const res = await fetch('/api/stats', { cache: 'no-store' });
         const data = res.ok ? await res.json() : null;
-        const count = data && data.result ? data.result.uniqueVisitors : null;
-        visitorEl.textContent = typeof count === 'number' ? count.toLocaleString('id-ID') : '—';
+        const result = data && data.result;
+        if (visitorEl) {
+          const count = result ? result.uniqueVisitors : null;
+          visitorEl.textContent = typeof count === 'number' ? count.toLocaleString('id-ID') : '—';
+        }
+        if (todayEl) {
+          const today = result && result.today ? result.today.totalRequests : null;
+          todayEl.textContent = typeof today === 'number' ? today.toLocaleString('id-ID') : '—';
+        }
       } catch (err) {
-        visitorEl.textContent = '—';
+        if (visitorEl) visitorEl.textContent = '—';
+        if (todayEl) todayEl.textContent = '—';
       }
-      visitorEl.classList.remove('is-loading');
+      if (visitorEl) visitorEl.classList.remove('is-loading');
+      if (todayEl) todayEl.classList.remove('is-loading');
     }
 
     async function loadLogList() {
@@ -261,8 +271,8 @@
           return `
             <div class="stat-api-log-row${ok ? '' : ' is-err'}">
               <div class="stat-api-log-main">
-                <span class="stat-api-log-path" title="${entry.path}">${entry.method} ${truncatePath(entry.path)}</span>
-                <span class="stat-api-log-meta"><span class="stat-api-log-status${ok ? '' : ' err'}">${entry.status}</span> · ${entry.ms}ms</span>
+                <span class="stat-api-log-path" title="${entry.path}"><span class="stat-api-log-method">${entry.method}</span>${truncatePath(entry.path)}</span>
+                <span class="stat-api-log-meta"><span class="stat-api-log-status${ok ? '' : ' err'}">${entry.status}</span><span>${entry.ms}ms</span></span>
               </div>
               <span class="stat-api-log-time">${timeAgo(entry.at)}</span>
             </div>
@@ -287,7 +297,7 @@
     }
 
     function refreshLive() {
-      return Promise.all([loadVisitor(), loadLogList()]);
+      return Promise.all([loadSummary(), loadLogList()]);
     }
 
     if (refreshBtn) {
