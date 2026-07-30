@@ -137,6 +137,17 @@
   const groupFilterPanel = el('groupFilterPanel');
   const copyBaseBtn = el('copyBaseBtn');
 
+  const rowRevealObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-inview');
+            rowRevealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' })
+    : null;
+
   let manifest = null;
   let routes = [];
   let selectedGroup = null;
@@ -296,6 +307,7 @@
 
   function renderLog() {
     logEl.hidden = false;
+    if (rowRevealObserver) rowRevealObserver.disconnect();
     const term = filterInput.value.trim().toLowerCase();
     logEl.innerHTML = '';
 
@@ -317,8 +329,13 @@
 
       items.forEach((route, i) => {
         const row = buildRow(route);
-        row.style.animationDelay = `${Math.min(i, 10) * 0.05}s`;
+        row.style.animationDelay = `${Math.min(i, 10) * 0.04}s`;
         logEl.appendChild(row);
+        if (rowRevealObserver) {
+          rowRevealObserver.observe(row);
+        } else {
+          row.classList.add('is-inview');
+        }
       });
     });
 

@@ -1299,11 +1299,9 @@ button {
 .log .row {
   opacity: 0;
   transform: translateY(16px);
-  animation: rowRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-play-state: paused;
 }
-.log.is-visible .row {
-  animation-play-state: running;
+.log .row.is-inview {
+  animation: rowRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .log.is-visible {
   opacity: 1;
