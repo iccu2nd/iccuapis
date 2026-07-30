@@ -367,6 +367,22 @@ button {
   .stat-lg-value-ip { font-size: 16px; }
 }
 
+.stats-plain-heading {
+  max-width: 620px;
+  margin: 0 auto 14px;
+  text-align: left;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .stats-plain-heading { font-size: 18px; }
+}
+
 .hero-stats {
   max-width: 620px;
   margin: 28px auto 0;
