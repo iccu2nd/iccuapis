@@ -254,6 +254,7 @@ button {
   position: fixed;
   top: 0;
   right: 0;
+  left: auto;
   bottom: 0;
   z-index: 46;
   width: 78%;
