@@ -139,7 +139,6 @@
 
   let manifest = null;
   let routes = [];
-  let firstRender = true;
   let selectedGroup = null;
 
   function groupLabel(key) {
@@ -267,6 +266,7 @@
     bootLoader.classList.add('is-leaving');
     setTimeout(() => {
       bootLoader.hidden = true;
+      requestAnimationFrame(() => logEl.classList.add('is-visible'));
     }, 350);
   }
 
@@ -327,11 +327,6 @@
       empty.className = 'empty-state';
       empty.textContent = 'Tidak ada endpoint yang cocok dengan pencarian itu.';
       logEl.appendChild(empty);
-    }
-
-    if (firstRender) {
-      requestAnimationFrame(() => logEl.classList.add('is-visible'));
-      firstRender = false;
     }
 
     if (groupFilterBtn) groupFilterBtn.classList.toggle('is-active', selectedGroup !== null);
