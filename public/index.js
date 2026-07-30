@@ -211,13 +211,8 @@
     const visitorEl = el('statApiVisitor');
     const refreshBtn = el('statApiRefreshBtn');
     const logListEl = el('statApiLogList');
-    const locCityEl = el('statApiLocCity');
-    const locRegionEl = el('statApiLocRegion');
-    const locCoordsEl = el('statApiLocCoords');
-    const mapFrame = el('statApiMap');
     const ipEl = el('statApiIp');
-    const tempEl = el('statApiTemp');
-    if (!visitorEl && !logListEl && !locCityEl) return;
+    if (!visitorEl && !logListEl && !ipEl) return;
 
     const geoCache = new Map();
 
@@ -295,51 +290,17 @@
       }
     }
 
-    async function loadLocationAndTemp() {
+    async function loadIp() {
+      if (!ipEl) return;
       try {
-        const myIpRes = await fetch('/api/myip', { cache: 'no-store' });
-        const myIpData = myIpRes.ok ? await myIpRes.json() : null;
-        const myIp = myIpData && myIpData.result && myIpData.result.ip;
-
-        if (ipEl) {
-          ipEl.textContent = myIp || '—';
-          ipEl.classList.remove('is-loading');
-        }
-
-        const geo = myIp ? await fetchGeo(myIp) : null;
-
-        if (geo) {
-          if (locCityEl) locCityEl.textContent = geo.city || '—';
-          if (locRegionEl) locRegionEl.textContent = [geo.region, geo.country].filter(Boolean).join(', ') || '—';
-          if (locCoordsEl && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
-            locCoordsEl.textContent = `${geo.latitude.toFixed(4)}, ${geo.longitude.toFixed(4)}`;
-          }
-          if (mapFrame && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
-            mapFrame.src = `https://www.google.com/maps?q=${geo.latitude},${geo.longitude}&z=14&output=embed`;
-          }
-          if (tempEl && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
-            try {
-              const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.latitude}&longitude=${geo.longitude}&current_weather=true`, { cache: 'no-store' });
-              const wData = wRes.ok ? await wRes.json() : null;
-              const t = wData && wData.current_weather && wData.current_weather.temperature;
-              tempEl.textContent = typeof t === 'number' ? `${t.toFixed(1)}°C` : '—';
-            } catch (err) {
-              tempEl.textContent = '—';
-            }
-          } else if (tempEl) {
-            tempEl.textContent = '—';
-          }
-        } else {
-          if (locCityEl) locCityEl.textContent = '—';
-          if (locRegionEl) locRegionEl.textContent = '—';
-          if (locCoordsEl) locCoordsEl.textContent = '—, —';
-          if (tempEl) tempEl.textContent = '—';
-        }
+        const res = await fetch('/api/myip', { cache: 'no-store' });
+        const data = res.ok ? await res.json() : null;
+        const ip = data && data.result && data.result.ip;
+        ipEl.textContent = ip || '—';
       } catch (err) {
-        if (ipEl) ipEl.textContent = '—';
-        if (tempEl) tempEl.textContent = '—';
+        ipEl.textContent = '—';
       }
-      if (tempEl) tempEl.classList.remove('is-loading');
+      ipEl.classList.remove('is-loading');
     }
 
     function refreshLive() {
@@ -357,7 +318,7 @@
 
     splashGone.then(() => {
       refreshLive();
-      loadLocationAndTemp();
+      loadIp();
       setInterval(refreshLive, 60000);
     });
   })();
