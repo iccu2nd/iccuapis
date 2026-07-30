@@ -495,7 +495,8 @@ button {
 
 .stat-api-log-list { display: flex; flex-direction: column; }
 .stat-api-log-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 40px 34px 1fr 44px 52px;
   align-items: center;
   gap: 10px;
   padding: 10px 10px 10px 12px;
@@ -520,13 +521,28 @@ button {
 .stat-api-log-row:nth-child(5) { animation-delay: 0.22s; }
 .stat-api-log-row:nth-child(6) { animation-delay: 0.27s; }
 
-.stat-api-log-main {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-  flex: 1;
+.stat-api-log-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 10.5px;
+  padding: 2px 0;
+  border-radius: 5px;
+  background: var(--good-soft);
+  color: var(--good);
 }
+.stat-api-log-status.err { background: var(--bad-soft); color: var(--bad); }
+
+.stat-api-log-method {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.01em;
+}
+
 .stat-api-log-path {
   font-family: var(--mono);
   font-size: 12.5px;
@@ -535,36 +551,21 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
-.stat-api-log-path .stat-api-log-method {
-  display: inline-block;
-  min-width: 40px;
-  color: var(--accent);
-  font-weight: 700;
-}
-.stat-api-log-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+
+.stat-api-log-ms {
+  font-family: var(--mono);
   font-size: 11px;
   color: var(--text-dim);
+  text-align: right;
+  white-space: nowrap;
 }
-.stat-api-log-status {
-  display: inline-flex;
-  align-items: center;
-  font-weight: 700;
-  font-size: 10.5px;
-  padding: 1px 6px;
-  border-radius: 5px;
-  background: var(--good-soft);
-  color: var(--good);
-}
-.stat-api-log-status.err { background: var(--bad-soft); color: var(--bad); }
 
 .stat-api-log-time {
-  flex-shrink: 0;
   font-size: 11px;
   color: var(--text-faint);
+  text-align: right;
   white-space: nowrap;
 }
 
@@ -580,7 +581,8 @@ button {
   .stat-api-summary-item { padding: 11px 10px; }
   .stat-api-summary-value { font-size: 17px; }
   .stat-api-summary-value-ip { font-size: 12.5px; }
-  .stat-api-log-time { font-size: 10px; }
+  .stat-api-log-row { grid-template-columns: 34px 30px 1fr 40px; }
+  .stat-api-log-time { display: none; }
 }
 
 .slot-machine {

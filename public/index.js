@@ -215,7 +215,7 @@
     const ipEl = el('statApiIp');
     if (!visitorEl && !todayEl && !logListEl && !ipEl) return;
 
-    function truncatePath(path, max = 30) {
+    function truncatePath(path, max = 46) {
       if (!path) return '';
       return path.length > max ? `${path.slice(0, max - 1)}…` : path;
     }
@@ -270,10 +270,10 @@
           const ok = entry.status >= 200 && entry.status < 400;
           return `
             <div class="stat-api-log-row${ok ? '' : ' is-err'}">
-              <div class="stat-api-log-main">
-                <span class="stat-api-log-path" title="${entry.path}"><span class="stat-api-log-method">${entry.method}</span>${truncatePath(entry.path)}</span>
-                <span class="stat-api-log-meta"><span class="stat-api-log-status${ok ? '' : ' err'}">${entry.status}</span><span>${entry.ms}ms</span></span>
-              </div>
+              <span class="stat-api-log-status${ok ? '' : ' err'}">${entry.status}</span>
+              <span class="stat-api-log-method">${entry.method}</span>
+              <span class="stat-api-log-path" title="${entry.path}">${truncatePath(entry.path)}</span>
+              <span class="stat-api-log-ms">${entry.ms}ms</span>
               <span class="stat-api-log-time">${timeAgo(entry.at)}</span>
             </div>
           `;
