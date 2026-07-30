@@ -329,7 +329,7 @@
 
       items.forEach((route, i) => {
         const row = buildRow(route);
-        row.style.animationDelay = `${Math.min(i, 10) * 0.04}s`;
+        row.style.animationDelay = `${(i % 6) * 0.08}s`;
         logEl.appendChild(row);
         if (rowRevealObserver) {
           rowRevealObserver.observe(row);
