@@ -496,23 +496,47 @@ button {
 .stat-api-refresh-btn.is-spinning svg { animation: statApiSpin 0.6s linear; }
 @keyframes statApiSpin { to { transform: rotate(360deg); } }
 
-.stat-api-log-list { display: flex; flex-direction: column; }
+.stat-api-log-list { display: flex; flex-direction: column; position: relative; padding-left: 20px; }
+.stat-api-log-list::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 18px;
+  bottom: 18px;
+  width: 8px;
+  border-left: 2px solid var(--border-strong);
+  border-top: 2px solid var(--border-strong);
+  border-bottom: 2px solid var(--border-strong);
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
 .stat-api-log-row {
+  position: relative;
   display: grid;
   grid-template-columns: 40px 34px 1fr 44px 52px;
   align-items: center;
   gap: 10px;
-  padding: 10px 10px 10px 12px;
+  padding: 10px 10px 10px 6px;
   border-top: 1px solid var(--border);
-  border-left: 3px solid var(--good);
-  border-radius: 0 8px 8px 0;
   transition: background 0.15s ease;
   opacity: 0;
   transform: translateY(6px);
   animation: statApiRowIn 0.35s ease forwards;
 }
+.stat-api-log-row::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--good);
+  box-shadow: 0 0 0 3px var(--good-soft);
+}
+.stat-api-log-row.is-err::before { background: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
 .stat-api-log-row:hover { background: var(--panel); }
-.stat-api-log-row.is-err { border-left-color: var(--bad); }
 .stat-api-log-row:first-child { border-top: none; }
 @keyframes statApiRowIn {
   to { opacity: 1; transform: translateY(0); }
