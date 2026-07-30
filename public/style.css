@@ -412,7 +412,6 @@ button {
   padding: 13px 14px;
   min-width: 0;
 }
-.stat-api-summary-item-ip { grid-column: 1 / -1; }
 .stat-api-summary-value {
   font-family: var(--stat);
   font-size: 22px;
@@ -426,7 +425,7 @@ button {
   transition: opacity 0.3s ease;
 }
 .stat-api-summary-value.is-loading { opacity: 0; }
-.stat-api-summary-value-ip { font-size: 16px; letter-spacing: 0; }
+.stat-api-summary-value-ip { font-size: 13.5px; letter-spacing: 0; }
 .stat-api-summary-value.is-scrambling {
   color: var(--accent, #6d5efc);
 }
@@ -584,7 +583,7 @@ button {
   .stat-api-summary { gap: 8px; }
   .stat-api-summary-item { padding: 11px 10px; }
   .stat-api-summary-value { font-size: 17px; }
-  .stat-api-summary-value-ip { font-size: 15px; }
+  .stat-api-summary-value-ip { font-size: 11.5px; }
   .stat-api-log-row { grid-template-columns: 34px 30px 1fr 40px; }
   .stat-api-log-time { display: none; }
 }
