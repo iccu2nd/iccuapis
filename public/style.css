@@ -300,9 +300,9 @@ button {
 }
 .stat-card-lg {
   position: relative;
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 16px;
-  background: var(--card);
+  background: transparent;
   padding: 18px 20px;
   min-width: 0;
 }
