@@ -207,79 +207,158 @@
     });
   })();
 
-  (function setupHeroStats() {
-    const ipEl = el('myIpValue');
-    const totalEl = el('totalRequestCount');
-    const todayEl = el('todayRequestCount');
-    const visitorEl = el('totalVisitorCount');
-    if (!ipEl && !totalEl && !todayEl && !visitorEl) return;
+  (function setupStatApi() {
+    const visitorEl = el('statApiVisitor');
+    const refreshBtn = el('statApiRefreshBtn');
+    const logListEl = el('statApiLogList');
+    const locCityEl = el('statApiLocCity');
+    const locRegionEl = el('statApiLocRegion');
+    const locCoordsEl = el('statApiLocCoords');
+    const mapFrame = el('statApiMap');
+    const ipEl = el('statApiIp');
+    const tempEl = el('statApiTemp');
+    if (!visitorEl && !logListEl && !locCityEl) return;
 
-    function slotRoll(elm, finalText) {
-      if (!elm) return;
-      const chars = String(finalText).split('');
-      elm.innerHTML = '';
-      elm.classList.add('slot-machine');
-      const spans = chars.map((ch) => {
-        const span = document.createElement('span');
-        span.className = 'slot-char';
-        span.textContent = /[0-9]/.test(ch) ? '0' : ch;
-        elm.appendChild(span);
-        return span;
-      });
+    const geoCache = new Map();
 
-      spans.forEach((span, i) => {
-        const ch = chars[i];
-        if (!/[0-9]/.test(ch)) return;
-        const spinTime = 180 + i * 45;
-        let counter = 0;
-        const intervalId = setInterval(() => {
-          span.textContent = String(counter % 10);
-          counter++;
-        }, 35);
-        setTimeout(() => {
-          clearInterval(intervalId);
-          span.textContent = ch;
-          span.classList.add('slot-settled');
-        }, spinTime);
-      });
+    async function fetchGeo(ip) {
+      if (!ip) return null;
+      if (geoCache.has(ip)) return geoCache.get(ip);
+      const promise = fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { cache: 'no-store' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => (data && data.success !== false ? data : null))
+        .catch(() => null);
+      geoCache.set(ip, promise);
+      return promise;
     }
 
-    async function loadHeroStats() {
-      const [statsRes, myIpRes, viewsRes] = await Promise.all([
-        fetch('/api/stats', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-        fetch('/api/myip', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-        fetch('/api/views', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
-      ]);
+    function truncatePath(path, max = 30) {
+      if (!path) return '';
+      return path.length > max ? `${path.slice(0, max - 1)}…` : path;
+    }
 
-      if (statsRes && statsRes.result) {
-        const s = statsRes.result;
-        slotRoll(totalEl, s.allTime.totalRequests.toLocaleString('id-ID'));
-        slotRoll(todayEl, s.today.totalRequests.toLocaleString('id-ID'));
-      } else {
-        if (totalEl) totalEl.textContent = '—';
-        if (todayEl) todayEl.textContent = '—';
+    function formatLocalTime(iso, timezoneId) {
+      try {
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat('id-ID', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false,
+          timeZone: timezoneId || 'Asia/Jakarta'
+        }).format(d);
+      } catch (err) {
+        return '--.--.--';
       }
-      if (totalEl) totalEl.classList.remove('is-loading');
-      if (todayEl) todayEl.classList.remove('is-loading');
+    }
 
-      if (myIpRes && myIpRes.result && myIpRes.result.ip) {
-        slotRoll(ipEl, myIpRes.result.ip);
-      } else if (ipEl) {
-        ipEl.textContent = '—';
-      }
-      if (ipEl) ipEl.classList.remove('is-loading');
-
-      if (viewsRes && viewsRes.result && typeof viewsRes.result.totalViews === 'number') {
-        slotRoll(visitorEl, viewsRes.result.totalViews.toLocaleString('id-ID'));
-      } else if (visitorEl) {
+    async function loadVisitor() {
+      if (!visitorEl) return;
+      try {
+        const res = await fetch('/api/stats', { cache: 'no-store' });
+        const data = res.ok ? await res.json() : null;
+        const count = data && data.result ? data.result.uniqueVisitors : null;
+        visitorEl.textContent = typeof count === 'number' ? count.toLocaleString('id-ID') : '—';
+      } catch (err) {
         visitorEl.textContent = '—';
       }
-      if (visitorEl) visitorEl.classList.remove('is-loading');
+      visitorEl.classList.remove('is-loading');
+    }
+
+    async function loadLogList() {
+      if (!logListEl) return;
+      try {
+        const res = await fetch('/api/logs', { cache: 'no-store' });
+        const data = res.ok ? await res.json() : null;
+        const entries = ((data && data.result) || []).slice(0, 6);
+        if (!entries.length) {
+          logListEl.innerHTML = '<div class="stat-api-log-empty">Belum ada request hari ini.</div>';
+          return;
+        }
+        const rows = await Promise.all(entries.map(async (entry) => {
+          const geo = await fetchGeo(entry.ip);
+          const flag = (geo && geo.flag && geo.flag.emoji) || '🏳️';
+          const tz = geo && geo.timezone && geo.timezone.id;
+          const time = formatLocalTime(entry.at, tz);
+          const ok = entry.status >= 200 && entry.status < 400;
+          return `
+            <div class="stat-api-log-row">
+              <span class="stat-api-log-status ${ok ? 'ok' : 'err'}">${entry.status}</span>
+              <span class="stat-api-log-method">${entry.method}</span>
+              <span class="stat-api-log-path" title="${entry.path}">${truncatePath(entry.path)}</span>
+              <span class="stat-api-log-ms">${entry.ms}ms</span>
+              <span class="stat-api-log-flag">${flag} ${time}</span>
+            </div>
+          `;
+        }));
+        logListEl.innerHTML = rows.join('');
+      } catch (err) {
+        logListEl.innerHTML = '<div class="stat-api-log-empty">Gagal memuat log.</div>';
+      }
+    }
+
+    async function loadLocationAndTemp() {
+      try {
+        const myIpRes = await fetch('/api/myip', { cache: 'no-store' });
+        const myIpData = myIpRes.ok ? await myIpRes.json() : null;
+        const myIp = myIpData && myIpData.result && myIpData.result.ip;
+
+        if (ipEl) {
+          ipEl.textContent = myIp || '—';
+          ipEl.classList.remove('is-loading');
+        }
+
+        const geo = myIp ? await fetchGeo(myIp) : null;
+
+        if (geo) {
+          if (locCityEl) locCityEl.textContent = geo.city || '—';
+          if (locRegionEl) locRegionEl.textContent = [geo.region, geo.country].filter(Boolean).join(', ') || '—';
+          if (locCoordsEl && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
+            locCoordsEl.textContent = `${geo.latitude.toFixed(4)}, ${geo.longitude.toFixed(4)}`;
+          }
+          if (mapFrame && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
+            mapFrame.src = `https://www.google.com/maps?q=${geo.latitude},${geo.longitude}&z=14&output=embed`;
+          }
+          if (tempEl && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
+            try {
+              const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.latitude}&longitude=${geo.longitude}&current_weather=true`, { cache: 'no-store' });
+              const wData = wRes.ok ? await wRes.json() : null;
+              const t = wData && wData.current_weather && wData.current_weather.temperature;
+              tempEl.textContent = typeof t === 'number' ? `${t.toFixed(1)}°C` : '—';
+            } catch (err) {
+              tempEl.textContent = '—';
+            }
+          } else if (tempEl) {
+            tempEl.textContent = '—';
+          }
+        } else {
+          if (locCityEl) locCityEl.textContent = '—';
+          if (locRegionEl) locRegionEl.textContent = '—';
+          if (locCoordsEl) locCoordsEl.textContent = '—, —';
+          if (tempEl) tempEl.textContent = '—';
+        }
+      } catch (err) {
+        if (ipEl) ipEl.textContent = '—';
+        if (tempEl) tempEl.textContent = '—';
+      }
+      if (tempEl) tempEl.classList.remove('is-loading');
+    }
+
+    function refreshLive() {
+      return Promise.all([loadVisitor(), loadLogList()]);
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        refreshBtn.classList.add('is-spinning');
+        refreshLive().finally(() => {
+          setTimeout(() => refreshBtn.classList.remove('is-spinning'), 500);
+        });
+      });
     }
 
     splashGone.then(() => {
-      loadHeroStats();
-      setInterval(loadHeroStats, 60000);
+      refreshLive();
+      loadLocationAndTemp();
+      setInterval(refreshLive, 60000);
     });
   })();
 
