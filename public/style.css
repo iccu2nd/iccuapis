@@ -398,7 +398,7 @@ button {
 
 .stat-api-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   margin-bottom: 20px;
 }
@@ -412,6 +412,7 @@ button {
   padding: 13px 14px;
   min-width: 0;
 }
+.stat-api-summary-item-ip { grid-column: 1 / -1; }
 .stat-api-summary-value {
   font-family: var(--stat);
   font-size: 22px;
@@ -425,7 +426,10 @@ button {
   transition: opacity 0.3s ease;
 }
 .stat-api-summary-value.is-loading { opacity: 0; }
-.stat-api-summary-value-ip { font-size: 15px; }
+.stat-api-summary-value-ip { font-size: 16px; letter-spacing: 0; }
+.stat-api-summary-value.is-scrambling {
+  color: var(--accent, #6d5efc);
+}
 .stat-api-summary-label {
   font-size: 10.5px;
   font-weight: 600;
@@ -580,7 +584,7 @@ button {
   .stat-api-summary { gap: 8px; }
   .stat-api-summary-item { padding: 11px 10px; }
   .stat-api-summary-value { font-size: 17px; }
-  .stat-api-summary-value-ip { font-size: 12.5px; }
+  .stat-api-summary-value-ip { font-size: 15px; }
   .stat-api-log-row { grid-template-columns: 34px 30px 1fr 40px; }
   .stat-api-log-time { display: none; }
 }

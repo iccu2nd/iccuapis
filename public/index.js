@@ -210,10 +210,62 @@
   (function setupStatApi() {
     const visitorEl = el('statApiVisitor');
     const todayEl = el('statApiToday');
+    const totalEl = el('statApiTotal');
     const refreshBtn = el('statApiRefreshBtn');
     const logListEl = el('statApiLogList');
     const ipEl = el('statApiIp');
-    if (!visitorEl && !todayEl && !logListEl && !ipEl) return;
+    if (!visitorEl && !todayEl && !totalEl && !logListEl && !ipEl) return;
+
+    function charPool(ch) {
+      if (/[0-9]/.test(ch)) return '0123456789';
+      return null;
+    }
+
+    function scrambleInto(target, finalText) {
+      if (!target) return;
+      const flickerMs = 45;
+      const staggerMs = 55;
+      const holdMs = 200;
+      const chars = String(finalText).split('');
+      target.textContent = '';
+      target.classList.add('is-scrambling');
+      const spans = chars.map(() => {
+        const span = document.createElement('span');
+        span.className = 'slot-char';
+        target.appendChild(span);
+        return span;
+      });
+      const settleAt = chars.map((_, i) => holdMs + i * staggerMs);
+      const start = performance.now();
+      let lastFlicker = -Infinity;
+
+      function frame(now) {
+        const elapsed = now - start;
+        const doneAll = chars.every((_, i) => elapsed >= settleAt[i]);
+        if (elapsed - lastFlicker >= flickerMs || doneAll) {
+          lastFlicker = elapsed;
+          chars.forEach((ch, i) => {
+            const span = spans[i];
+            if (elapsed >= settleAt[i]) {
+              if (span.textContent !== ch) {
+                span.textContent = ch;
+                span.classList.add('slot-settled');
+                setTimeout(() => span.classList.remove('slot-settled'), 280);
+              }
+            } else {
+              const pool = charPool(ch);
+              span.textContent = pool ? pool[(Math.random() * pool.length) | 0] : ch;
+            }
+          });
+        }
+        if (!doneAll) {
+          requestAnimationFrame(frame);
+        } else {
+          target.classList.remove('is-scrambling');
+        }
+      }
+      requestAnimationFrame(frame);
+    }
 
     function truncatePath(path, max = 46) {
       if (!path) return '';
@@ -235,25 +287,31 @@
     }
 
     async function loadSummary() {
-      if (!visitorEl && !todayEl) return;
+      if (!visitorEl && !todayEl && !totalEl) return;
       try {
         const res = await fetch('/api/stats', { cache: 'no-store' });
         const data = res.ok ? await res.json() : null;
         const result = data && data.result;
         if (visitorEl) {
           const count = result ? result.uniqueVisitors : null;
-          visitorEl.textContent = typeof count === 'number' ? count.toLocaleString('id-ID') : '—';
+          scrambleInto(visitorEl, typeof count === 'number' ? count.toLocaleString('id-ID') : '—');
         }
         if (todayEl) {
           const today = result && result.today ? result.today.totalRequests : null;
-          todayEl.textContent = typeof today === 'number' ? today.toLocaleString('id-ID') : '—';
+          scrambleInto(todayEl, typeof today === 'number' ? today.toLocaleString('id-ID') : '—');
+        }
+        if (totalEl) {
+          const total = result && result.allTime ? result.allTime.totalRequests : null;
+          scrambleInto(totalEl, typeof total === 'number' ? total.toLocaleString('id-ID') : '—');
         }
       } catch (err) {
         if (visitorEl) visitorEl.textContent = '—';
         if (todayEl) todayEl.textContent = '—';
+        if (totalEl) totalEl.textContent = '—';
       }
       if (visitorEl) visitorEl.classList.remove('is-loading');
       if (todayEl) todayEl.classList.remove('is-loading');
+      if (totalEl) totalEl.classList.remove('is-loading');
     }
 
     async function loadLogList() {
@@ -289,7 +347,7 @@
         const res = await fetch('/api/myip', { cache: 'no-store' });
         const data = res.ok ? await res.json() : null;
         const ip = data && data.result && data.result.ip;
-        ipEl.textContent = ip || '—';
+        scrambleInto(ipEl, ip || '—');
       } catch (err) {
         ipEl.textContent = '—';
       }
