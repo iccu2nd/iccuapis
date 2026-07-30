@@ -98,8 +98,8 @@ button { font-family: inherit; cursor: pointer; }
 .hamburger-menu {
   position: fixed;
   top: 0;
-  right: 0;
-  left: auto;
+  left: 0;
+  right: auto;
   bottom: 0;
   z-index: 46;
   width: 78%;
@@ -109,9 +109,9 @@ button { font-family: inherit; cursor: pointer; }
   flex-direction: column;
   padding: 22px 16px;
   gap: 2px;
-  transform: translateX(100%);
+  transform: translateX(-100%);
   transition: transform 0.28s ease;
-  box-shadow: -8px 0 32px rgba(20, 22, 26, 0.10);
+  box-shadow: 8px 0 32px rgba(20, 22, 26, 0.10);
 }
 .hamburger-menu.is-open {
   transform: translateX(0);
