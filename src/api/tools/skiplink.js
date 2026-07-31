@@ -1,19 +1,53 @@
 'use strict';
 
 const axios = require('axios');
+const bycfPkg = require('bycf');
+
+const bycf = bycfPkg.shannz || bycfPkg.shz || bycfPkg.default || bycfPkg;
+
+const IZEN = 'https://izen.lol/api/bypass';
+const SITEKEY = '0x4AAAAAADNEi_2N24gpQqY0';
+
+async function bypassIzenLol(url) {
+  const token = await bycf.turnstileMin('https://izen.lol', SITEKEY);
+  if (!token) throw new Error('Gagal solve captcha turnstile');
+
+  const response = await axios.post(
+    IZEN,
+    { url, captchaToken: token },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Referer: 'https://izen.lol/',
+        Origin: 'https://izen.lol',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        Accept: 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      timeout: 120000,
+      validateStatus: () => true
+    }
+  );
+
+  if (response.status !== 200 || !response.data) {
+    throw new Error(response.data?.message || 'Gagal bypass link');
+  }
+
+  return response.data;
+}
 
 module.exports = function register(app, registry) {
   const route = {
     method: 'GET',
     path: '/tools/skiplink',
     group: 'tools',
-    name: 'Skip SFL',
-    description: 'Bongkar shortlink sfl.gl / safelinkblogger jadi link asli.',
+    name: 'Bypass Link',
+    description: 'Bongkar shortlink jadi link asli via izen.lol.',
     params: [
       {
         key: 'url',
         required: true,
-        hint: 'URL shortlink sfl.gl atau safelinkblogger',
+        hint: 'URL shortlink yang ingin di-bypass',
         example: 'https://sfl.gl/Tv7BqUhg'
       }
     ]
@@ -31,34 +65,21 @@ module.exports = function register(app, registry) {
     }
 
     const trimmed = url.trim();
-    const isSupported = trimmed.includes('sfl.gl') || trimmed.includes('safelinkblogger');
-    if (!isSupported) {
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
       return res.status(400).json({
         ok: false,
-        error: {
-          code: 'UNSUPPORTED_URL',
-          message: 'URL tidak didukung. Endpoint ini hanya mendukung sfl.gl / safelinkblogger.'
-        }
+        error: { code: 'INVALID_URL', message: 'URL tidak valid, harus diawali http:// atau https://' }
       });
     }
 
     try {
-      const { data } = await axios.get(
-        `https://fgsi.dpdns.org/api/tools/skip/tutwuri?apikey=fgsiapi-2be8cfa8-6d&url=${encodeURIComponent(trimmed)}`,
-        { timeout: 30000 }
-      );
-
-      if (!data.status) {
-        return res.status(502).json({
-          ok: false,
-          error: { code: 'UPSTREAM_ERROR', message: data.message || 'Gagal bypass link.' }
-        });
-      }
+      const data = await bypassIzenLol(trimmed);
 
       res.json({
         result: {
-          finalUrl: data.data?.url || null,
-          message: data.data?.message || null
+          finalUrl: data.url || data.destination || (typeof data.result === 'string' ? data.result : null),
+          raw: data.result && typeof data.result === 'object' ? data.result : null,
+          message: data.message || null
         }
       });
     } catch (err) {
@@ -66,7 +87,7 @@ module.exports = function register(app, registry) {
         ok: false,
         error: {
           code: 'UPSTREAM_ERROR',
-          message: err.response?.data?.message || err.message || 'Gagal menghubungi layanan bypass.'
+          message: err.response?.data?.message || err.message || 'Gagal bypass link.'
         }
       });
     }
