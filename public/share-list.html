@@ -221,6 +221,22 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--text-faint);
   margin-top: 2px;
 }
+.list-row-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+  margin: 60px auto;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .list-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .list-row-actions a {
   font-size: 12.5px;
@@ -313,6 +329,7 @@ button { font-family: inherit; cursor: pointer; }
 
   const el = (id) => document.getElementById(id);
   const container = el('listContainer');
+  container.innerHTML = '<div class="loading-spinner"></div>';
 
   const formatDate = (iso) => new Date(iso).toLocaleString('id-ID', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -331,15 +348,16 @@ button { font-family: inherit; cursor: pointer; }
       container.innerHTML = items.map((item) => {
         const name = escapeHtml(item.filename || `snippet-${item.id}`);
         const lang = item.language ? `${escapeHtml(item.language)} · ` : '';
+        const desc = item.description ? `<div class="list-row-desc">${escapeHtml(item.description)}</div>` : '';
         return `
         <div class="list-row">
           <div class="list-row-main">
             <div class="list-row-name">${name}</div>
-            <div class="list-row-sub">${lang}dibuat ${formatDate(item.createdAt)} · kadaluarsa ${formatDate(item.expiresAt)}</div>
+            ${desc}
+            <div class="list-row-sub">${lang}dibuat ${formatDate(item.createdAt)} · kadaluarsa ${formatDate(item.expiresAt)} · ${item.views || 0} views</div>
           </div>
           <div class="list-row-actions">
             <a href="/view/${item.id}">View</a>
-            <a href="/raw/${item.id}" target="_blank" rel="noopener">Raw</a>
           </div>
         </div>
       `;

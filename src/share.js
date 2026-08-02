@@ -39,6 +39,22 @@ async function loadSnippet(id) {
   return memoryStore.get(id) || null;
 }
 
+async function loadAndCountView(id) {
+  const db = await getDb();
+  if (db) {
+    const doc = await db.collection('shared_codes').findOneAndUpdate(
+      { _id: id },
+      { $inc: { views: 1 } },
+      { returnDocument: 'after' }
+    );
+    return doc?.value || doc || null;
+  }
+  const doc = memoryStore.get(id);
+  if (!doc) return null;
+  doc.views = (doc.views || 0) + 1;
+  return doc;
+}
+
 async function listSnippets(limit) {
   const db = await getDb();
   if (db) {
@@ -68,7 +84,7 @@ async function deleteSnippet(id, token) {
 
 module.exports = function registerShareRoutes(app) {
   app.post('/api/share', async (req, res) => {
-    const { code, filename, language } = req.body || {};
+    const { code, filename, language, description } = req.body || {};
 
     if (!code || !code.trim()) {
       return res.status(400).json({
@@ -94,6 +110,8 @@ module.exports = function registerShareRoutes(app) {
       code,
       filename: (filename || '').trim().slice(0, 120) || null,
       language: (language || '').trim().slice(0, 40) || null,
+      description: (description || '').trim().slice(0, 300) || null,
+      views: 0,
       deleteToken,
       createdAt,
       expiresAt
@@ -119,6 +137,8 @@ module.exports = function registerShareRoutes(app) {
         id: d._id,
         filename: d.filename,
         language: d.language,
+        description: d.description,
+        views: d.views || 0,
         createdAt: d.createdAt,
         expiresAt: d.expiresAt
       }))
@@ -126,7 +146,7 @@ module.exports = function registerShareRoutes(app) {
   });
 
   app.get('/api/share/:id', async (req, res) => {
-    const doc = await loadSnippet(req.params.id);
+    const doc = await loadAndCountView(req.params.id);
     if (!doc) {
       return res.status(404).json({
         ok: false,
@@ -139,6 +159,8 @@ module.exports = function registerShareRoutes(app) {
         code: doc.code,
         filename: doc.filename,
         language: doc.language,
+        description: doc.description,
+        views: doc.views || 0,
         createdAt: doc.createdAt,
         expiresAt: doc.expiresAt
       }

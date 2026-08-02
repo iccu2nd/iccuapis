@@ -331,6 +331,11 @@ button { font-family: inherit; cursor: pointer; }
     </div>
 
     <div class="field">
+      <label for="descriptionInput">Deskripsi (opsional)</label>
+      <input type="text" id="descriptionInput" placeholder="contoh: endpoint scraper pinterest" />
+    </div>
+
+    <div class="field">
       <label for="codeInput">Kode</label>
       <textarea id="codeInput" placeholder="Tempel kode di sini..." spellcheck="false"></textarea>
     </div>
@@ -454,7 +459,7 @@ button { font-family: inherit; cursor: pointer; }
       const res = await fetch('/api/share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, filename: filenameInput.value })
+        body: JSON.stringify({ code, filename: filenameInput.value, description: el('descriptionInput').value })
       });
       const data = await res.json();
 

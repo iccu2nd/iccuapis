@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <style>
 :root {
@@ -116,7 +116,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
-  background: #14161C;
+  background: #272822;
 }
 .code-panel pre {
   margin: 0;
@@ -136,6 +136,23 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--text-faint);
   margin: 0 0 14px;
 }
+
+.desc-note {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: -8px 0 14px;
+}
+
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+  margin: 60px auto;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .notice {
   border-radius: var(--radius-sm);
@@ -165,8 +182,10 @@ button { font-family: inherit; cursor: pointer; }
   </div>
 
   <div class="notice" id="notice"></div>
+  <p class="desc-note" id="descNote" style="display:none;"></p>
   <p class="meta-note" id="metaNote"></p>
 
+  <div class="loading-spinner" id="loadingSpinner"></div>
   <div class="code-panel" id="codePanel" style="display:none;">
     <pre><code id="codeOutput"></code></pre>
   </div>
@@ -183,27 +202,33 @@ button { font-family: inherit; cursor: pointer; }
   fetch(`/api/share/${id}`, { cache: 'no-store' })
     .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
     .then(({ ok, data }) => {
+      el('loadingSpinner').style.display = 'none';
+
       if (!ok || !data.ok) {
         el('notice').textContent = data?.error?.message || 'Kode tidak ditemukan.';
         el('notice').classList.add('is-open');
         return;
       }
 
-      const { code, filename, language, expiresAt } = data.result;
+      const { code, filename, language, description, views, expiresAt } = data.result;
       el('filenameLabel').textContent = filename || `snippet-${id}`;
       el('rawBtn').href = `/raw/${id}`;
       el('codePanel').style.display = 'block';
+
+      if (description) {
+        el('descNote').textContent = description;
+        el('descNote').style.display = 'block';
+      }
 
       const codeOutput = el('codeOutput');
       codeOutput.textContent = code;
       if (language) codeOutput.classList.add(`language-${language}`);
       if (window.hljs) window.hljs.highlightElement(codeOutput);
 
-      if (expiresAt) {
-        el('metaNote').textContent = `Otomatis kadaluarsa: ${new Date(expiresAt).toLocaleString('id-ID', {
-          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        })}`;
-      }
+      const expiryText = expiresAt ? `Otomatis kadaluarsa: ${new Date(expiresAt).toLocaleString('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      })}` : '';
+      el('metaNote').textContent = `${expiryText}${expiryText ? ' · ' : ''}${views || 0} views`;
 
       el('copyBtn').addEventListener('click', () => {
         navigator.clipboard.writeText(code).then(() => {
@@ -213,6 +238,7 @@ button { font-family: inherit; cursor: pointer; }
       });
     })
     .catch(() => {
+      el('loadingSpinner').style.display = 'none';
       el('notice').textContent = 'Gagal konek ke server.';
       el('notice').classList.add('is-open');
     });
