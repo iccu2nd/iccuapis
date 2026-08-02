@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>View Code — Sasane APIS</title>
+<link rel="icon" href="data:," />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+:root {
+  --bg: #FFFFFF;
+  --panel: #FAFAFB;
+  --panel-raised: #F0F1F3;
+  --border: #ECECEF;
+  --border-strong: #E4E6EB;
+  --text: #12141C;
+  --text-dim: #767B87;
+  --text-faint: #9498A3;
+  --accent: #17181F;
+  --accent-hover: #000000;
+  --accent-soft: #EFEFF1;
+  --bad: #D64545;
+  --bad-soft: #FBEBEA;
+  --display: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-mark {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15px;
+}
+.topbar a.back {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.stage {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 26px 22px 64px;
+}
+
+.file-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.file-head h1 {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  word-break: break-all;
+}
+.file-head-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--panel-raised);
+  color: var(--text);
+  transition: background 0.12s ease;
+}
+.btn:hover { background: var(--border); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+
+.code-panel {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #14161C;
+}
+.code-panel pre {
+  margin: 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+}
+.code-panel pre code.hljs {
+  padding: 0;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.meta-note {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin: 0 0 14px;
+}
+
+.notice {
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-size: 14px;
+  display: none;
+}
+.notice.is-open { display: block; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-mark"><span>Sasane APIS</span></div>
+  <a class="back" href="/share">+ Share Code Baru</a>
+</header>
+
+<main class="stage">
+  <div class="file-head">
+    <h1 id="filenameLabel">Kode</h1>
+    <div class="file-head-actions">
+      <button class="btn" id="copyBtn" type="button">Copy Code</button>
+      <a class="btn btn-primary" id="rawBtn" href="#" target="_blank" rel="noopener">Raw</a>
+    </div>
+  </div>
+
+  <div class="notice" id="notice"></div>
+  <p class="meta-note" id="metaNote"></p>
+
+  <div class="code-panel" id="codePanel" style="display:none;">
+    <pre><code id="codeOutput"></code></pre>
+  </div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const el = (id) => document.getElementById(id);
+
+  const id = location.pathname.split('/').filter(Boolean).pop();
+
+  fetch(`/api/share/${id}`, { cache: 'no-store' })
+    .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.ok) {
+        el('notice').textContent = data?.error?.message || 'Kode tidak ditemukan.';
+        el('notice').classList.add('is-open');
+        return;
+      }
+
+      const { code, filename, language, expiresAt } = data.result;
+      el('filenameLabel').textContent = filename || `snippet-${id}`;
+      el('rawBtn').href = `/raw/${id}`;
+      el('codePanel').style.display = 'block';
+
+      const codeOutput = el('codeOutput');
+      codeOutput.textContent = code;
+      if (language) codeOutput.classList.add(`language-${language}`);
+      if (window.hljs) window.hljs.highlightElement(codeOutput);
+
+      if (expiresAt) {
+        el('metaNote').textContent = `Otomatis kadaluarsa: ${new Date(expiresAt).toLocaleString('id-ID', {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        })}`;
+      }
+
+      el('copyBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(code).then(() => {
+          el('copyBtn').textContent = 'Copied!';
+          setTimeout(() => { el('copyBtn').textContent = 'Copy Code'; }, 1200);
+        });
+      });
+    })
+    .catch(() => {
+      el('notice').textContent = 'Gagal konek ke server.';
+      el('notice').classList.add('is-open');
+    });
+})();
+</script>
+
+</body>
+</html>

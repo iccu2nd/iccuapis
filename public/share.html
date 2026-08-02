@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Health — Sasane APIS</title>
+<title>Share Code — Sasane APIS</title>
 <link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,10 +86,7 @@ button { font-family: inherit; cursor: pointer; }
   pointer-events: none;
   transition: opacity 0.25s ease;
 }
-.menu-overlay.is-open {
-  opacity: 1;
-  pointer-events: auto;
-}
+.menu-overlay.is-open { opacity: 1; pointer-events: auto; }
 
 .hamburger-menu {
   position: fixed;
@@ -109,9 +106,7 @@ button { font-family: inherit; cursor: pointer; }
   transition: transform 0.28s ease;
   box-shadow: 8px 0 32px rgba(20, 22, 26, 0.10);
 }
-.hamburger-menu.is-open {
-  transform: translateX(0);
-}
+.hamburger-menu.is-open { transform: translateX(0); }
 .hamburger-menu-title {
   font-family: var(--display);
   font-weight: 700;
@@ -181,9 +176,7 @@ button { font-family: inherit; cursor: pointer; }
   padding: 32px 22px 64px;
 }
 
-.page-head {
-  margin-bottom: 20px;
-}
+.page-head { margin-bottom: 20px; }
 .page-head h1 {
   font-family: var(--display);
   font-size: 26px;
@@ -197,96 +190,17 @@ button { font-family: inherit; cursor: pointer; }
   font-size: 14.5px;
 }
 
-.status-banner {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 26px 24px;
-  border-radius: 22px;
-  border: 1px solid var(--border);
-  background: linear-gradient(135deg, #E9F7EF 0%, #F5FCF8 60%, #FFFFFF 100%);
-  margin-bottom: 16px;
-  box-shadow: 0 16px 36px -20px rgba(46, 158, 91, 0.35);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-.status-banner.is-down {
-  background: linear-gradient(135deg, #FBEBEA 0%, #FDF4F3 60%, #FFFFFF 100%);
-  box-shadow: 0 16px 36px -20px rgba(214, 69, 69, 0.35);
-}
-.status-dot-wrap {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.status-dot-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--good);
-  opacity: 0.18;
-  animation: ring 1.8s ease-out infinite;
-}
-.status-banner.is-down .status-dot-ring { background: var(--bad); animation: none; opacity: 0.12; }
-@keyframes ring {
-  0% { transform: scale(0.5); opacity: 0.35; }
-  100% { transform: scale(1); opacity: 0; }
-}
-.status-dot {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: var(--good);
-  flex-shrink: 0;
-  box-shadow: 0 0 0 4px rgba(46, 158, 91, 0.16);
-}
-.status-banner.is-down .status-dot { background: var(--bad); box-shadow: 0 0 0 4px rgba(214, 69, 69, 0.16); }
-.status-banner-copy { display: flex; flex-direction: column; gap: 2px; }
-.status-banner-text {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 17px;
-  color: var(--good);
-  letter-spacing: -0.01em;
-}
-.status-banner.is-down .status-banner-text { color: var(--bad); }
-.status-banner-sub {
-  font-size: 12.5px;
-  color: var(--text-faint);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-.card {
-  position: relative;
+.panel {
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 20px;
   background: #fff;
+  padding: 20px;
   box-shadow: 0 10px 24px -18px rgba(20, 22, 26, 0.25);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
-.card:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -18px rgba(20, 22, 26, 0.28); }
-.card-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-.card-label {
+
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-faint);
@@ -294,75 +208,155 @@ button { font-family: inherit; cursor: pointer; }
   letter-spacing: 0.05em;
   margin-bottom: 6px;
 }
-.card-value {
-  font-family: var(--stat);
-  font-weight: 700;
-  font-size: 23px;
-  letter-spacing: -0.01em;
-  background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.field input, .field textarea {
+  width: 100%;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  font-size: 14.5px;
+  font-family: var(--body);
+  color: var(--text);
+  background: var(--panel);
+  outline: none;
+  transition: border-color 0.12s ease;
 }
-.card.is-wide { grid-column: 1 / -1; }
-.card.is-wide .card-value { font-size: 15px; }
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.field textarea {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  min-height: 280px;
+  resize: vertical;
+  white-space: pre;
+}
 
-@media (max-width: 480px) {
-  .grid { grid-template-columns: 1fr; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row .field { flex: 1; min-width: 160px; }
+
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-size: 14.5px;
+  font-weight: 600;
+  transition: background 0.12s ease, opacity 0.12s ease;
 }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+.btn-ghost { background: var(--panel-raised); color: var(--text); }
+.btn-ghost:hover { background: var(--border); }
+
+.actions { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+
+.banner {
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13.5px;
+  margin-top: 14px;
+  display: none;
+}
+.banner.is-error { display: block; background: var(--bad-soft); color: var(--bad); }
+.banner.is-good { display: block; background: var(--good-soft); color: var(--good); }
+
+.result { margin-top: 18px; display: none; }
+.result.is-open { display: block; }
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: var(--panel);
+}
+.result-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  width: 44px;
+  flex-shrink: 0;
+}
+.result-row a {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.result-row button {
+  border: none;
+  background: var(--panel-raised);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.result-row button:hover { background: var(--border); }
+.result-note {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin: 4px 0 10px;
+}
+#deleteBtn { color: var(--bad); }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <div class="topbar-mark">
-    <span>Sasane APIS</span>
-  </div>
+  <div class="topbar-mark"><span>Sasane APIS</span></div>
   <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Buka menu" aria-expanded="false">
-    <span></span>
-    <span></span>
-    <span></span>
+    <span></span><span></span><span></span>
   </button>
 </header>
 
 <main class="stage">
   <div class="page-head">
-    <h1>Health</h1>
-    <p>Status server secara langsung. Halaman ini refresh sendiri tiap beberapa detik.</p>
+    <h1>Share Code</h1>
+    <p>Tempel atau upload kode, dapatkan link buat lihat kode dan link raw. <a href="/share/list">Lihat semua kode →</a></p>
   </div>
 
-  <div class="status-banner" id="statusBanner">
-    <div class="status-dot-wrap">
-      <span class="status-dot-ring"></span>
-      <span class="status-dot" id="statusDot"></span>
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="filenameInput">Nama File (opsional)</label>
+        <input type="text" id="filenameInput" placeholder="contoh: index.js" />
+      </div>
     </div>
-    <div class="status-banner-copy">
-      <span class="status-banner-text" id="statusText">Memeriksa status...</span>
-      <span class="status-banner-sub">Auto-refresh tiap 5 detik</span>
-    </div>
-  </div>
 
-  <div class="grid">
-    <div class="card">
-      <div class="card-icon">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-      </div>
-      <div class="card-label">Server Uptime</div>
-      <div class="card-value" id="uptimeValue">—</div>
+    <div class="field">
+      <label for="codeInput">Kode</label>
+      <textarea id="codeInput" placeholder="Tempel kode di sini..." spellcheck="false"></textarea>
     </div>
-    <div class="card">
-      <div class="card-icon">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
-      </div>
-      <div class="card-label">Cache Entries</div>
-      <div class="card-value" id="cacheValue">—</div>
+
+    <input type="file" id="fileInput" hidden />
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="uploadBtn" type="button">Upload File</button>
+      <button class="btn btn-primary" id="shareBtn" type="button">Share Code</button>
     </div>
-    <div class="card is-wide">
-      <div class="card-icon">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18"/><path d="M8 2v4M16 2v4"/></svg>
+
+    <div class="banner" id="banner"></div>
+
+    <div class="result" id="result">
+      <div class="result-row">
+        <span class="result-row-label">View</span>
+        <a id="viewLink" href="#" target="_blank" rel="noopener"></a>
+        <button type="button" data-copy="viewLink">Copy</button>
       </div>
-      <div class="card-label">Last Checked</div>
-      <div class="card-value" id="timestampValue">—</div>
+      <div class="result-row">
+        <span class="result-row-label">Raw</span>
+        <a id="rawLink" href="#" target="_blank" rel="noopener"></a>
+        <button type="button" data-copy="rawLink">Copy</button>
+      </div>
+      <p class="result-note" id="expiryNote"></p>
+      <button class="btn btn-ghost" id="deleteBtn" type="button">Hapus Kode Ini</button>
     </div>
   </div>
 </main>
@@ -383,11 +377,11 @@ button { font-family: inherit; cursor: pointer; }
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z" fill="currentColor"/></svg>
     Request Log
   </a>
-  <a href="/health" class="hamburger-menu-item is-active">
+  <a href="/health" class="hamburger-menu-item">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
     Health
   </a>
-  <a href="/share" class="hamburger-menu-item">
+  <a href="/share" class="hamburger-menu-item is-active">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     Share Code
   </a>
@@ -409,86 +403,145 @@ button { font-family: inherit; cursor: pointer; }
   'use strict';
 
   const el = (id) => document.getElementById(id);
-  const POLL_MS = 5000;
+  const codeInput = el('codeInput');
+  const filenameInput = el('filenameInput');
+  const fileInput = el('fileInput');
+  const uploadBtn = el('uploadBtn');
+  const shareBtn = el('shareBtn');
+  const banner = el('banner');
+  const result = el('result');
+  const viewLink = el('viewLink');
+  const rawLink = el('rawLink');
+  const expiryNote = el('expiryNote');
+  const deleteBtn = el('deleteBtn');
 
-  let baseSeconds = null;
-  let baseAt = null;
-  let tickTimer = null;
+  let currentId = null;
+  let currentToken = null;
 
-  function formatUptime(totalSeconds) {
-    const s = Math.max(0, Math.floor(totalSeconds));
-    const hours = Math.floor(s / 3600);
-    const minutes = Math.floor((s % 3600) / 60);
-    const seconds = s % 60;
-    return `${hours}h ${minutes}m ${seconds}s`;
-  }
+  const formatDate = (iso) => new Date(iso).toLocaleString('id-ID', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  });
 
-  function tick() {
-    if (baseSeconds === null) return;
-    const elapsed = (Date.now() - baseAt) / 1000;
-    el('uptimeValue').textContent = formatUptime(baseSeconds + elapsed);
-  }
+  const showBanner = (msg, isError) => {
+    banner.textContent = msg;
+    banner.className = `banner ${isError ? 'is-error' : 'is-good'}`;
+  };
+  const hideBanner = () => { banner.className = 'banner'; };
 
-  function setDown() {
-    el('statusBanner').classList.add('is-down');
-    el('statusText').textContent = 'Server tidak merespons';
-    el('uptimeValue').textContent = '—';
-    el('cacheValue').textContent = '—';
-  }
+  uploadBtn.addEventListener('click', () => fileInput.click());
 
-  async function poll() {
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      codeInput.value = reader.result;
+      if (!filenameInput.value.trim()) filenameInput.value = file.name;
+    };
+    reader.readAsText(file);
+  });
+
+  shareBtn.addEventListener('click', async () => {
+    const code = codeInput.value;
+    hideBanner();
+    result.classList.remove('is-open');
+
+    if (!code.trim()) {
+      showBanner('Kode tidak boleh kosong.', true);
+      return;
+    }
+
+    shareBtn.disabled = true;
+    shareBtn.textContent = 'Sharing...';
+
     try {
-      const res = await fetch('/api/health', { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch('/api/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, filename: filenameInput.value })
+      });
       const data = await res.json();
 
-      el('statusBanner').classList.remove('is-down');
-      el('statusText').textContent = 'Server berjalan normal';
-
-      if (typeof data.uptimeSeconds === 'number') {
-        baseSeconds = data.uptimeSeconds;
-        baseAt = Date.now();
-        el('uptimeValue').textContent = formatUptime(baseSeconds);
-        if (!tickTimer) tickTimer = setInterval(tick, 1000);
+      if (!res.ok || !data.ok) {
+        showBanner(data?.error?.message || 'Gagal share kode.', true);
+        return;
       }
 
-      if (typeof data.cacheEntries === 'number') {
-        el('cacheValue').textContent = data.cacheEntries.toLocaleString('id-ID');
-      }
-
-      if (data.timestamp) {
-        const d = new Date(data.timestamp);
-        el('timestampValue').textContent = d.toLocaleString('id-ID', {
-          day: '2-digit', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
-        });
-      }
+      viewLink.href = data.result.viewUrl;
+      viewLink.textContent = data.result.viewUrl;
+      rawLink.href = data.result.rawUrl;
+      rawLink.textContent = data.result.rawUrl;
+      currentId = data.result.id;
+      currentToken = data.result.deleteToken;
+      expiryNote.textContent = `Otomatis kadaluarsa: ${formatDate(data.result.expiresAt)}`;
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Hapus Kode Ini';
+      result.classList.add('is-open');
+      showBanner('Kode berhasil di-share.', false);
     } catch (err) {
-      setDown();
+      showBanner('Gagal konek ke server.', true);
+    } finally {
+      shareBtn.disabled = false;
+      shareBtn.textContent = 'Share Code';
     }
-  }
+  });
 
-  poll();
-  setInterval(poll, POLL_MS);
+  deleteBtn.addEventListener('click', async () => {
+    if (!currentId || !currentToken) return;
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Menghapus...';
+    try {
+      const res = await fetch(`/api/share/${currentId}`, {
+        method: 'DELETE',
+        headers: { 'x-delete-token': currentToken }
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showBanner(data?.error?.message || 'Gagal menghapus kode.', true);
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Hapus Kode Ini';
+        return;
+      }
+      result.classList.remove('is-open');
+      currentId = null;
+      currentToken = null;
+      showBanner('Kode berhasil dihapus.', false);
+    } catch (err) {
+      showBanner('Gagal konek ke server.', true);
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Hapus Kode Ini';
+    }
+  });
 
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const hamburgerMenu = document.getElementById('hamburgerMenu');
-  const menuOverlay = document.getElementById('menuOverlay');
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = el(btn.dataset.copy);
+      navigator.clipboard.writeText(target.href).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1200);
+      });
+    });
+  });
 
-  function openMenu() {
+  const hamburgerBtn = el('hamburgerBtn');
+  const hamburgerMenu = el('hamburgerMenu');
+  const menuOverlay = el('menuOverlay');
+
+  const openMenu = () => {
     hamburgerBtn.classList.add('is-open');
     hamburgerBtn.setAttribute('aria-expanded', 'true');
     hamburgerMenu.classList.add('is-open');
     menuOverlay.classList.add('is-open');
     document.body.style.overflow = 'hidden';
-  }
-  function closeMenu() {
+  };
+  const closeMenu = () => {
     hamburgerBtn.classList.remove('is-open');
     hamburgerBtn.setAttribute('aria-expanded', 'false');
     hamburgerMenu.classList.remove('is-open');
     menuOverlay.classList.remove('is-open');
     document.body.style.overflow = '';
-  }
+  };
   hamburgerBtn.addEventListener('click', () => {
     if (hamburgerMenu.classList.contains('is-open')) closeMenu();
     else openMenu();
