@@ -231,6 +231,27 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--text);
 }
 .list-row-actions a:hover { background: var(--border); text-decoration: none; }
+
+.fab-upload {
+  position: fixed;
+  right: 22px;
+  bottom: 26px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
+  box-shadow: 0 14px 30px -10px rgba(20, 22, 26, 0.5);
+  z-index: 30;
+  transition: background 0.12s ease, transform 0.15s ease;
+}
+.fab-upload:hover { background: var(--accent-hover); text-decoration: none; transform: translateY(-2px); }
 </style>
 </head>
 <body>
@@ -245,11 +266,13 @@ button { font-family: inherit; cursor: pointer; }
 <main class="stage">
   <div class="page-head">
     <h1>Semua Kode</h1>
-    <p>Daftar kode yang pernah di-share. <a href="/share">+ Share Code Baru</a></p>
+    <p>Daftar kode yang pernah di-share.</p>
   </div>
 
   <div id="listContainer"></div>
 </main>
+
+<a href="/share" class="fab-upload" aria-label="Upload kode baru">+</a>
 
 <div class="menu-overlay" id="menuOverlay"></div>
 
@@ -270,10 +293,6 @@ button { font-family: inherit; cursor: pointer; }
   <a href="/health" class="hamburger-menu-item">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
     Health
-  </a>
-  <a href="/share" class="hamburger-menu-item">
-    <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-    Share Code
   </a>
   <a href="/share/list" class="hamburger-menu-item is-active">
     <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v2H4V4zm0 7h16v2H4v-2zm0 7h10v2H4v-2z"/></svg>
