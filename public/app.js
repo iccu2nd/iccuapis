@@ -146,6 +146,7 @@
     if (!openEndpointRow) return;
     const node = openEndpointRow;
     node.classList.remove('open');
+    node.style.removeProperty('--kb');
     if (openEndpointSlot && openEndpointSlot.parentNode) {
       openEndpointSlot.parentNode.insertBefore(node, openEndpointSlot);
       openEndpointSlot.remove();
@@ -157,6 +158,39 @@
       endpointBackdrop.setAttribute('aria-hidden', 'true');
     }
     document.body.classList.remove('endpoint-modal-active');
+  }
+
+  
+  function syncKeyboardInset() {
+    const node = openEndpointRow;
+    if (!node) return;
+    const vv = window.visualViewport;
+    let inset = 0;
+    if (vv) {
+      inset = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    }
+    node.style.setProperty('--kb', inset + 'px');
+    // Keep focused field and actions visible
+    const active = document.activeElement;
+    if (active && node.contains(active) && typeof active.scrollIntoView === 'function') {
+      try { active.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) {}
+    }
+  }
+
+  let kbBound = false;
+  function bindKeyboardInset() {
+    if (kbBound) return;
+    kbBound = true;
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', syncKeyboardInset);
+      vv.addEventListener('scroll', syncKeyboardInset);
+    }
+    window.addEventListener('resize', syncKeyboardInset);
+  }
+
+  function clearKeyboardInset() {
+    if (openEndpointRow) openEndpointRow.style.removeProperty('--kb');
   }
 
   function openEndpointModal(node) {
@@ -183,9 +217,11 @@
       endpointBackdrop.classList.add('is-open');
     }
     document.body.classList.add('endpoint-modal-active');
+    bindKeyboardInset();
+    syncKeyboardInset();
 
     const firstInput = node.querySelector('.fields input, .fields select');
-    if (firstInput) setTimeout(() => firstInput.focus(), 120);
+    if (firstInput) setTimeout(() => firstInput.focus(), 180);
   }
 
 
@@ -830,6 +866,12 @@
   if (endpointBackdrop) {
     endpointBackdrop.addEventListener('click', (e) => { if (e.target === endpointBackdrop) closeEndpointModal(); });
   }
+  document.addEventListener('focusin', (e) => {
+    if (openEndpointRow && openEndpointRow.contains(e.target)) {
+      setTimeout(syncKeyboardInset, 50);
+      setTimeout(syncKeyboardInset, 300);
+    }
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && openEndpointRow) {
       e.stopPropagation();
