@@ -2,7 +2,7 @@
 
 module.exports = {
   identity: {
-    name: 'Sasane APIS',
+    name: 'Rezora APIS',
     creator: 'reyzdesu',
     tagline: 'Rest API simple, free, dan 100% lebih lengkap.',
     version: '1.0.0'

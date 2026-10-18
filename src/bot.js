@@ -3,7 +3,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const monitor = require('./monitor');
 const { getDb } = require('./mongoClient');
-const { ObjectId } = require('mongodb');
+// ObjectId loaded lazily when needed
 
 let botInstance = null;
 let configInstance = null;
@@ -137,6 +137,7 @@ function startBot(config) {
     }
 
     try {
+      const { ObjectId } = require('mongodb');
       const result = await db.collection('notifications').deleteOne({ _id: new ObjectId(id) });
       botInstance.sendMessage(msg.chat.id, result.deletedCount ? `✅ Notif #${id} dihapus.` : `❌ Notif #${id} tidak ditemukan.`);
     } catch (err) {
@@ -230,11 +231,27 @@ function escapeMarkdown(value) {
   return String(value).replace(/([_*`\[])/g, '\\$1');
 }
 
+// Cap Telegram traffic under load: max 20 success notifs/min; errors always sent.
+const NOTIF_MAX_OK_PER_MIN = 20;
+let notifOkCount = 0;
+let notifWindowStart = 0;
+
 function sendNotification(ip, method, path, status, ms, userAgent, query) {
   if (!botInstance || !configInstance) return;
 
   const ownerIds = configInstance.telegram?.ownerIds || [];
   if (!ownerIds.length) return;
+
+  const isError = status >= 400;
+  if (!isError) {
+    const now = Date.now();
+    if (now - notifWindowStart > 60_000) {
+      notifWindowStart = now;
+      notifOkCount = 0;
+    }
+    if (notifOkCount >= NOTIF_MAX_OK_PER_MIN) return;
+    notifOkCount += 1;
+  }
 
   const statusLabel = status >= 200 && status < 300 ? 'OK' : 'GAGAL';
   const paramsEntries = query && typeof query === 'object' ? Object.entries(query) : [];
@@ -242,20 +259,20 @@ function sendNotification(ip, method, path, status, ms, userAgent, query) {
     ? paramsEntries.map(([k, v]) => `${k}=${v}`).join('&')
     : '(tidak ada)';
 
-  const message = `
-Request Masuk
+  const message = [
+    'Request Masuk',
+    '',
+    `IP        : \`${ip}\``,
+    `Method    : ${escapeMarkdown(method)}`,
+    `Path      : ${escapeMarkdown(path)}`,
+    `Params    : ${escapeMarkdown(paramsLine)}`,
+    `Status    : ${status} (${statusLabel})`,
+    `Durasi    : ${ms}ms`,
+    `Waktu     : ${new Date().toISOString()}`,
+    `User Agent: ${escapeMarkdown(userAgent || 'Tidak diketahui')}`
+  ].join('\n');
 
-IP        : \`${ip}\`
-Method    : ${escapeMarkdown(method)}
-Path      : ${escapeMarkdown(path)}
-Params    : ${escapeMarkdown(paramsLine)}
-Status    : ${status} (${statusLabel})
-Durasi    : ${ms}ms
-Waktu     : ${new Date().toISOString()}
-User Agent: ${escapeMarkdown(userAgent || 'Tidak diketahui')}
-  `;
-
-  const inlineKeyboard = {
+  const opts = {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
@@ -265,11 +282,10 @@ User Agent: ${escapeMarkdown(userAgent || 'Tidak diketahui')}
     }
   };
 
-  ownerIds.forEach(ownerId => {
-    botInstance.sendMessage(ownerId, message.trim(), {
-      ...inlineKeyboard
-    }).catch(err => console.error('[bot] Failed to send notification:', err.message));
-  });
+  for (let i = 0; i < ownerIds.length; i++) {
+    botInstance.sendMessage(ownerIds[i], message, opts)
+      .catch((err) => console.error('[bot] Failed to send notification:', err.message));
+  }
 }
 
 const TELEGRAM_MSG_LIMIT = 4000;

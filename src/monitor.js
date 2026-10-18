@@ -2,7 +2,9 @@
 
 const { getDb } = require('./mongoClient');
 
-const MAX_LOG = 2000;
+const MAX_LOG = 1000;
+const MAX_PER_IP = 500;
+const MAX_TOTALS = 300;
 const FLUSH_INTERVAL_MS = 15_000;
 
 function todayWIB() {
@@ -13,15 +15,8 @@ function todayWIB() {
 function normalizeIp(ip) {
   if (!ip) return ip;
   let out = String(ip).trim();
-
-  if (out.startsWith('::ffff:')) {
-    out = out.slice(7);
-  }
-
-  if (out === '::1' || out === '127.0.0.1') {
-    out = '127.0.0.1';
-  }
-
+  if (out.startsWith('::ffff:')) out = out.slice(7);
+  if (out === '::1' || out === '127.0.0.1') out = '127.0.0.1';
   return out.toLowerCase();
 }
 
@@ -58,6 +53,16 @@ function ipMatchesCidr(ip, parsedCidr) {
   return (ipInt & parsedCidr.mask) === parsedCidr.base;
 }
 
+function trimMap(map, max) {
+  if (map.size <= max) return;
+  const excess = map.size - max;
+  let i = 0;
+  for (const key of map.keys()) {
+    if (i++ >= excess) break;
+    map.delete(key);
+  }
+}
+
 const state = {
   blockedIps: new Set(),
   blockedSubnets: new Map(),
@@ -65,6 +70,7 @@ const state = {
   totals: new Map(),
   perIp: new Map(),
   uniqueVisitors: new Set(),
+  uniqueVisitorCount: 0,
 
   totalAllTime: 0,
   blockedAllTime: 0,
@@ -79,7 +85,8 @@ const state = {
   pendingDayBlockedDelta: 0,
   pendingDay5xxDelta: 0,
   pendingIpBlockHits: new Map(),
-  pendingNewVisitors: new Set()
+  pendingNewVisitors: new Set(),
+  pendingLogEntries: []
 };
 
 let ready = false;
@@ -95,7 +102,7 @@ async function init() {
     await Promise.all([
       db.collection('blocked_ips').createIndex({ ip: 1 }, { unique: true }),
       db.collection('unique_visitors').createIndex({ ip: 1 }, { unique: true }),
-      db.collection('request_log').createIndex({ day: 1, at: 1 })
+      db.collection('request_log').createIndex({ day: 1, at: -1 })
     ]);
 
     const blocked = await db.collection('blocked_ips')
@@ -111,11 +118,8 @@ async function init() {
       }
     });
 
-    const visitors = await db.collection('unique_visitors')
-      .find({})
-      .project({ ip: 1 })
-      .toArray();
-    visitors.forEach((row) => state.uniqueVisitors.add(normalizeIp(row.ip)));
+    // Count only — avoid loading every visitor IP into RAM
+    state.uniqueVisitorCount = await db.collection('unique_visitors').countDocuments();
 
     const totalsDoc = await db.collection('stats_total').findOne({ _id: 'totals' });
     if (totalsDoc) {
@@ -133,17 +137,20 @@ async function init() {
 
     const todaysEntries = await db.collection('request_log')
       .find({ day })
-      .sort({ at: 1 })
+      .sort({ at: -1 })
       .limit(MAX_LOG)
       .project({ _id: 0 })
       .toArray();
-    state.log = todaysEntries;
+    // Keep chronological order (oldest first) for push/shift ring buffer
+    state.log = todaysEntries.reverse();
 
-    await db.collection('request_log').deleteMany({ day: { $ne: day } });
+    // Drop old days in background — don't block init
+    db.collection('request_log').deleteMany({ day: { $ne: day } })
+      .catch((err) => console.error('[monitor] purge old logs:', err.message));
 
     console.log(
       `[monitor] hydrated from Mongo: ${state.blockedIps.size} blocked IP(s), ` +
-      `${state.uniqueVisitors.size} unique visitor(s), ${state.totalAllTime} total requests all-time, ` +
+      `${state.uniqueVisitorCount} unique visitor(s), ${state.totalAllTime} total requests all-time, ` +
       `${state.log.length} log entrie(s) for today`
     );
   } catch (err) {
@@ -184,6 +191,8 @@ function recordRequest({ ip, method, path, status, ms }) {
 
   state.totals.set(path, (state.totals.get(path) || 0) + 1);
   state.perIp.set(ip, (state.perIp.get(ip) || 0) + 1);
+  trimMap(state.totals, MAX_TOTALS);
+  trimMap(state.perIp, MAX_PER_IP);
 
   state.totalAllTime += 1;
   state.totalToday += 1;
@@ -195,11 +204,8 @@ function recordRequest({ ip, method, path, status, ms }) {
     state.pendingDay5xxDelta += 1;
   }
 
-  getDb().then((db) => {
-    if (!db) return;
-    db.collection('request_log').insertOne(entry)
-      .catch((err) => console.error('[monitor] failed to persist log entry:', err.message));
-  });
+  // Batch inserts — flushed periodically instead of insertOne per request
+  state.pendingLogEntries.push(entry);
 }
 
 function recordBlockedHit(ip) {
@@ -218,12 +224,23 @@ function recordVisit(ip) {
   if (!ip || state.uniqueVisitors.has(ip)) return false;
 
   state.uniqueVisitors.add(ip);
+  state.uniqueVisitorCount += 1;
   state.pendingNewVisitors.add(ip);
+
+  // Bound session dedup set so RAM stays stable under heavy traffic
+  if (state.uniqueVisitors.size > 50_000) {
+    const iter = state.uniqueVisitors.values();
+    for (let i = 0; i < 5_000; i++) {
+      const v = iter.next().value;
+      if (v === undefined) break;
+      state.uniqueVisitors.delete(v);
+    }
+  }
   return true;
 }
 
 function uniqueVisitorCount() {
-  return state.uniqueVisitors.size;
+  return state.uniqueVisitorCount;
 }
 
 function isBlocked(ip) {
@@ -308,11 +325,13 @@ function listBlocked() {
 }
 
 function recentLog(limit = 20) {
-  return state.log.slice(-limit).reverse();
+  const len = state.log.length;
+  if (limit >= len) return state.log.slice().reverse();
+  return state.log.slice(len - limit).reverse();
 }
 
 function todaysLog() {
-  return [...state.log].reverse();
+  return state.log.slice().reverse();
 }
 
 function topEndpoints(limit = 10) {
@@ -343,7 +362,7 @@ function stats() {
       blockedRequests: state.blockedAllTime
     },
     blockedIpCount: state.blockedIps.size + state.blockedSubnets.size,
-    uniqueVisitors: state.uniqueVisitors.size
+    uniqueVisitors: state.uniqueVisitorCount
   };
 }
 
@@ -353,7 +372,10 @@ function totalRequests() {
 
 async function flush() {
   const db = await getDb();
-  if (!db) return;
+  if (!db) {
+    state.pendingLogEntries = [];
+    return;
+  }
 
   const totalDelta = state.pendingTotalDelta;
   const blockedDelta = state.pendingBlockedDelta;
@@ -362,6 +384,7 @@ async function flush() {
   const day5xxDelta = state.pendingDay5xxDelta;
   const ipHits = state.pendingIpBlockHits;
   const newVisitors = state.pendingNewVisitors;
+  const logEntries = state.pendingLogEntries;
 
   if (
     totalDelta === 0 &&
@@ -370,7 +393,8 @@ async function flush() {
     dayBlockedDelta === 0 &&
     day5xxDelta === 0 &&
     ipHits.size === 0 &&
-    newVisitors.size === 0
+    newVisitors.size === 0 &&
+    logEntries.length === 0
   ) {
     return;
   }
@@ -382,48 +406,64 @@ async function flush() {
   state.pendingDay5xxDelta = 0;
   state.pendingIpBlockHits = new Map();
   state.pendingNewVisitors = new Set();
+  state.pendingLogEntries = [];
 
   try {
+    const ops = [];
+
     if (totalDelta !== 0 || blockedDelta !== 0) {
-      await db.collection('stats_total').updateOne(
-        { _id: 'totals' },
-        { $inc: { total_requests: totalDelta, blocked_requests: blockedDelta } },
-        { upsert: true }
+      ops.push(
+        db.collection('stats_total').updateOne(
+          { _id: 'totals' },
+          { $inc: { total_requests: totalDelta, blocked_requests: blockedDelta } },
+          { upsert: true }
+        )
       );
     }
 
     if (dayTotalDelta !== 0 || dayBlockedDelta !== 0 || day5xxDelta !== 0) {
-      await db.collection('stats_daily').updateOne(
-        { _id: state.day },
-        {
-          $inc: {
-            total_requests: dayTotalDelta,
-            blocked_requests: dayBlockedDelta,
-            errors_5xx: day5xxDelta
-          }
-        },
-        { upsert: true }
+      ops.push(
+        db.collection('stats_daily').updateOne(
+          { _id: state.day },
+          {
+            $inc: {
+              total_requests: dayTotalDelta,
+              blocked_requests: dayBlockedDelta,
+              errors_5xx: day5xxDelta
+            }
+          },
+          { upsert: true }
+        )
       );
     }
 
-    for (const [ip, hits] of ipHits.entries()) {
-      await db.collection('blocked_ips').updateOne(
-        { ip },
-        { $inc: { hit_count: hits }, $set: { last_hit_at: new Date() } },
-        { upsert: true }
-      );
+    if (logEntries.length > 0) {
+      ops.push(db.collection('request_log').insertMany(logEntries, { ordered: false }));
     }
 
     if (newVisitors.size > 0) {
-      const ops = [...newVisitors].map((ip) => ({
+      const visitorOps = [...newVisitors].map((ip) => ({
         updateOne: {
           filter: { ip },
           update: { $setOnInsert: { ip, first_seen_at: new Date() } },
           upsert: true
         }
       }));
-      await db.collection('unique_visitors').bulkWrite(ops, { ordered: false });
+      ops.push(db.collection('unique_visitors').bulkWrite(visitorOps, { ordered: false }));
     }
+
+    if (ipHits.size > 0) {
+      const hitOps = [...ipHits.entries()].map(([ip, hits]) => ({
+        updateOne: {
+          filter: { ip },
+          update: { $inc: { hit_count: hits }, $set: { last_hit_at: new Date() } },
+          upsert: true
+        }
+      }));
+      ops.push(db.collection('blocked_ips').bulkWrite(hitOps, { ordered: false }));
+    }
+
+    await Promise.all(ops);
   } catch (err) {
     console.error('[monitor] flush to Mongo failed, re-queuing deltas:', err.message);
     state.pendingTotalDelta += totalDelta;
@@ -437,6 +477,10 @@ async function flush() {
     for (const ip of newVisitors) {
       state.pendingNewVisitors.add(ip);
     }
+    // Re-queue log entries (cap to avoid unbounded growth on prolonged outage)
+    if (logEntries.length) {
+      state.pendingLogEntries = logEntries.concat(state.pendingLogEntries).slice(-MAX_LOG);
+    }
   }
 }
 
@@ -444,13 +488,13 @@ let flushTimer = null;
 function startFlushLoop() {
   if (flushTimer) return;
   flushTimer = setInterval(flush, FLUSH_INTERVAL_MS);
-  flushTimer.unref();
+  if (flushTimer.unref) flushTimer.unref();
 }
 
 init().then(startFlushLoop);
 
-process.on('SIGTERM', () => flush().finally(() => process.exit(0)));
-process.on('SIGINT', () => flush().finally(() => process.exit(0)));
+process.on('SIGTERM', () => flush());
+process.on('SIGINT', () => flush());
 
 module.exports = {
   init,
@@ -467,5 +511,6 @@ module.exports = {
   topEndpoints,
   topIps,
   totalRequests,
-  stats
+  stats,
+  flush
 };

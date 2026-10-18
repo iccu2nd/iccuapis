@@ -61,9 +61,7 @@
     source.start(now);
   }
 
-  // Start decoding as soon as possible, and also on first user interaction
-  // (some browsers block AudioContext/fetch-heavy work until a gesture).
-  loadBuffer();
+  // Defer audio decode until first interaction — saves main-thread work on load
   document.addEventListener('pointerdown', () => loadBuffer(), { once: true, capture: true });
 
   const CLICKABLE_SELECTOR = [

@@ -1,77 +1,41 @@
-# Gateway
+# Rezora APIS
 
-A small REST API gateway that auto-loads route modules and documents itself.
-Drop a new file under `src/api/<group>/`, restart the server, and it shows up
-in the docs page and in `/api/routes` automatically — nothing to register by hand.
+Self-documenting REST API gateway. Drop a file under `src/api/<group>/`, restart, and it appears in `/docs` and `/api/routes`.
 
-## Run it
+## Run
 
 ```bash
 npm install
 npm start
 ```
 
-The server listens on port 4000 by default. Set `PORT` to change it.
+Default port: `4000` (`PORT` to change).
 
-Open `http://localhost:4000` for the docs page, where every route can be
-run directly from the browser.
-
-## Project layout
+## Layout
 
 ```
-server.js              entrypoint: middleware, route loader, error handling
-src/config.js           shared identity/group metadata (also served at /manifest.json)
-src/api/<group>/*.js     one file per route; each exports a function(app, registry)
-public/                 the documentation UI (static, no build step)
+server.js           entry — middleware, route loader, static UI
+src/config.js       identity + links + telegram
+src/monitor.js      request stats, blocklist, batched Mongo writes
+src/cache.js        in-memory TTL cache (capped)
+src/mongoClient.js  lazy Mongo connection
+src/bot.js          optional Telegram admin bot
+src/api/<group>/    one file per route
+public/             static UI (no build step)
+  common.js         shared menu, notif, contacts
+  index.js          landing page
+  app.js            docs playground
 ```
 
-## Adding a route
+## Env
 
-Create a file under `src/api/<group>/your-route.js`:
+| Variable | Purpose |
+|----------|---------|
+| `PORT` | Listen port |
+| `MONGODB_URI` | Persist stats / blocklist / notifs |
+| `MONGODB_DB` | DB name (default `mydb`) |
+| `TELEGRAM_BOT_TOKEN` | Enable admin bot |
+| `TELEGRAM_OWNER_IDS` | Comma-separated chat IDs |
+| `TRUST_PROXY_HOPS` | Express trust proxy hops |
 
-```js
-'use strict';
-
-module.exports = function register(app, registry) {
-  const route = {
-    method: 'GET',
-    path: '/group/your-route',
-    group: 'group',
-    name: 'Human-readable name',
-    description: 'One line describing what it does.',
-    params: [{ key: 'q', required: true, hint: 'Example placeholder text' }]
-  };
-  registry.push(route);
-
-  app.get(route.path, async (req, res) => {
-    const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({
-        ok: false,
-        error: { code: 'MISSING_PARAM', message: '"q" is required.' }
-      });
-    }
-    res.json({ result: { echoed: q } });
-  });
-};
-```
-
-If the group is new, add its label in `src/config.js` under `groups` so the
-sidebar shows a proper name instead of the raw folder name.
-
-## Response shape
-
-Every JSON response is wrapped the same way:
-
-```json
-{
-  "ok": true,
-  "provider": "Gateway",
-  "path": "/search/youtube?q=lofi",
-  "result": { "...": "..." },
-  "timestamp": "2026-07-06T12:00:00.000Z"
-}
-```
-
-Errors use the same envelope with `ok: false` and an `error` object
-(`code` and `message`) instead of `result`.
+Without Mongo, stats stay in memory only.

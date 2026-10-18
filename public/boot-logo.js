@@ -103,3 +103,9 @@
 
   play();
 })();
+
+  // Hard cap so splash never blocks perceived load
+  setTimeout(function () {
+    window.dispatchEvent(new Event('bootlogo:done'));
+  }, 1200);
+

@@ -39,7 +39,6 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.disable('x-powered-by');
-app.set('json spaces', 2);
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 1);
 
 app.use(cors());
@@ -74,9 +73,10 @@ const ALWAYS_ALLOWED_PATHS = new Set([
 ]);
 
 const registry = [];
+const registeredPaths = new Set();
 
 function isExecutableEndpoint(req) {
-  if (registry.some((r) => r.method === req.method && r.path === req.path)) return true;
+  if (registeredPaths.has(req.path)) return true;
   if (req.path.startsWith('/api/') && !ALWAYS_ALLOWED_PATHS.has(req.path)) return true;
   return false;
 }
@@ -138,34 +138,39 @@ app.get('/manifest.json', (req, res) => {
 app.use((req, res, next) => {
   const startedAt = process.hrtime.bigint();
   res.on('finish', () => {
-    const isRegisteredEndpoint = registry.some((r) => r.path === req.path);
-    if (!isRegisteredEndpoint) return;
+    if (!registeredPaths.has(req.path)) return;
 
-    const ms = Number(process.hrtime.bigint() - startedAt) / 1e6;
-    const ip = req.ip || req.connection.remoteAddress;
+    const ms = Math.round(Number(process.hrtime.bigint() - startedAt) / 1e6);
+    const ip = req.ip || req.socket?.remoteAddress;
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
     monitor.recordRequest({
-      ip: ip,
+      ip,
       method: req.method,
       path: req.path,
       status: res.statusCode,
-      ms: Math.round(ms)
+      ms
     });
 
-    sendNotification(ip, req.method, req.path, res.statusCode, Math.round(ms), userAgent, req.query);
-
-    if (res.statusCode >= 500) {
-      const errPayload = res.locals.errorPayload || {};
-      const rawError = res.locals.rawError;
-      const detailPart = errPayload.detail ? ` — ${errPayload.detail}` : '';
-      sendErrorAlert({
-        endpoint: req.path,
-        message: errPayload.message || `HTTP ${res.statusCode}`,
-        extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}${detailPart}`,
-        stack: rawError ? rawError.stack : undefined
-      });
-    }
+    // Fire-and-forget — never block the response path
+    setImmediate(() => {
+      try {
+        sendNotification(ip, req.method, req.path, res.statusCode, ms, userAgent, req.query);
+        if (res.statusCode >= 500) {
+          const errPayload = res.locals.errorPayload || {};
+          const rawError = res.locals.rawError;
+          const detailPart = errPayload.detail ? ` — ${errPayload.detail}` : '';
+          sendErrorAlert({
+            endpoint: req.path,
+            message: errPayload.message || `HTTP ${res.statusCode}`,
+            extra: `code=${errPayload.code || 'UNKNOWN'} status=${res.statusCode} params=${JSON.stringify(req.query)}${detailPart}`,
+            stack: rawError ? rawError.stack : undefined
+          });
+        }
+      } catch (err) {
+        console.error('[notify]', err.message);
+      }
+    });
   });
   next();
 });
@@ -218,8 +223,12 @@ fs.readdirSync(apiRoot, { withFileTypes: true })
       .filter((file) => file.endsWith('.js'))
       .forEach((file) => {
         try {
+          const before = registry.length;
           const mod = require(path.join(groupPath, file));
           mod(makeSafeAppShim(app), registry, { group: group.name });
+          for (let i = before; i < registry.length; i++) {
+            if (registry[i].path) registeredPaths.add(registry[i].path);
+          }
           loadedCount += 1;
         } catch (err) {
           console.error(`[route-load-error] ${group.name}/${file}: ${err.message}`);
@@ -243,7 +252,8 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.get('/api/logs', (req, res) => {
-  res.json({ result: monitor.todaysLog() });
+  const limit = Math.min(Math.max(Number(req.query.limit) || 1000, 1), 1000);
+  res.json({ result: monitor.recentLog(limit) });
 });
 
 app.get('/api/notifications', async (req, res) => {
@@ -252,16 +262,20 @@ app.get('/api/notifications', async (req, res) => {
   let announceItems = [];
   const db = await getDb();
   if (db) {
-    const docs = await db.collection('notifications')
-      .find()
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .toArray();
-    announceItems = docs.map((d) => ({
-      type: 'announcement',
-      at: d.createdAt,
-      text: d.text
-    }));
+    try {
+      const docs = await db.collection('notifications')
+        .find({}, { projection: { text: 1, createdAt: 1 } })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .toArray();
+      announceItems = docs.map((d) => ({
+        type: 'announcement',
+        at: d.createdAt,
+        text: d.text
+      }));
+    } catch (err) {
+      console.error('[notifications]', err.message);
+    }
   }
 
   res.json({ result: announceItems });
@@ -279,7 +293,14 @@ app.use('/', express.static(path.join(__dirname, 'public'), {
   index: false,
   etag: true,
   lastModified: true,
-  setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache')
+  maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+  setHeaders: (res, filePath) => {
+    if (/\.(html)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (/\.(css|js|woff2?|png|jpg|jpeg|gif|svg|wav|ico)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+    }
+  }
 }));
 
 app.get('/', (req, res) => {
