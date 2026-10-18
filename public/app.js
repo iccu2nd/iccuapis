@@ -138,14 +138,16 @@
   const copyBaseBtn = el('copyBaseBtn');
 
   const endpointBackdrop = el('endpointModalBackdrop');
+  const endpointModalMount = el('endpointModalMount');
   let openEndpointRow = null;
   let openEndpointSlot = null;
 
   function closeEndpointModal() {
     if (!openEndpointRow) return;
-    openEndpointRow.classList.remove('open');
+    const node = openEndpointRow;
+    node.classList.remove('open');
     if (openEndpointSlot && openEndpointSlot.parentNode) {
-      openEndpointSlot.parentNode.insertBefore(openEndpointRow, openEndpointSlot);
+      openEndpointSlot.parentNode.insertBefore(node, openEndpointSlot);
       openEndpointSlot.remove();
     }
     openEndpointRow = null;
@@ -158,10 +160,7 @@
   }
 
   function openEndpointModal(node) {
-    if (openEndpointRow === node) {
-      closeEndpointModal();
-      return;
-    }
+    if (openEndpointRow === node) return; // already open — do not toggle-close on re-click
     closeEndpointModal();
 
     const slot = document.createElement('div');
@@ -174,17 +173,21 @@
     openEndpointRow = node;
     node.classList.add('open');
 
+    // Move into portal so it sits above backdrop and receives all clicks
+    if (endpointModalMount) {
+      endpointModalMount.appendChild(node);
+    }
+
     if (endpointBackdrop) {
       endpointBackdrop.setAttribute('aria-hidden', 'false');
-      void endpointBackdrop.offsetWidth;
       endpointBackdrop.classList.add('is-open');
     }
     document.body.classList.add('endpoint-modal-active');
 
-    // Focus first input if any
     const firstInput = node.querySelector('.fields input, .fields select');
-    if (firstInput) setTimeout(() => firstInput.focus(), 180);
+    if (firstInput) setTimeout(() => firstInput.focus(), 120);
   }
+
 
 
   const rowRevealObserver = 'IntersectionObserver' in window
@@ -574,8 +577,16 @@
     });
 
     node.querySelector('.row-head').addEventListener('click', (e) => {
-      // Close button area (chev) or whole head toggles modal
+      const closeBtn = e.target.closest('.chev');
+      if (node.classList.contains('open')) {
+        if (closeBtn) closeEndpointModal();
+        return; // ignore other clicks on header while open
+      }
       openEndpointModal(node);
+    });
+    // Clicks inside modal body must never bubble to document handlers that close UI
+    node.addEventListener('click', (e) => {
+      if (node.classList.contains('open')) e.stopPropagation();
     });
 
     copyEndpointBtn.addEventListener('click', () => {
@@ -812,7 +823,7 @@
   boot();
 
   if (endpointBackdrop) {
-    endpointBackdrop.addEventListener('click', () => closeEndpointModal());
+    endpointBackdrop.addEventListener('click', (e) => { if (e.target === endpointBackdrop) closeEndpointModal(); });
   }
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && openEndpointRow) {
