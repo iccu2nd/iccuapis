@@ -149,6 +149,7 @@
     const slot = openEndpointSlot;
     node.classList.add('is-closing');
     node.style.removeProperty('--kb');
+    node.style.removeProperty('--vvh');
     if (endpointBackdrop) {
       endpointBackdrop.classList.remove('is-open');
       endpointBackdrop.setAttribute('aria-hidden', 'true');
@@ -185,15 +186,20 @@
       if (!node) return;
       const vv = window.visualViewport;
       let inset = 0;
+      let vvh = 0;
       if (vv) {
-        // Only keyboard height — ignore visualViewport.scroll (causes shake)
-        inset = Math.max(0, Math.round(window.innerHeight - vv.height));
-        // ignore tiny jitter
+        // Ukur terhadap layout viewport (tempat position:fixed menempel), bukan innerHeight.
+        // Kalau browser sudah resize layout saat keyboard muncul, inset = 0 (tidak double-count).
+        const layoutH = document.documentElement.clientHeight;
+        inset = Math.max(0, Math.round(layoutH - vv.height - vv.offsetTop));
         if (inset < 40) inset = 0;
+        vvh = Math.round(vv.height);
       }
-      if (inset === lastKbInset) return;
-      lastKbInset = inset;
+      const key = inset + ':' + vvh;
+      if (key === lastKbInset) return;
+      lastKbInset = key;
       node.style.setProperty('--kb', inset + 'px');
+      if (vvh) node.style.setProperty('--vvh', vvh + 'px');
     });
   }
 
@@ -240,6 +246,7 @@
       endpointBackdrop.classList.add('is-open');
     }
     document.body.classList.add('endpoint-modal-active');
+    lastKbInset = -1;
     bindKeyboardInset();
     syncKeyboardInset();
 

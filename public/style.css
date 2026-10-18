@@ -2429,7 +2429,7 @@ html.light .row.open .run-btn {
 @media (max-width: 560px) {
   .row.open {
     bottom: var(--kb, 0px) !important;
-    max-height: calc(100dvh - var(--kb, 0px) - 8px) !important;
+    max-height: calc(var(--vvh, 100dvh) - 8px) !important;
     /* no transition on --kb changes — prevents shake with keyboard */
   }
   .row.open .row-body {
