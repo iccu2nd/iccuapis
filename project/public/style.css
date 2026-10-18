@@ -1817,3 +1817,141 @@ button {
   .boot-halo { animation: none !important; }
   * { transition: none !important; }
 }
+
+/* ---------- Endpoint modal (focus mode) ---------- */
+.endpoint-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(18, 20, 28, 0.28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+.endpoint-modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+.endpoint-modal-backdrop[hidden] {
+  display: block !important; /* controlled via class + visibility */
+  pointer-events: none;
+}
+.endpoint-modal-backdrop.is-open[hidden] {
+  pointer-events: auto;
+}
+
+.row.open {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, calc(100vw - 28px));
+  max-height: min(88vh, 720px);
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--card);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 24px 64px rgba(18, 20, 28, 0.18),
+    0 8px 24px rgba(18, 20, 28, 0.08);
+  animation: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.row.open .row-head {
+  flex-shrink: 0;
+  padding: 16px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  border-left: none;
+  cursor: default;
+}
+.row.open .row-head:hover {
+  background: var(--panel);
+}
+
+.row.open .row-body {
+  display: block;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 18px 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.row.open .chev {
+  transform: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-raised);
+  color: var(--text-dim);
+  transition: background 0.12s, color 0.12s;
+}
+.row.open .chev:hover {
+  background: var(--border);
+  color: var(--text);
+}
+/* X icon via rotating chevron lines look — replace with opacity on path is hard;
+   keep rotated plus-like via CSS: use two rotations - just rotate 45deg on the svg */
+.row.open .chev svg {
+  transform: rotate(45deg);
+  /* chevron becomes X-ish when rotated if we used plus; for chevron rotate 0 and hide */
+  display: none;
+}
+.row.open .chev::after {
+  content: '';
+  display: block;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(var(--text-dim), var(--text-dim)) center / 14px 1.5px no-repeat,
+    linear-gradient(var(--text-dim), var(--text-dim)) center / 1.5px 14px no-repeat;
+  transform: rotate(45deg);
+}
+
+body.endpoint-modal-active {
+  overflow: hidden;
+}
+
+/* Placeholder keeps list height while row is fixed */
+.row-slot {
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: var(--panel);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .row.open {
+    width: calc(100vw - 16px);
+    max-height: calc(100vh - 24px);
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row.open { animation: none; }
+  .endpoint-modal-backdrop { transition: none; }
+}

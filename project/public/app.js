@@ -137,6 +137,57 @@
   const groupFilterPanel = el('groupFilterPanel');
   const copyBaseBtn = el('copyBaseBtn');
 
+  const endpointBackdrop = el('endpointModalBackdrop');
+  let openEndpointRow = null;
+  let openEndpointSlot = null;
+
+  function closeEndpointModal() {
+    if (!openEndpointRow) return;
+    openEndpointRow.classList.remove('open');
+    if (openEndpointSlot && openEndpointSlot.parentNode) {
+      openEndpointSlot.parentNode.insertBefore(openEndpointRow, openEndpointSlot);
+      openEndpointSlot.remove();
+    }
+    openEndpointRow = null;
+    openEndpointSlot = null;
+    if (endpointBackdrop) {
+      endpointBackdrop.classList.remove('is-open');
+      endpointBackdrop.hidden = true;
+    }
+    document.body.classList.remove('endpoint-modal-active');
+  }
+
+  function openEndpointModal(node) {
+    if (openEndpointRow === node) {
+      closeEndpointModal();
+      return;
+    }
+    closeEndpointModal();
+
+    const slot = document.createElement('div');
+    slot.className = 'row-slot';
+    slot.style.height = Math.max(node.offsetHeight, 52) + 'px';
+    slot.setAttribute('aria-hidden', 'true');
+    node.parentNode.insertBefore(slot, node);
+
+    openEndpointSlot = slot;
+    openEndpointRow = node;
+    node.classList.add('open');
+
+    if (endpointBackdrop) {
+      endpointBackdrop.hidden = false;
+      // force reflow for transition
+      void endpointBackdrop.offsetWidth;
+      endpointBackdrop.classList.add('is-open');
+    }
+    document.body.classList.add('endpoint-modal-active');
+
+    // Focus first input if any
+    const firstInput = node.querySelector('.fields input, .fields select');
+    if (firstInput) setTimeout(() => firstInput.focus(), 180);
+  }
+
+
   const rowRevealObserver = 'IntersectionObserver' in window
     ? new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -306,6 +357,7 @@
   }
 
   function renderLog() {
+    closeEndpointModal();
     logEl.hidden = false;
     if (rowRevealObserver) rowRevealObserver.disconnect();
     const term = filterInput.value.trim().toLowerCase();
@@ -522,8 +574,9 @@
       updateBuiltUrl();
     });
 
-    node.querySelector('.row-head').addEventListener('click', () => {
-      node.classList.toggle('open');
+    node.querySelector('.row-head').addEventListener('click', (e) => {
+      // Close button area (chev) or whole head toggles modal
+      openEndpointModal(node);
     });
 
     copyEndpointBtn.addEventListener('click', () => {
@@ -758,4 +811,15 @@
   loadStats();
   setInterval(loadStats, 60000);
   boot();
+
+  if (endpointBackdrop) {
+    endpointBackdrop.addEventListener('click', () => closeEndpointModal());
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && openEndpointRow) {
+      e.stopPropagation();
+      closeEndpointModal();
+    }
+  });
+
 })();
