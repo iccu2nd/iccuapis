@@ -597,7 +597,7 @@
     });
 
     updateBuiltUrl();
-    endpointBox.hidden = true;
+    endpointBox.hidden = false; // selalu tampil, ikut update saat params diisi
 
     if (!route.params.length || !route.params.some(p => p.example)) {
       autofillBtn.style.display = 'none';
@@ -673,7 +673,6 @@
       updateBuiltUrl();
       const url = currentUrl;
 
-      // URL bar only after user runs Execute
       endpointBox.hidden = false;
       resultBox.hidden = false;
       resultLoading.hidden = false;
@@ -800,7 +799,7 @@
 
       updateBuiltUrl();
 
-      endpointBox.hidden = true;
+      endpointBox.hidden = false;
       resultBox.hidden = true;
       resultLoading.hidden = false;
       resultHead.hidden = true;
