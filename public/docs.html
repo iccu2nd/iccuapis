@@ -5,7 +5,7 @@
 (function(){try{var d=localStorage.getItem('rezora-theme')!=='light';document.documentElement.classList.toggle('light',!d);}catch(e){}})();
 </script>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <title>Rezora APIS — Docs</title>
 <link rel="icon" href="data:," />
 <link rel="stylesheet" href="/style.css">
@@ -166,7 +166,8 @@
 
       <div class="result" hidden>
         <div class="result-loading" hidden>
-          <span class="spinner-logo"></span> menunggu respons dari server...
+          <span class="spinner-logo"></span>
+          <span class="result-loading-text">Menunggu respons… <span class="result-loading-ms">0</span> ms</span>
         </div>
         <div class="result-head" hidden>
           <div class="result-meta">

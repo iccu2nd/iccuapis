@@ -617,9 +617,18 @@
       resultLoading.classList.remove('is-done');
       resultHead.hidden = true;
       resultJson.hidden = true;
-      if (resultImage) resultImage.hidden = true;
-      if (resultAudio) resultAudio.hidden = true;
-      if (resultVideo) resultVideo.hidden = true;
+      if (resultImage) {
+        resultImage.hidden = true;
+        resultImage.removeAttribute('src');
+      }
+      if (resultAudio) {
+        resultAudio.hidden = true;
+        resultAudio.removeAttribute('src');
+      }
+      if (resultVideo) {
+        resultVideo.hidden = true;
+        resultVideo.removeAttribute('src');
+      }
       runBtn.disabled = true;
 
       const controller = new AbortController();
@@ -627,6 +636,11 @@
       const timeoutTimer = setTimeout(() => controller.abort(), timeoutMs);
 
       const startedAt = performance.now();
+      const msEl = resultLoading.querySelector('.result-loading-ms');
+      if (msEl) msEl.textContent = '0';
+      const tickTimer = setInterval(() => {
+        if (msEl) msEl.textContent = String(Math.round(performance.now() - startedAt));
+      }, 32);
 
       try {
         const response = await fetch(url, { signal: controller.signal });
@@ -705,9 +719,12 @@
         lastResultBlob = null;
       } finally {
         clearTimeout(timeoutTimer);
+        clearInterval(tickTimer);
         resultLoading.hidden = true;
         runBtn.disabled = false;
         clearBtn.hidden = false;
+        // keep result scrolled into view inside modal
+        try { resultBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {}
       }
     });
 

@@ -2245,3 +2245,110 @@ html.light .row.open .result-head {
   .group-chip:active { transform: scale(0.96); }
   .list-search { transition: box-shadow 0.2s ease, border-color 0.2s ease; }
 }
+
+/* no-ios-zoom: inputs must be >= 16px */
+.field input,
+.field select,
+.list-search input {
+  font-size: 16px !important;
+}
+
+.result-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+  color: var(--text-dim);
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.result-loading-ms {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  min-width: 3ch;
+  display: inline-block;
+}
+
+/* Modal overflow hard-fix */
+.row.open {
+  max-height: min(90dvh, 720px) !important;
+}
+.row.open .row-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1c1c1e !important;
+}
+html.light .row.open .row-head {
+  background: #ffffff !important;
+}
+.row.open .row-body {
+  overscroll-behavior: contain;
+}
+.row.open .result-image {
+  max-width: 100%;
+  max-height: min(42vh, 360px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+  border-radius: 10px;
+}
+.row.open .result-video {
+  max-width: 100%;
+  max-height: min(42vh, 360px);
+}
+.row.open .result {
+  max-height: none;
+}
+.row.open .result-json {
+  max-height: min(36vh, 280px);
+  overflow: auto;
+}
+
+/* Endpoint copy row — always readable */
+.row.open .endpoint-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.row.open .endpoint-line {
+  gap: 8px;
+  min-width: 0;
+}
+.row.open .built-url {
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+.row.open .copy-endpoint-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--panel-raised);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+}
+.row.open .copy-endpoint-btn:hover {
+  color: var(--text);
+}
+
+@media (max-width: 560px) {
+  .row.open {
+    max-height: 92dvh !important;
+  }
+  .row.open .result-image,
+  .row.open .result-video {
+    max-height: min(38vh, 320px);
+  }
+}
