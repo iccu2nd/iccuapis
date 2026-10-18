@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,13 +7,13 @@
 <link rel="icon" href="data:," />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
 <div class="boot-splash" id="bootLoader">
-  <p class="boot-splash-text">Loading endpoints…</p>
+  <p class="boot-splash-text">Installing API</p>
 </div>
 
 <div class="frame">
@@ -24,12 +24,12 @@
 
   <header class="topbar" id="topbar">
     <div class="topbar-mark">
-      <a href="/">Rezora APIS</a>
+      <span>Rezora APIS</span>
     </div>
     <div class="topbar-actions">
       <div class="notif-wrap">
         <button class="notif-btn" id="notifBtn" type="button" aria-label="Notifikasi" aria-expanded="false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
           <span class="notif-dot" id="notifDot" hidden></span>
         </button>
         <div class="notif-panel" id="notifPanel">
@@ -53,19 +53,19 @@
   <main class="stage">
 
     <header class="stage-head">
-      <h1>API Playground</h1>
-      <p>Pilih endpoint, isi parameter, lalu execute. Dokumentasi interaktif untuk semua route.</p>
+      <h1>Api Playground.</h1>
+      <p>A simple REST API service with clear documentation, efficient endpoints, and easy integration for developers.</p>
     </header>
 
     <div class="content-stack" id="contentStack">
       <div class="list-search-row">
         <div class="list-search">
           <svg class="list-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <input id="filterInput" type="text" placeholder="Cari endpoint..." autocomplete="off" />
+          <input id="filterInput" type="text" placeholder="Search endpoint..." autocomplete="off" />
         </div>
         <div class="group-filter-wrap">
           <button class="group-filter-btn" id="groupFilterBtn" type="button" aria-label="Filter kategori" aria-expanded="false">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v5l-4 2v-7L4 5z"/></svg>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v5l-4 2v-7L4 5z"/></svg>
           </button>
           <div class="group-filter-panel" id="groupFilterPanel" hidden></div>
         </div>
@@ -183,7 +183,7 @@
 </template>
 
 <script src="/click-sound.js"></script>
-<script src="/common.js"></script>
+<script src="/menu-contacts.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

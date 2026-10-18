@@ -3,6 +3,130 @@
 
   const el = (id) => document.getElementById(id);
 
+  (function setupNotifBell() {
+    try {
+      const notifBtn = el('notifBtn');
+      const notifPanel = el('notifPanel');
+      const notifDot = el('notifDot');
+      const notifList = el('notifList');
+      const notifClearBtn = el('notifClearBtn');
+      if (!notifBtn || !notifPanel || !notifDot || !notifList || !notifClearBtn) {
+        console.error('[notif] one or more notification elements are missing from the DOM');
+        return;
+      }
+
+      const NOTIF_SEEN_KEY = 'iccu_notif_last_seen_at';
+      const NOTIF_POLL_MS = 20000;
+      let latestNotifAt = null;
+
+      function formatNotifTime(iso) {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return { date: '—', time: '—' };
+        const date = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        const time = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        return { date, time };
+      }
+
+      function getLastSeenAt() {
+        try { return localStorage.getItem(NOTIF_SEEN_KEY); } catch (err) { return null; }
+      }
+
+      function setLastSeenAt(iso) {
+        try { localStorage.setItem(NOTIF_SEEN_KEY, iso); } catch (err) {}
+      }
+
+      function updateNotifDot() {
+        const lastSeen = getLastSeenAt();
+        const hasUnread = latestNotifAt && (!lastSeen || new Date(latestNotifAt) > new Date(lastSeen));
+        notifDot.hidden = !hasUnread;
+      }
+
+      function renderNotifList(items) {
+        notifList.innerHTML = '';
+        if (!items || !items.length) {
+          notifList.innerHTML = '<div class="notif-empty">Belum ada aktivitas.</div>';
+          return;
+        }
+        items.forEach((item) => {
+          const { date, time } = formatNotifTime(item.at);
+          const row = document.createElement('div');
+          row.className = 'notif-item';
+          const text = String(item.text || '').replace(/^\s*info\s*[:\-]?\s*/i, '');
+          row.innerHTML = `
+            <span class="notif-item-path">${text}</span>
+            <div class="notif-item-meta">
+              <span>${date}</span>
+              <span>${time}</span>
+            </div>
+          `;
+          notifList.appendChild(row);
+        });
+      }
+
+      async function loadNotifications() {
+        try {
+          const res = await fetch('/api/notifications?limit=30', { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const items = (data && data.result) || [];
+          if (items.length) {
+            latestNotifAt = items[0].at;
+          }
+          renderNotifList(items);
+          if (notifPanel.classList.contains('is-open') && latestNotifAt) {
+            setLastSeenAt(latestNotifAt);
+          }
+          updateNotifDot();
+        } catch (err) {
+          notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>';
+        }
+      }
+
+      function openNotifPanel() {
+        notifPanel.classList.add('is-open');
+        notifBtn.setAttribute('aria-expanded', 'true');
+        loadNotifications();
+        if (latestNotifAt) setLastSeenAt(latestNotifAt);
+        updateNotifDot();
+      }
+
+      function closeNotifPanel() {
+        notifPanel.classList.remove('is-open');
+        notifBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      notifBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (notifPanel.classList.contains('is-open')) {
+          closeNotifPanel();
+        } else {
+          openNotifPanel();
+        }
+      });
+
+      notifClearBtn.addEventListener('click', () => {
+        if (latestNotifAt) setLastSeenAt(latestNotifAt);
+        updateNotifDot();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (notifPanel.classList.contains('is-open') && !notifPanel.contains(e.target) && e.target !== notifBtn) {
+          closeNotifPanel();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && notifPanel.classList.contains('is-open')) {
+          closeNotifPanel();
+        }
+      });
+
+      loadNotifications();
+      setInterval(loadNotifications, NOTIF_POLL_MS);
+    } catch (err) {
+      console.error('[notif] failed to set up notification bell:', err);
+    }
+  })();
 
   const rowTemplate = el('routeRowTemplate');
   const logEl = el('log');
@@ -13,7 +137,16 @@
   const groupFilterPanel = el('groupFilterPanel');
   const copyBaseBtn = el('copyBaseBtn');
 
-  const rowRevealObserver = null;
+  const rowRevealObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-inview');
+            rowRevealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' })
+    : null;
 
   let manifest = null;
   let routes = [];
@@ -75,11 +208,11 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function fetchJsonWithRetry(url, attempts = 2, backoffMs = 300) {
+  async function fetchJsonWithRetry(url, attempts = 3, backoffMs = 500) {
     let lastErr;
     for (let i = 0; i < attempts; i += 1) {
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
       } catch (err) {
@@ -102,33 +235,10 @@
   }
 
   async function loadData() {
-    const CACHE_KEY = 'rezora_routes_v1';
-    const CACHE_TTL = 3 * 60 * 1000;
-    let manifestRes, routesRes;
-    try {
-      const raw = sessionStorage.getItem(CACHE_KEY);
-      if (raw) {
-        const c = JSON.parse(raw);
-        if (c && Date.now() - c.t < CACHE_TTL && c.manifest && Array.isArray(c.routes)) {
-          manifestRes = { result: c.manifest };
-          routesRes = { result: c.routes };
-        }
-      }
-    } catch (_) {}
-
-    if (!manifestRes || !routesRes) {
-      [manifestRes, routesRes] = await Promise.all([
-        fetchJsonWithRetry('/manifest.json'),
-        fetchJsonWithRetry('/api/routes')
-      ]);
-      try {
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-          t: Date.now(),
-          manifest: manifestRes.result,
-          routes: routesRes.result
-        }));
-      } catch (_) {}
-    }
+    const [manifestRes, routesRes] = await Promise.all([
+      fetchJsonWithRetry('/manifest.json'),
+      fetchJsonWithRetry('/api/routes')
+    ]);
 
     manifest = manifestRes.result;
     routes = routesRes.result;
@@ -600,8 +710,52 @@
     copyText(window.location.origin, copyBaseBtn);
   });
 
+  const hamburgerBtn = el('hamburgerBtn');
+  const hamburgerMenu = el('hamburgerMenu');
+  const menuOverlay = el('menuOverlay');
 
-  loadStats().catch(() => {});
+  function openMenu() {
+    hamburgerBtn.classList.add('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    hamburgerMenu.classList.add('is-open');
+    menuOverlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    hamburgerBtn.classList.remove('is-open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    hamburgerMenu.classList.remove('is-open');
+    menuOverlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  hamburgerBtn.addEventListener('click', () => {
+    if (hamburgerMenu.classList.contains('is-open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  menuOverlay.addEventListener('click', closeMenu);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && hamburgerMenu.classList.contains('is-open')) {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const activeTag = document.activeElement && document.activeElement.tagName;
+    const isTypingElsewhere = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT' || (document.activeElement && document.activeElement.isContentEditable);
+    if (e.key === '/' && !isTypingElsewhere) {
+      e.preventDefault();
+      filterInput.focus();
+    }
+  });
+
+  loadStats();
+  setInterval(loadStats, 60000);
   boot();
-
 })();
