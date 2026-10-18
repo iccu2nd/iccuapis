@@ -152,7 +152,7 @@
     openEndpointSlot = null;
     if (endpointBackdrop) {
       endpointBackdrop.classList.remove('is-open');
-      endpointBackdrop.hidden = true;
+      endpointBackdrop.setAttribute('aria-hidden', 'true');
     }
     document.body.classList.remove('endpoint-modal-active');
   }
@@ -175,8 +175,7 @@
     node.classList.add('open');
 
     if (endpointBackdrop) {
-      endpointBackdrop.hidden = false;
-      // force reflow for transition
+      endpointBackdrop.setAttribute('aria-hidden', 'false');
       void endpointBackdrop.offsetWidth;
       endpointBackdrop.classList.add('is-open');
     }
