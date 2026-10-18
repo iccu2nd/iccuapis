@@ -1824,7 +1824,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(18, 20, 28, 0.32);
+  background: rgba(18, 20, 28, 0.45);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1834,8 +1834,6 @@ button {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .row.open {
