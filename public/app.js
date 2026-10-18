@@ -496,7 +496,9 @@
     route.params.forEach((param) => {
       const wrap = document.createElement('div');
       wrap.className = 'field';
-      wrap.innerHTML = `<label for="p-${route.path}-${param.key}">${param.key}${param.required ? '' : ' (opsional)'}</label>`;
+      const labelName = String(param.key || '').replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      const optNote = param.required ? '' : ' · opsional';
+      wrap.innerHTML = `<label for="p-${route.path}-${param.key}">${labelName}<span class="field-opt">${optNote}</span></label>`;
 
       let input;
       if (Array.isArray(param.options) && param.options.length) {
@@ -536,6 +538,7 @@
     });
 
     updateBuiltUrl();
+    endpointBox.hidden = true;
 
     if (!route.params.length || !route.params.some(p => p.example)) {
       autofillBtn.style.display = 'none';
@@ -611,6 +614,7 @@
       updateBuiltUrl();
       const url = currentUrl;
 
+      // URL bar only after user runs Execute
       endpointBox.hidden = false;
       resultBox.hidden = false;
       resultLoading.hidden = false;
