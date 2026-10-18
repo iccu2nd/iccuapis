@@ -295,6 +295,7 @@
 
     manifest = manifestRes.result;
     routes = routesRes.result;
+    renderGroupFilterPanel();
 
     el('tagline').textContent = manifest.identity.tagline;
     el('routeCount').textContent = routes.length;
@@ -403,61 +404,44 @@
   }
 
   function renderGroupFilterPanel() {
-    if (!groupFilterPanel) return;
+    const chips = el('groupChips');
+    if (!chips) return;
     const groups = [...new Set(routes.map((r) => r.group))].sort(
       (a, b) => groupOrder(a) - groupOrder(b)
     );
+    chips.innerHTML = '';
 
-    groupFilterPanel.innerHTML = '';
-
-    const allBtn = document.createElement('button');
-    allBtn.type = 'button';
-    allBtn.className = 'group-filter-option' + (selectedGroup === null ? ' is-selected' : '');
-    allBtn.innerHTML = `<span>Semua</span><span class="count">${routes.length}</span>`;
-    allBtn.addEventListener('click', () => {
-      selectedGroup = null;
-      closeGroupFilterPanel();
-      renderLog();
-    });
-    groupFilterPanel.appendChild(allBtn);
-
-    groups.forEach((g) => {
-      const count = routes.filter((r) => r.group === g).length;
+    function addChip(label, key, count) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'group-filter-option' + (selectedGroup === g ? ' is-selected' : '');
-      btn.innerHTML = `<span>${groupLabel(g)}</span><span class="count">${count}</span>`;
+      btn.className = 'group-chip' + ((key === null && selectedGroup === null) || selectedGroup === key ? ' is-active' : '');
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', String(btn.classList.contains('is-active')));
+      const lab = document.createElement('span');
+      lab.className = 'group-chip-label';
+      lab.textContent = label;
+      btn.appendChild(lab);
+      if (count != null) {
+        const c = document.createElement('span');
+        c.className = 'group-chip-count';
+        c.textContent = String(count);
+        btn.appendChild(c);
+      }
       btn.addEventListener('click', () => {
-        selectedGroup = g;
-        closeGroupFilterPanel();
+        selectedGroup = key;
+        renderGroupFilterPanel();
         renderLog();
       });
-      groupFilterPanel.appendChild(btn);
-    });
+      chips.appendChild(btn);
+    }
 
-    groupFilterBtn.classList.toggle('is-active', selectedGroup !== null);
-  }
-
-  function closeGroupFilterPanel() {
-    if (!groupFilterPanel) return;
-    groupFilterPanel.hidden = true;
-    groupFilterBtn.setAttribute('aria-expanded', 'false');
-  }
-
-  if (groupFilterBtn && groupFilterPanel) {
-    groupFilterBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const willOpen = groupFilterPanel.hidden;
-      if (willOpen) renderGroupFilterPanel();
-      groupFilterPanel.hidden = !willOpen;
-      groupFilterBtn.setAttribute('aria-expanded', String(willOpen));
-    });
-    document.addEventListener('click', (e) => {
-      if (!groupFilterPanel.hidden && !groupFilterPanel.contains(e.target) && e.target !== groupFilterBtn) {
-        closeGroupFilterPanel();
-      }
+    addChip('Semua', null, routes.length);
+    groups.forEach((g) => {
+      addChip(groupLabel(g), g, routes.filter((r) => r.group === g).length);
     });
   }
+
+  function closeGroupFilterPanel() { /* chips — no panel */ }
 
   function sampleFor(param) {
     if (param.example) return param.example;

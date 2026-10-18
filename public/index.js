@@ -341,17 +341,46 @@
       }
     }
 
+    let realIp = null;
+    let ipVisible = false;
+    const ipBtn = el('statApiIpBtn');
+
+    function renderIp() {
+      if (!ipEl) return;
+      ipEl.classList.remove('is-loading');
+      if (!realIp) {
+        ipEl.textContent = '—';
+        ipEl.classList.remove('is-blurred');
+        return;
+      }
+      if (ipVisible) {
+        ipEl.textContent = realIp;
+        ipEl.classList.remove('is-blurred');
+      } else {
+        ipEl.textContent = realIp;
+        ipEl.classList.add('is-blurred');
+      }
+    }
+
     async function loadIp() {
       if (!ipEl) return;
       try {
-        const res = await fetch('/api/myip', { cache: 'no-store' });
+        const res = await fetch('/api/myip');
         const data = res.ok ? await res.json() : null;
-        const ip = data && data.result && data.result.ip;
-        scrambleInto(ipEl, ip || '—');
-      } catch (err) {
-        ipEl.textContent = '—';
+        realIp = (data && data.result && data.result.ip) || null;
+      } catch (_) {
+        realIp = null;
       }
-      ipEl.classList.remove('is-loading');
+      renderIp();
+    }
+
+    if (ipBtn) {
+      ipBtn.addEventListener('click', () => {
+        if (!realIp) return;
+        ipVisible = !ipVisible;
+        renderIp();
+        ipBtn.setAttribute('aria-label', ipVisible ? 'Sembunyikan IP' : 'Tampilkan IP');
+      });
     }
 
     function refreshLive() {

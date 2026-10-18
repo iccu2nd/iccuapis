@@ -1,18 +1,18 @@
 /* Rezora APIS — Codery-inspired dual theme (default dark) */
 
 :root {
-  --bg: #0c0c0c;
-  --panel: #161616;
-  --panel-raised: #1a1a1a;
-  --card: #161616;
-  --border: #2a2a2a;
-  --border-strong: #3d3d3d;
-  --text: #f0f0f0;
-  --text-dim: #b0b0b0;
-  --text-faint: #7a7a7a;
-  --accent: #e8e8e8;
+  --bg: #000000;
+  --panel: #1c1c1e;
+  --panel-raised: #2c2c2e;
+  --card: #1c1c1e;
+  --border: #38383a;
+  --border-strong: #48484a;
+  --text: #f5f5f7;
+  --text-dim: #a1a1a6;
+  --text-faint: #8e8e93;
+  --accent: #f5f5f7;
   --accent-hover: #ffffff;
-  --accent-soft: #1f1f1f;
+  --accent-soft: #2c2c2e;
   --good: #34c759;
   --good-soft: rgba(52, 199, 89, 0.14);
   --bad: #ff453a;
@@ -24,14 +24,14 @@
   --radius: 12px;
   --radius-sm: 8px;
   --radius-lg: 16px;
-  --code-bg: #141414;
-  --code-bg-raised: #1a1a1a;
-  --code-border: #2a2a2a;
+  --code-bg: #1c1c1e;
+  --code-bg-raised: #2c2c2e;
+  --code-border: #38383a;
   --code-text: #f0f0f0;
   --code-text-dim: #a0a0a0;
-  --run: #e8e8e8;
+  --run: #f5f5f7;
   --run-hover: #ffffff;
-  --on-run: #0c0c0c;
+  --on-run: #000000;
   --overlay: rgba(0, 0, 0, 0.58);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
@@ -1000,16 +1000,17 @@ html.light .theme-toggle .icon-sun { display: none; }
 .clear-btn {
   order: 2;
   font-weight: 550;
-  background: transparent;
-  color: var(--text-faint);
+  background: var(--panel-raised);
+  color: var(--text-dim);
   border: 1px solid var(--border);
-  padding: 12px;
-  width: 44px;
-  min-width: 44px;
+  padding: 12px 14px;
   flex-shrink: 0;
 }
-.clear-btn:hover { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); }
-.clear-btn .btn-label { display: none; } /* icon-only clear */
+.clear-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+  background: var(--panel);
+}
 .clear-btn[hidden],
 .autofill-btn[style*="display: none"] { display: none !important; }
 
@@ -1914,3 +1915,124 @@ body.endpoint-modal-active { overflow: hidden; }
 .cell-latency.latency-fast { color: var(--good); }
 .cell-latency.latency-mid { color: var(--text-dim); }
 .cell-latency.latency-slow { color: var(--bad); }
+
+
+/* IP reveal (iOS-style blur) */
+.stat-api-summary-item-ip { position: relative; }
+.ip-reveal {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.stat-api-summary-value-ip {
+  font-family: var(--display) !important;
+  font-size: 17px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.02em !important;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  transition: filter 0.25s ease, opacity 0.25s ease;
+  user-select: none;
+}
+.stat-api-summary-value-ip.is-blurred {
+  filter: blur(7px);
+  opacity: 0.85;
+}
+.stat-api-summary-value {
+  font-family: var(--display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Category chips under search */
+.group-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 12px 0 4px;
+  padding: 2px 0 6px;
+}
+.group-chips::-webkit-scrollbar { display: none; }
+.group-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-dim);
+  font-family: var(--display);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.group-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.group-chip.is-active {
+  background: var(--run);
+  color: var(--on-run);
+  border-color: var(--run);
+}
+.group-chip-count {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+.group-chip.is-active .group-chip-count { opacity: 0.85; }
+
+/* Endpoint list — iOS grouped feel */
+.row {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.row:hover {
+  background: var(--panel);
+  border-color: var(--border-strong);
+}
+.row-head {
+  min-height: 68px;
+  padding: 16px 18px;
+  gap: 14px;
+}
+.row-head .name {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+.row-head .path {
+  font-size: 13px;
+  margin-top: 2px;
+}
+.row-head .verb {
+  border-radius: 8px;
+  min-width: 50px;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.log-group-title {
+  margin: 20px 4px 10px;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
