@@ -2452,3 +2452,129 @@ html.light .row.open .run-btn {
     bottom: 0;
   }
 }
+
+
+/* ========== Premium motion system ========== */
+@media (prefers-reduced-motion: no-preference) {
+  .log.is-visible .row {
+    animation: rowIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .log.is-visible .row:nth-child(1) { animation-delay: 0.02s; }
+  .log.is-visible .row:nth-child(2) { animation-delay: 0.05s; }
+  .log.is-visible .row:nth-child(3) { animation-delay: 0.08s; }
+  .log.is-visible .row:nth-child(4) { animation-delay: 0.11s; }
+  .log.is-visible .row:nth-child(5) { animation-delay: 0.14s; }
+  .log.is-visible .row:nth-child(6) { animation-delay: 0.17s; }
+  .log.is-visible .row:nth-child(7) { animation-delay: 0.2s; }
+  .log.is-visible .row:nth-child(8) { animation-delay: 0.23s; }
+  .log.is-visible .row:nth-child(n+9) { animation-delay: 0.26s; }
+
+  .group-chip {
+    animation: chipIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .group-chips .group-chip:nth-child(1) { animation-delay: 0.02s; }
+  .group-chips .group-chip:nth-child(2) { animation-delay: 0.05s; }
+  .group-chips .group-chip:nth-child(3) { animation-delay: 0.08s; }
+  .group-chips .group-chip:nth-child(4) { animation-delay: 0.11s; }
+  .group-chips .group-chip:nth-child(5) { animation-delay: 0.14s; }
+  .group-chips .group-chip:nth-child(6) { animation-delay: 0.17s; }
+
+  .card, .stat-api, .stat-api-summary-item {
+    animation: riseIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-title { animation: riseIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .hero-sub { animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.04s both; }
+  .hero-actions { animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both; }
+
+  .notif-panel.is-open {
+    animation: popIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hamburger-menu.is-open {
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .menu-overlay.is-open {
+    transition: opacity 0.3s ease;
+  }
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes sheetUpMobile {
+  from { transform: translateY(105%); }
+  to { transform: translateY(0); }
+}
+@keyframes sheetDownMobile {
+  from { transform: translateY(0); }
+  to { transform: translateY(105%); }
+}
+@keyframes sheetUpDesktop {
+  from { opacity: 0; transform: translate(-50%, 24px) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes sheetDownDesktop {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, -40%) scale(0.96); }
+}
+
+/* Modal enter/exit — iOS sheet spring */
+.endpoint-modal-backdrop {
+  transition: opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.32s;
+}
+.row.open {
+  animation: sheetUpDesktop 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.row.open.is-closing {
+  animation: sheetDownDesktop 0.28s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+@media (max-width: 560px) {
+  .row.open {
+    animation: sheetUpMobile 0.42s cubic-bezier(0.32, 0.72, 0, 1) both !important;
+  }
+  .row.open.is-closing {
+    animation: sheetDownMobile 0.3s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row.open,
+  .row.open.is-closing,
+  .log.is-visible .row,
+  .group-chip,
+  .card,
+  .stat-api,
+  .hero-title,
+  .hero-sub,
+  .hero-actions {
+    animation: none !important;
+  }
+}
+
+/* Soft press feedback */
+.row-head:active { opacity: 0.85; }
+.theme-toggle:active,
+.notif-btn:active,
+.hamburger-btn:active {
+  transform: scale(0.92);
+  transition: transform 0.12s ease;
+}
+.hero-btn-primary:active,
+.hero-btn-secondary:active {
+  transform: scale(0.97);
+}

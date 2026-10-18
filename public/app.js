@@ -144,20 +144,34 @@
 
   function closeEndpointModal() {
     if (!openEndpointRow) return;
+    if (openEndpointRow.classList.contains('is-closing')) return;
     const node = openEndpointRow;
-    node.classList.remove('open');
+    const slot = openEndpointSlot;
+    node.classList.add('is-closing');
     node.style.removeProperty('--kb');
-    if (openEndpointSlot && openEndpointSlot.parentNode) {
-      openEndpointSlot.parentNode.insertBefore(node, openEndpointSlot);
-      openEndpointSlot.remove();
-    }
-    openEndpointRow = null;
-    openEndpointSlot = null;
     if (endpointBackdrop) {
       endpointBackdrop.classList.remove('is-open');
       endpointBackdrop.setAttribute('aria-hidden', 'true');
     }
-    document.body.classList.remove('endpoint-modal-active');
+
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      node.classList.remove('open', 'is-closing');
+      if (slot && slot.parentNode) {
+        slot.parentNode.insertBefore(node, slot);
+        slot.remove();
+      }
+      if (openEndpointRow === node) {
+        openEndpointRow = null;
+        openEndpointSlot = null;
+      }
+      document.body.classList.remove('endpoint-modal-active');
+    };
+
+    node.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 340);
   }
 
   
@@ -205,12 +219,16 @@
 
     openEndpointSlot = slot;
     openEndpointRow = node;
-    node.classList.add('open');
 
-    // Move into portal so it sits above backdrop and receives all clicks
     if (endpointModalMount) {
       endpointModalMount.appendChild(node);
     }
+
+    node.classList.remove('is-closing');
+    // restart enter animation
+    node.classList.remove('open');
+    void node.offsetWidth;
+    node.classList.add('open');
 
     if (endpointBackdrop) {
       endpointBackdrop.setAttribute('aria-hidden', 'false');
@@ -221,7 +239,7 @@
     syncKeyboardInset();
 
     const firstInput = node.querySelector('.fields input, .fields select');
-    if (firstInput) setTimeout(() => firstInput.focus(), 180);
+    if (firstInput) setTimeout(() => firstInput.focus(), 320);
   }
 
 
