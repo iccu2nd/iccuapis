@@ -11,7 +11,6 @@ const monitor = require('./src/monitor');
 const cache = require('./src/cache');
 const { startBot, sendNotification, sendErrorAlert } = require('./src/bot');
 const { getDb } = require('./src/mongoClient');
-const registerShareRoutes = require('./src/share');
 
 if (typeof globalThis.File === 'undefined') {
   globalThis.File = require('node:buffer').File;
@@ -300,22 +299,6 @@ app.get('/logs', (req, res) => {
 app.get('/health', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/health.html'));
 });
-
-app.get('/share', (req, res) => {
-  monitor.recordVisit(req.ip);
-  res.sendFile(path.join(__dirname, 'public/share.html'));
-});
-
-app.get('/view/:id', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/view.html'));
-});
-
-app.get('/share/list', (req, res) => {
-  monitor.recordVisit(req.ip);
-  res.sendFile(path.join(__dirname, 'public/share-list.html'));
-});
-
-registerShareRoutes(app);
 
 app.use((req, res) => {
   res.status(404).json({
