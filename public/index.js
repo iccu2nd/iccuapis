@@ -3,45 +3,7 @@
 
   const el = (id) => document.getElementById(id);
 
-  let signalSplashGone = () => {};
-  const splashGone = new Promise((resolve) => { signalSplashGone = resolve; });
-
-  (function setupBootSplash() {
-    const bootLoader = el('bootLoader');
-    if (!bootLoader) { signalSplashGone(); return; }
-
-    let hidden = false;
-    function hide() {
-      if (hidden) return;
-      hidden = true;
-      bootLoader.classList.add('is-leaving');
-      signalSplashGone();
-      setTimeout(() => { bootLoader.hidden = true; }, 350);
-    }
-
-    let animDone = false;
-    let pageLoaded = document.readyState === 'complete';
-
-    function tryHide() {
-      if (animDone && pageLoaded) hide();
-    }
-
-    window.addEventListener('bootlogo:done', () => {
-      animDone = true;
-      tryHide();
-    }, { once: true });
-
-    if (pageLoaded) {
-      tryHide();
-    } else {
-      window.addEventListener('load', () => {
-        pageLoaded = true;
-        tryHide();
-      }, { once: true });
-    }
-
-    setTimeout(hide, 5000);
-  })();
+  const splashGone = Promise.resolve();
 
   (function setupNotifBell() {
     try {
