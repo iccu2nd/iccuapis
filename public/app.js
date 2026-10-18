@@ -175,20 +175,26 @@
   }
 
   
+  let lastKbInset = -1;
+  let kbRaf = 0;
   function syncKeyboardInset() {
-    const node = openEndpointRow;
-    if (!node) return;
-    const vv = window.visualViewport;
-    let inset = 0;
-    if (vv) {
-      inset = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-    }
-    node.style.setProperty('--kb', inset + 'px');
-    // Keep focused field and actions visible
-    const active = document.activeElement;
-    if (active && node.contains(active) && typeof active.scrollIntoView === 'function') {
-      try { active.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) {}
-    }
+    if (kbRaf) return;
+    kbRaf = requestAnimationFrame(() => {
+      kbRaf = 0;
+      const node = openEndpointRow;
+      if (!node) return;
+      const vv = window.visualViewport;
+      let inset = 0;
+      if (vv) {
+        // Only keyboard height — ignore visualViewport.scroll (causes shake)
+        inset = Math.max(0, Math.round(window.innerHeight - vv.height));
+        // ignore tiny jitter
+        if (inset < 40) inset = 0;
+      }
+      if (inset === lastKbInset) return;
+      lastKbInset = inset;
+      node.style.setProperty('--kb', inset + 'px');
+    });
   }
 
   let kbBound = false;
@@ -196,14 +202,13 @@
     if (kbBound) return;
     kbBound = true;
     const vv = window.visualViewport;
-    if (vv) {
-      vv.addEventListener('resize', syncKeyboardInset);
-      vv.addEventListener('scroll', syncKeyboardInset);
-    }
-    window.addEventListener('resize', syncKeyboardInset);
+    // resize only — NOT scroll (scroll fires continuously while typing on iOS)
+    if (vv) vv.addEventListener('resize', syncKeyboardInset, { passive: true });
+    window.addEventListener('resize', syncKeyboardInset, { passive: true });
   }
 
   function clearKeyboardInset() {
+    lastKbInset = -1;
     if (openEndpointRow) openEndpointRow.style.removeProperty('--kb');
   }
 
@@ -782,7 +787,7 @@
         runBtn.disabled = false;
         clearBtn.hidden = false;
         // keep result scrolled into view inside modal
-        try { resultBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {}
+        /* avoid auto-scroll after execute — was janky on mobile */
       }
     });
 
@@ -886,8 +891,8 @@
   }
   document.addEventListener('focusin', (e) => {
     if (openEndpointRow && openEndpointRow.contains(e.target)) {
-      setTimeout(syncKeyboardInset, 50);
-      setTimeout(syncKeyboardInset, 300);
+      // single gentle sync after keyboard settles — no scrollIntoView
+      setTimeout(syncKeyboardInset, 280);
     }
   });
   document.addEventListener('keydown', (e) => {
