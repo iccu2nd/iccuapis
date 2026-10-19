@@ -162,6 +162,8 @@
       done = true;
       node.classList.remove('open', 'is-closing');
       if (slot && slot.parentNode) {
+        // matikan animasi reveal supaya row tidak "berkedip" saat kembali ke list
+        node.style.animation = 'none';
         slot.parentNode.insertBefore(node, slot);
         slot.remove();
       }
@@ -223,11 +225,17 @@
     if (openEndpointRow === node) return; // already open — do not toggle-close on re-click
     closeEndpointModal();
 
-    const slot = document.createElement('div');
-    slot.className = 'row-slot';
-    slot.style.height = Math.max(node.offsetHeight, 52) + 'px';
+    // Placeholder = salinan visual header row (bukan kotak kosong), jadi item
+    // endpoint tetap kelihatan di list di belakang modal.
+    const slot = node.cloneNode(true);
+    slot.classList.remove('open', 'is-closing', 'is-inview');
+    slot.classList.add('row-slot');
+    slot.removeAttribute('role');
     slot.setAttribute('aria-hidden', 'true');
+    slot.setAttribute('inert', '');
+    slot.querySelectorAll('button, input, select, a').forEach((x) => x.setAttribute('tabindex', '-1'));
     node.parentNode.insertBefore(slot, node);
+    node.style.removeProperty('animation');
 
     openEndpointSlot = slot;
     openEndpointRow = node;

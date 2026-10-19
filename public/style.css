@@ -3988,3 +3988,268 @@ html.light .page-head h1 {
 html.light .page-divider {
   background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent) !important;
 }
+
+
+/* ========== FIX: kotak hitam di belakang Example/Execute + placeholder list ========== */
+.row.open .row-actions,
+html.light .row.open .row-actions {
+  background: transparent !important;
+  box-shadow: none !important;
+  position: static !important;
+  padding: 0 !important;
+  margin-top: 14px;
+}
+.row.open .row-body {
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+}
+/* placeholder = salinan row asli, tetap tampil normal di list */
+.row-slot {
+  opacity: 1 !important;
+  pointer-events: none !important;
+  animation: none !important;
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+.row-slot .row-body { display: none !important; }
+
+/* =====================================================================
+   UI UPGRADE v2 — list card, modal sheet, form, result
+   (ditaruh paling bawah supaya menang atas aturan lama)
+   ===================================================================== */
+:root {
+  --ok: #4ade80;
+  --ok-soft: rgba(74, 222, 128, 0.14);
+  --err: #f87171;
+  --err-soft: rgba(248, 113, 113, 0.14);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.light {
+  --ok: #16a34a;
+  --ok-soft: rgba(22, 163, 74, 0.12);
+  --err: #dc2626;
+  --err-soft: rgba(220, 38, 38, 0.10);
+}
+
+/* ---------- List card ---------- */
+.log .row:not(.open),
+.row-slot {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012)),
+    var(--card);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 8px 24px rgba(0,0,0,0.22);
+}
+html.light .log .row:not(.open),
+html.light .row-slot {
+  background: linear-gradient(180deg, #fff, rgba(255,255,255,0.7));
+  box-shadow: 0 1px 0 #fff inset, 0 6px 20px rgba(0,0,0,0.06);
+}
+.log .row:not(.open):hover { transform: translateY(-1px); border-color: var(--border-strong); }
+
+.row:not(.open) .row-head { padding: 16px; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.row-head .verb {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 6px 10px;
+  border-radius: 9px;
+}
+.row-head .verb.verb-get {
+  color: var(--ok) !important;
+  background: var(--ok-soft) !important;
+  border: 1px solid color-mix(in srgb, var(--ok) 28%, transparent) !important;
+}
+.row-head .name { font-size: 16.5px; font-weight: 650; letter-spacing: -0.025em; }
+.row-head .path {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 7px;
+  background: var(--accent-soft);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* Try out → tombol pill dengan panah */
+.row:not(.open) .tryout {
+  min-height: 42px;
+  margin-top: 4px;
+  border-radius: 12px;
+  gap: 8px;
+  background: var(--accent-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+}
+.row:not(.open) .tryout::after { content: '→'; transition: transform 0.2s var(--ease-out); }
+.row:not(.open):hover .tryout { background: var(--run); color: var(--on-run); border-color: var(--run); }
+.row:not(.open):hover .tryout::after { transform: translateX(3px); }
+.row:not(.open) .tryout:active { transform: scale(0.98); }
+
+/* ---------- Backdrop ---------- */
+.endpoint-modal-backdrop.is-open {
+  background: rgba(0,0,0,0.6) !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* ---------- Modal sheet ---------- */
+.row.open {
+  border-radius: 24px !important;
+  background: rgba(24,24,27,0.86) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  box-shadow: 0 30px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+html.light .row.open { background: rgba(255,255,255,0.92) !important; }
+
+/* grabber ala iOS */
+.row.open::before {
+  content: '';
+  flex: 0 0 auto;
+  align-self: center;
+  width: 38px;
+  height: 5px;
+  margin: 8px 0 0;
+  border-radius: 99px;
+  background: var(--border-strong);
+}
+@media (max-width: 560px) {
+  .row.open { border-radius: 26px 26px 0 0 !important; }
+}
+
+.row.open .row-head {
+  align-items: center;
+  padding: 10px 16px 14px !important;
+  border-bottom: 1px solid var(--hairline) !important;
+}
+.row.open .row-head .name { font-size: 18px; }
+.row.open .row-head .path {
+  background: none;
+  padding: 0;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+.row.open .row-head .verb { padding: 7px 10px; }
+
+/* tombol close */
+.row.open .chev {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--accent-soft) !important;
+  border: 1px solid var(--border);
+  transition: background 0.15s, transform 0.12s;
+}
+.row.open .chev:hover { background: var(--border-strong) !important; }
+
+.row.open .desc { font-size: 14.5px; margin-top: 12px; }
+
+/* ---------- Form ---------- */
+.row.open .field label {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.row.open .field input,
+.row.open .field select {
+  min-height: 52px !important;
+  padding: 0 16px;
+  border-radius: 14px !important;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.row.open .field input:focus,
+.row.open .field select:focus {
+  outline: none;
+  border-color: var(--text) !important;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.row.open .field input.invalid {
+  border-color: var(--err) !important;
+  box-shadow: 0 0 0 4px var(--err-soft);
+}
+
+/* ---------- Tombol aksi ---------- */
+.row.open .row-actions { gap: 10px; margin-top: 16px; }
+.row.open .autofill-btn,
+.row.open .clear-btn {
+  min-height: 50px;
+  border-radius: 14px !important;
+  background: var(--accent-soft) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+.row.open .autofill-btn:hover,
+.row.open .clear-btn:hover { background: var(--border) !important; }
+.row.open .run-btn {
+  min-height: 50px !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35), inset 0 -2px 0 rgba(0,0,0,0.12) !important;
+  transition: transform 0.12s, box-shadow 0.18s, opacity 0.15s;
+}
+.row.open .run-btn:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.45) !important; }
+.row.open .run-btn:active { transform: scale(0.97); }
+.row.open .run-btn:disabled { opacity: 0.55; box-shadow: none !important; }
+
+/* ---------- URL endpoint ---------- */
+.row.open .endpoint-box {
+  margin-top: 14px;
+  padding: 10px 10px 10px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--code-bg);
+}
+html.light .row.open .endpoint-box { background: rgba(0,0,0,0.04); }
+.row.open .built-url {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--code-text-dim);
+  white-space: normal;
+  word-break: break-all;
+  overflow: visible;
+  text-overflow: clip;
+}
+html.light .row.open .built-url { color: var(--text-dim); }
+.row.open .copy-endpoint-btn { width: 38px; height: 38px; border-radius: 11px; }
+.row.open .copy-endpoint-btn.copied { background: var(--ok-soft); color: var(--ok) !important; }
+
+/* ---------- Hasil ---------- */
+.row.open .result {
+  margin-top: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--code-bg);
+}
+html.light .row.open .result { background: rgba(0,0,0,0.035); }
+.row.open .result-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.row.open .result-status {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: var(--ok-soft);
+  color: var(--ok) !important;
+}
+.row.open .result-status.err {
+  background: var(--err-soft);
+  color: var(--err) !important;
+}
+.row.open .result-time,
+.row.open .result-size { font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); }
+.row.open .result-json { font-family: var(--mono); color: var(--code-text); }
+html.light .row.open .result-json { color: #1c1c1e; }
+.row.open .result-loading { padding: 16px 14px; color: var(--text-dim); }
+
+/* ---------- Scrollbar modal ---------- */
+.row.open .row-body { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+.row.open .row-body::-webkit-scrollbar { width: 6px; }
+.row.open .row-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 9px; }
+
+/* ---------- Search & chips ---------- */
+.list-search { border-radius: 16px; }
+.group-chip { border-radius: 99px; }
