@@ -2574,3 +2574,120 @@ html.light .row.open .run-btn {
 .hero-btn-secondary:active {
   transform: scale(0.97);
 }
+
+/* ===== Endpoint modal — final polish layer (keep last) ===== */
+html body .endpoint-modal-mount .row.open {
+  --m-bg: #18181a; --m-field: #222225; --m-line: rgba(255,255,255,.09); --m-line-strong: rgba(255,255,255,.17);
+  --m-text: #f4f4f5; --m-dim: #a1a1aa; --m-faint: #7c7c85; --m-code: #111113;
+  --m-ok: #4ade80; --m-ok-bg: rgba(74,222,128,.12); --m-err: #f87171; --m-err-bg: rgba(248,113,113,.12);
+  --j-key: #e4e4e7; --j-str: #86efac; --j-num: #fbbf77; --j-lit: #c4b5fd; --j-p: #71717a;
+  background: var(--m-bg) !important;
+  color: var(--m-text);
+}
+html.light body .endpoint-modal-mount .row.open {
+  --m-bg: #ffffff; --m-field: #f4f4f5; --m-line: rgba(0,0,0,.09); --m-line-strong: rgba(0,0,0,.17);
+  --m-text: #18181b; --m-dim: #52525b; --m-faint: #8b8b94; --m-code: #fafafa;
+  --m-ok: #15803d; --m-ok-bg: #e7f6ec; --m-err: #b91c1c; --m-err-bg: #fdecec;
+  --j-key: #18181b; --j-str: #166534; --j-num: #b45309; --j-lit: #6d28d9; --j-p: #a1a1aa;
+}
+
+/* header */
+html body .endpoint-modal-mount .row.open .row-head {
+  background: var(--m-bg) !important;
+  border-bottom: 1px solid var(--m-line);
+  padding: 16px 16px 14px 18px;
+  gap: 12px;
+  align-items: center;
+}
+html body .endpoint-modal-mount .row.open .row-head .verb {
+  font-size: 10.5px; letter-spacing: .06em;
+  padding: 4px 8px; min-width: 0; border-radius: 6px;
+}
+html body .endpoint-modal-mount .row.open .row-head .name { font-size: 16px; font-weight: 650; letter-spacing: -.02em; color: var(--m-text); }
+html body .endpoint-modal-mount .row.open .row-head .path { font-size: 12.5px; font-weight: 500; color: var(--m-dim); margin-top: 2px; }
+html body .endpoint-modal-mount .row.open .chev { width: 32px; height: 32px; background: var(--m-field); color: var(--m-dim); }
+
+/* body */
+html body .endpoint-modal-mount .row.open .row-body { padding: 14px 18px calc(20px + env(safe-area-inset-bottom, 0px)); }
+html body .endpoint-modal-mount .row.open .desc { margin: 0; font-size: 14px; line-height: 1.55; color: var(--m-dim); }
+html body .endpoint-modal-mount .row.open .divider { margin: 16px 0 14px; height: 1px; background: var(--m-line); }
+
+/* fields */
+html body .endpoint-modal-mount .row.open .fields { display: flex; flex-direction: column; gap: 14px; }
+html body .endpoint-modal-mount .row.open .field { margin: 0; }
+html body .endpoint-modal-mount .row.open .field label { display: block; margin: 0 0 7px; font-size: 12.5px; font-weight: 600; color: var(--m-dim); letter-spacing: 0; }
+html body .endpoint-modal-mount .row.open .field input, html body .endpoint-modal-mount .row.open .field select {
+  min-height: 46px; padding: 11px 13px; font-size: 16px;
+  border-radius: 10px; border: 1px solid transparent;
+  background-color: var(--m-field); color: var(--m-text); box-shadow: none;
+}
+html body .endpoint-modal-mount .row.open .field input::placeholder { color: var(--m-faint); }
+html body .endpoint-modal-mount .row.open .field input:focus, html body .endpoint-modal-mount .row.open .field select:focus {
+  border-color: var(--m-line-strong);
+  box-shadow: 0 0 0 3px rgba(127,127,135,.18);
+}
+
+/* actions */
+html body .endpoint-modal-mount .row.open .row-actions { margin-top: 16px; gap: 8px; background: var(--m-bg) !important; }
+html body .endpoint-modal-mount .row.open .autofill-btn, html body .endpoint-modal-mount .row.open .clear-btn, html body .endpoint-modal-mount .row.open .run-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; border-radius: 10px; font-size: 14.5px; letter-spacing: -.01em;
+}
+html body .endpoint-modal-mount .row.open .autofill-btn, html body .endpoint-modal-mount .row.open .clear-btn {
+  background: transparent !important; color: var(--m-text);
+  border: 1px solid var(--m-line-strong); box-shadow: none; padding: 0 14px; font-weight: 600;
+}
+html body .endpoint-modal-mount .row.open .run-btn { background: var(--m-text) !important; color: var(--m-bg) !important; border: 0; font-weight: 650; }
+html body .endpoint-modal-mount .row.open .clear-btn[hidden] { display: none !important; }
+
+/* endpoint box: full URL, wraps, params highlighted */
+html body .endpoint-modal-mount .row.open .endpoint-box {
+  display: block; margin: 4px 0 0; padding: 10px 10px 10px 12px;
+  border: 1px solid var(--m-line); border-radius: 10px; background: transparent !important;
+}
+html body .endpoint-modal-mount .row.open .endpoint-box::before {
+  content: 'Endpoint'; display: block; margin-bottom: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--m-faint);
+}
+html body .endpoint-modal-mount .row.open .endpoint-line { display: flex; align-items: flex-start; gap: 10px; }
+html body .endpoint-modal-mount .row.open .built-url {
+  flex: 1; min-width: 0; white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
+  word-break: break-all; font-size: 12px; line-height: 1.55; color: var(--m-text);
+}
+html body .endpoint-modal-mount .row.open .built-url .u-origin { color: var(--m-faint); }
+html body .endpoint-modal-mount .row.open .built-url .u-path { color: var(--m-text); font-weight: 600; }
+html body .endpoint-modal-mount .row.open .built-url .u-query { color: var(--j-num); }
+html body .endpoint-modal-mount .row.open .copy-endpoint-btn {
+  width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px;
+  background: var(--m-field); color: var(--m-dim); border: 0;
+}
+
+/* result */
+html body .endpoint-modal-mount .row.open .result {
+  margin-top: 14px; border: 1px solid var(--m-line); border-radius: 12px;
+  background: var(--m-code) !important; overflow: hidden;
+}
+html body .endpoint-modal-mount .row.open .result-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 8px 8px 12px; background: var(--m-field); border-bottom: 1px solid var(--m-line);
+}
+html body .endpoint-modal-mount .row.open .result-head[hidden] { display: none; }
+html body .endpoint-modal-mount .row.open .result-meta { gap: 10px; align-items: center; font-size: 12px; color: var(--m-dim); }
+html body .endpoint-modal-mount .row.open .result-status { padding: 2px 8px; border-radius: 6px; background: var(--m-ok-bg); color: var(--m-ok); font-weight: 700; }
+html body .endpoint-modal-mount .row.open .result-status.err { background: var(--m-err-bg); color: var(--m-err); }
+html body .endpoint-modal-mount .row.open .copy-result-btn {
+  background: transparent; color: var(--m-text); border: 1px solid var(--m-line-strong);
+  border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600;
+}
+html body .endpoint-modal-mount .row.open .result-json {
+  margin: 0; padding: 12px 14px; background: transparent; border: 0;
+  color: var(--m-text); font-size: 12.5px; line-height: 1.6; max-height: min(40vh, 300px);
+}
+html body .endpoint-modal-mount .row.open .result-json .j-key { color: var(--j-key); font-weight: 500; }
+html body .endpoint-modal-mount .row.open .result-json .j-str { color: var(--j-str); }
+html body .endpoint-modal-mount .row.open .result-json .j-num { color: var(--j-num); }
+html body .endpoint-modal-mount .row.open .result-json .j-lit { color: var(--j-lit); }
+html body .endpoint-modal-mount .row.open .result-json .j-p { color: var(--j-p); }
+html body .endpoint-modal-mount .row.open .field input.invalid { border-color: var(--bad); }
+html body .endpoint-modal-mount .row.open .built-url .u-origin { display: block; overflow-wrap: anywhere; word-break: normal; margin-bottom: 1px; }
+html body .endpoint-modal-mount .row.open .row-head { box-shadow: none; border-top: 0; }

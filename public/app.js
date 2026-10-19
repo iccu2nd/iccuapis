@@ -218,6 +218,19 @@
     if (openEndpointRow) openEndpointRow.style.removeProperty('--kb');
   }
 
+  function highlightJson(text) {
+    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc(text).replace(
+      /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+      (m, str, colon, lit, num) => {
+        if (str) return colon ? `<span class="j-key">${str}</span><span class="j-p">${colon}</span>` : `<span class="j-str">${str}</span>`;
+        if (lit) return `<span class="j-lit">${lit}</span>`;
+        if (num) return `<span class="j-num">${num}</span>`;
+        return m;
+      }
+    );
+  }
+
   function openEndpointModal(node) {
     if (openEndpointRow === node) return; // already open — do not toggle-close on re-click
     closeEndpointModal();
@@ -556,7 +569,18 @@
       });
       const qs = query.toString();
       currentUrl = `${window.location.origin}${route.path}${qs ? `?${qs}` : ''}`;
-      builtUrl.textContent = currentUrl;
+      builtUrl.textContent = '';
+      [
+        ['u-origin', window.location.origin],
+        ['u-path', route.path],
+        ['u-query', qs ? `?${qs}` : ''],
+      ].forEach(([cls, txt]) => {
+        if (!txt) return;
+        const s = document.createElement('span');
+        s.className = cls;
+        s.textContent = txt;
+        builtUrl.appendChild(s);
+      });
     }
 
     route.params.forEach((param) => {
@@ -751,10 +775,13 @@
           const rawText = await response.text();
           resultSize.textContent = formatBytes(new Blob([rawText]).size);
           let pretty = rawText;
+          let isJson = false;
           try {
             pretty = JSON.stringify(JSON.parse(rawText), null, 2);
+            isJson = true;
           } catch (_) { }
-          resultJson.textContent = pretty;
+          if (isJson) resultJson.innerHTML = highlightJson(pretty);
+          else resultJson.textContent = pretty;
           resultJson.hidden = false;
           copyLabel.textContent = 'Salin';
           if (resultIcon) {
