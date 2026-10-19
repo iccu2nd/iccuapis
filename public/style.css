@@ -4253,3 +4253,77 @@ html.light .row.open .result-json { color: #1c1c1e; }
 /* ---------- Search & chips ---------- */
 .list-search { border-radius: 16px; }
 .group-chip { border-radius: 99px; }
+
+/* =====================================================================
+   PERFORMA — ringan di HP, tampilan tetap sama
+   Biang berat: ±40 backdrop-filter (blur), shadow besar di tiap card,
+   will-change massal, animasi bounce per row.
+   ===================================================================== */
+@media (max-width: 900px), (pointer: coarse) {
+  /* 1. Matikan blur — ganti background solid (hasil visual hampir sama) */
+  *, *::before, *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .topbar { background: #121212 !important; }
+  .notif-panel,
+  .hamburger-menu,
+  .group-filter-panel { background: #17171a !important; }
+  .row.open { background: #18181b !important; }
+  .endpoint-modal-backdrop.is-open { background: rgba(0,0,0,0.72) !important; }
+  .stat-api, .steps-list li, .log .row:not(.open), .row-slot,
+  .status-banner, .rate-box, .card, .table-wrap, .health-card, .meta-card {
+    background: #19191b !important;
+  }
+  .group-chip:not(.is-active), .list-search,
+  .hero-badge, .hero-btn-secondary,
+  .theme-toggle, .notif-btn, .hamburger-btn { background: #232326 !important; }
+
+  html.light .topbar { background: #fafafa !important; }
+  html.light .notif-panel, html.light .hamburger-menu,
+  html.light .group-filter-panel, html.light .row.open { background: #fff !important; }
+  html.light .stat-api, html.light .steps-list li, html.light .log .row:not(.open),
+  html.light .row-slot, html.light .status-banner, html.light .rate-box,
+  html.light .card, html.light .table-wrap, html.light .health-card,
+  html.light .meta-card { background: #fff !important; }
+  html.light .group-chip:not(.is-active), html.light .list-search,
+  html.light .theme-toggle, html.light .notif-btn,
+  html.light .hamburger-btn { background: #eeeef0 !important; }
+
+  /* 2. Shadow ringan di list (modal tetap punya shadow, cuma 1 elemen) */
+  .log .row:not(.open), .row-slot, .stat-api, .steps-list li,
+  .card, .rate-box, .health-card, .meta-card {
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset !important;
+  }
+  html.light .log .row:not(.open), html.light .row-slot {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06) !important;
+  }
+  .group-chip.is-active { box-shadow: none !important; transform: none !important; }
+  .row.open { box-shadow: 0 -8px 40px rgba(0,0,0,0.5) !important; }
+  .row.open .run-btn { box-shadow: none !important; }
+
+  /* 3. Jangan bikin puluhan layer GPU */
+  .stat-api-summary-item, .steps-list li, .log .row:not(.open), .card, .rate-box {
+    will-change: auto !important;
+  }
+
+  /* 4. Reveal row: fade saja (tanpa bounce + scale) */
+  .row.is-inview { animation: rowFade 0.25s ease-out both !important; }
+  .row.open.is-inview { animation: none !important; }
+
+  /* 5. Hover effect nggak berguna di layar sentuh */
+  .log .row:not(.open):hover { transform: none !important; }
+  .row:not(.open):hover .tryout::after { transform: none; }
+
+  /* 6. Render list panjang hanya yang kelihatan */
+  .log .row:not(.open):not(.row-slot) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 150px;
+  }
+}
+@keyframes rowFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Pengguna yang minta kurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
