@@ -147,6 +147,7 @@
     if (openEndpointRow.classList.contains('is-closing')) return;
     const node = openEndpointRow;
     const slot = openEndpointSlot;
+    if (document.activeElement && node.contains(document.activeElement)) document.activeElement.blur();
     node.classList.add('is-closing');
     node.style.removeProperty('--kb');
     node.style.removeProperty('--vvh');
@@ -171,8 +172,8 @@
       document.body.classList.remove('endpoint-modal-active');
     };
 
-    node.addEventListener('animationend', finish, { once: true });
-    setTimeout(finish, 340);
+    node.addEventListener('animationend', (e) => { if (e.target === node) finish(); });
+    setTimeout(finish, 220);
   }
 
   
@@ -216,19 +217,6 @@
   function clearKeyboardInset() {
     lastKbInset = -1;
     if (openEndpointRow) openEndpointRow.style.removeProperty('--kb');
-  }
-
-  function highlightJson(text) {
-    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return esc(text).replace(
-      /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
-      (m, str, colon, lit, num) => {
-        if (str) return colon ? `<span class="j-key">${str}</span><span class="j-p">${colon}</span>` : `<span class="j-str">${str}</span>`;
-        if (lit) return `<span class="j-lit">${lit}</span>`;
-        if (num) return `<span class="j-num">${num}</span>`;
-        return m;
-      }
-    );
   }
 
   function openEndpointModal(node) {
@@ -569,18 +557,7 @@
       });
       const qs = query.toString();
       currentUrl = `${window.location.origin}${route.path}${qs ? `?${qs}` : ''}`;
-      builtUrl.textContent = '';
-      [
-        ['u-origin', window.location.origin],
-        ['u-path', route.path],
-        ['u-query', qs ? `?${qs}` : ''],
-      ].forEach(([cls, txt]) => {
-        if (!txt) return;
-        const s = document.createElement('span');
-        s.className = cls;
-        s.textContent = txt;
-        builtUrl.appendChild(s);
-      });
+      builtUrl.textContent = currentUrl;
     }
 
     route.params.forEach((param) => {
@@ -780,8 +757,7 @@
             pretty = JSON.stringify(JSON.parse(rawText), null, 2);
             isJson = true;
           } catch (_) { }
-          if (isJson) resultJson.innerHTML = highlightJson(pretty);
-          else resultJson.textContent = pretty;
+          resultJson.textContent = pretty;
           resultJson.hidden = false;
           copyLabel.textContent = 'Salin';
           if (resultIcon) {
