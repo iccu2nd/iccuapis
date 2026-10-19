@@ -2625,3 +2625,85 @@ html.light .row.open .run-btn {
 }
 .row.open .row-desc,
 .row.open .tryout { display: none !important; }
+
+/* ===== Statistik: rata, tanpa kotak di dalam kotak ===== */
+.stat-api {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0 0 8px;
+}
+.stat-api-title {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  margin: 0 0 14px;
+}
+.stat-api-summary { gap: 10px; margin-bottom: 12px; }
+.stat-api-summary-item {
+  display: flex;
+  flex-direction: column-reverse; /* label di atas, angka di bawah */
+  justify-content: flex-end;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px 15px;
+  min-width: 0;
+}
+.stat-api-summary-label {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+.stat-api-summary-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.stat-api-summary-value-ip { font-size: 18px !important; line-height: 1.3; }
+
+/* Aktivitas: satu kotak, baris dipisah garis tipis */
+.stat-api-card.stat-api-activity-card {
+  margin-top: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2px 16px;
+}
+.stat-api-activity-head { margin: 0; padding: 12px 0; }
+.stat-api-activity-title { font-size: 14px; font-weight: 650; color: var(--text); letter-spacing: -0.01em; }
+.stat-api-refresh-btn { background: transparent; border: 0; width: 30px; height: 30px; }
+.stat-api-log-list { gap: 0; }
+.stat-api-log-row {
+  grid-template-columns: 38px 46px minmax(0, 1fr) 58px 72px;
+  gap: 8px;
+  padding: 11px 0;
+  border-radius: 0;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+}
+.stat-api-log-row:hover { background: none; }
+.stat-api-log-method { color: var(--text-faint); }
+.stat-api-log-ms { color: var(--text-faint); text-align: right; }
+.stat-api-log-time { color: var(--text-faint); text-align: right; }
+.stat-api-log-empty { padding: 18px 0; border-top: 1px solid var(--border); }
+
+@media (max-width: 560px) {
+  .stat-api { padding: 0; }
+  .stat-api-summary-value { font-size: 24px; }
+  .stat-api-card.stat-api-activity-card { padding: 2px 14px; }
+  .stat-api-log-row {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    font-size: 12px;
+    padding: 11px 0;
+  }
+  .stat-api-log-method,
+  .stat-api-log-ms { display: none; }
+  .stat-api-log-time { display: block; }
+}
