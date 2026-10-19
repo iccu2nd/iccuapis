@@ -2707,3 +2707,206 @@ html.light .row.open .run-btn {
   .stat-api-log-ms { display: none; }
   .stat-api-log-time { display: block; }
 }
+
+/* ========== Comic-polished interactions (cohesive, not gimmicky) ========== */
+
+/* Endpoint list cards — lift + accent like editorial UI */
+.log .row:not(.open) {
+  position: relative;
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+}
+.log .row:not(.open)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+  transition: background 0.22s ease, transform 0.22s ease;
+  transform: scaleY(0.4);
+}
+.log .row:not(.open):hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+html.light .log .row:not(.open):hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+.log .row:not(.open):hover::before {
+  background: var(--good);
+  transform: scaleY(1);
+}
+.log .row:not(.open):active {
+  transform: translateY(0) scale(0.985);
+  box-shadow: none;
+}
+
+/* Comic “pop” on GET badge */
+.row-head .verb {
+  transition: transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.2s ease;
+}
+.log .row:not(.open):hover .verb {
+  transform: scale(1.06) rotate(-2deg);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+html.light .log .row:not(.open):hover .verb {
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* Name punch on hover */
+.log .row:not(.open):hover .name {
+  letter-spacing: -0.03em;
+}
+
+/* Intersection reveal — comic bounce-in */
+.row.is-inview {
+  animation: comicIn 0.45s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+}
+@keyframes comicIn {
+  0% { opacity: 0; transform: translateY(18px) scale(0.96); }
+  70% { opacity: 1; transform: translateY(-3px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Chips — comic select snap */
+.group-chip {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1),
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.group-chip:active {
+  transform: scale(0.92);
+}
+.group-chip.is-active {
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+html.light .group-chip.is-active {
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
+}
+.group-chip.is-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 55%);
+  pointer-events: none;
+}
+
+/* Search field focus glow */
+.list-search {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+.list-search:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Modal sheet — stronger comic spring already present; polish backdrop */
+.endpoint-modal-backdrop.is-open {
+  animation: backdropIn 0.28s ease both;
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Primary buttons — soft comic press */
+.run-btn,
+.hero-btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.run-btn::after,
+.hero-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.18), transparent 45%);
+  pointer-events: none;
+  opacity: 0.7;
+}
+.run-btn:active,
+.hero-btn-primary:active {
+  transform: scale(0.97) translateY(1px);
+}
+
+/* Page sections soft enter */
+.stage-head,
+.page-head {
+  animation: riseIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.content-section {
+  animation: riseIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+/* Hamburger items stagger feel */
+.hamburger-menu.is-open .hamburger-menu-item {
+  animation: menuItemIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hamburger-menu.is-open .hamburger-menu-item:nth-child(2) { animation-delay: 0.03s; }
+.hamburger-menu.is-open .hamburger-menu-item:nth-child(3) { animation-delay: 0.06s; }
+.hamburger-menu.is-open .hamburger-menu-item:nth-child(4) { animation-delay: 0.09s; }
+.hamburger-menu.is-open .hamburger-menu-item:nth-child(5) { animation-delay: 0.12s; }
+@keyframes menuItemIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Theme toggle spin hint */
+.theme-toggle svg {
+  transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.theme-toggle:active svg {
+  transform: rotate(20deg) scale(0.9);
+}
+
+/* Status / health cards */
+.card, .status-banner, .rate-box {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover, .rate-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+html.light .card:hover,
+html.light .rate-box:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+/* Logs table row hover ink */
+.table-wrap tr {
+  transition: background 0.15s ease;
+}
+.table-wrap tr:hover td {
+  background: var(--panel-raised);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row.is-inview,
+  .group-chip,
+  .stage-head,
+  .page-head,
+  .content-section,
+  .hamburger-menu.is-open .hamburger-menu-item,
+  .endpoint-modal-backdrop.is-open {
+    animation: none !important;
+  }
+  .log .row:not(.open):hover,
+  .card:hover,
+  .rate-box:hover {
+    transform: none;
+  }
+}
