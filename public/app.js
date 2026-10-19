@@ -522,6 +522,7 @@
     node.querySelector('.path').textContent = route.path;
     node.querySelector('.name').textContent = route.name;
     node.querySelector('.desc').textContent = route.description;
+    node.querySelector('.row-desc').textContent = route.description || '';
 
     const fieldsEl = node.querySelector('.fields');
     const runBtn = node.querySelector('.run-btn');
